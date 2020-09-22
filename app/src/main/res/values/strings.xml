@@ -11,4 +11,6 @@
     <string name="password_label_text">Password</string>
     <string name="default_password_value">password</string>
 
+    <string name="interface_label_text">Network Interfaces</string>
+
 </resources>
