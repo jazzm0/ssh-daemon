@@ -2,11 +2,20 @@ package com.sshdaemon.sshd;
 
 import android.os.Environment;
 
+import com.sshdaemon.util.ExternalStorage;
+
+import org.apache.sshd.common.file.nativefs.NativeFileSystemFactory;
+import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
+import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.sshdaemon.util.ExternalStorage.getSdCardPath;
 
@@ -21,8 +30,6 @@ import static com.sshdaemon.util.ExternalStorage.getSdCardPath;
 
 public class SshDaemon {
 
-    public static final int DEFAULT_PORT = 8022;
-
     private final SshServer sshd;
 
     public SshDaemon(int port) throws IOException {
@@ -31,8 +38,13 @@ public class SshDaemon {
         sshd.setPort(port);
         sshd.setPasswordAuthenticator(new SshPasswordAuthenticator());
         sshd.setPublickeyAuthenticator(new SshPublicKeyAuthenticator());
-        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Environment.getExternalStorageDirectory().getAbsoluteFile().toPath()));
+        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Environment.getDataDirectory().toPath()));
         sshd.setShellFactory(new InteractiveProcessShellFactory());
+        sshd.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
+//        sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(getSdCardPath())));
+        sshd.setFileSystemFactory(new VirtualFileSystemFactory(Environment.getExternalStorageDirectory().toPath()));
+        SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
+        sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.start();
     }
 }

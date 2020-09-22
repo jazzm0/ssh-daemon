@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         createDirIfNotExists(configurationPath);
 
         try {
-            SshDaemon sshd = new SshDaemon(8022);
+            new SshDaemon(8022);
         } catch (IOException e) {
             e.printStackTrace();
         }
