@@ -14,9 +14,13 @@ import androidx.fragment.app.Fragment;
 
 import com.sshdaemon.net.NetworkChangeReceiver;
 
+import java.util.Objects;
+
 public class ConfigFragment extends Fragment {
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.config_fragment, container, false);
 
         LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.network_interfaces);
@@ -25,7 +29,7 @@ public class ConfigFragment extends Fragment {
 
         NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver(linearLayout, context);
 
-        context.registerReceiver(networkChangeReceiver,
+        Objects.requireNonNull(context).registerReceiver(networkChangeReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
 
         );
