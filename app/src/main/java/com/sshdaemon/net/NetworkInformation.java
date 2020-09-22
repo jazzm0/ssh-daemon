@@ -1,55 +1,41 @@
 package com.sshdaemon.net;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class NetworkInformation {
 
-    public List<String> getInfo() {
+    public Set<String> getInfo() {
 
-        List<String> result = new ArrayList<>();
-        List<String> ipv4Addresses = new ArrayList<>();
-        List<String> ipv6Addresses = new ArrayList<>();
-        List<NetworkInterface> interfaces;
+        TreeSet<String> result = new TreeSet<>();
 
         try {
-            interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface networkInterface : interfaces) {
-                if ((!networkInterface.isLoopback()) && networkInterface.isUp() && !networkInterface.isVirtual()) {
+
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+
+            while (networkInterfaces.hasMoreElements()) {
+
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+
+                if ((!networkInterface.isLoopback()) &&
+                        networkInterface.isUp() &&
+                        !networkInterface.isVirtual()) {
+
                     Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-                    for (InetAddress inetAddress : Collections.list(addresses)) {
-                        Inet4Address ipv4Address = null;
-                        Inet6Address ipv6Address = null;
-                        String hostAddress = null;
-                        try {
-                            ipv4Address = (Inet4Address) inetAddress;
-                            hostAddress = ipv4Address.getHostAddress();
-                            ipv4Addresses.add(hostAddress);
-                        } catch (ClassCastException e) {
+
+                    while (addresses.hasMoreElements()) {
+                        InetAddress inetAddress = addresses.nextElement();
+                        String hostAddress = inetAddress.getHostAddress();
+                        if (!(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
+                            hostAddress = hostAddress.replace("%", " on interface ");
                         }
-                        try {
-                            ipv6Address = (Inet6Address) inetAddress;
-                            hostAddress = ipv6Address.getHostAddress();
-                            if (!(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
-                                ipv6Addresses.add(hostAddress.replace("%", " on interface "));
-                            }
-                        } catch (ClassCastException e) {
-                        }
+                        result.add(hostAddress);
                     }
                 }
-            }
-            for (String ipv4 : ipv4Addresses) {
-                result.add(ipv4);
-            }
-            for (String ipv6 : ipv6Addresses) {
-                result.add(ipv6);
             }
         } catch (SocketException e) {
             e.printStackTrace();
