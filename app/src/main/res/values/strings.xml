@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">SshDaemon</string>
-    <string name="shr_app_name">Shrine</string>
-    <string name="shr_hint_username">Username</string>
-    <string name="shr_hint_password">Password</string>
-    <string name="shr_button_next">Next</string>
-    <string name="shr_button_cancel">Cancel</string>
+    <string name="fingerprints_label_text">Fingerprints</string>
+
+    <string name="port_label_text">Port</string>
+    <string name="default_port_value">8022</string>
+
+    <string name="user_label_text">User</string>
+    <string name="default_user_value">user</string>
+
+    <string name="password_label_text">Password</string>
+    <string name="default_password_value">password</string>
+
 </resources>
