@@ -3,6 +3,7 @@ package com.sshdaemon;
 import android.Manifest;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +26,8 @@ import com.sshdaemon.sshd.SshFingerprint;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -56,10 +59,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setFingerPrints(Map<SshFingerprint.DIGESTS, String> fingerPrints) {
-        TextView md5 = findViewById(R.id.md5_fingerprint);
-        TextView sha256 = findViewById(R.id.sha256_fingerprint);
-        md5.setText("MD5: " + fingerPrints.getOrDefault(SshFingerprint.DIGESTS.MD5, getString(R.string.digest_error)));
-        sha256.setText("SHA256: " + fingerPrints.getOrDefault(SshFingerprint.DIGESTS.SHA256, getString(R.string.digest_error)));
+
+        LinearLayout fingerPrintsLayout = findViewById(R.id.server_fingerprints);
+
+        fingerPrintsLayout.removeAllViews();
+
+        TextView interfacesText = new TextView(this);
+        interfacesText.setText(R.string.fingerprints_label_text);
+        interfacesText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        interfacesText.setTypeface(null, Typeface.BOLD);
+
+        fingerPrintsLayout.addView(interfacesText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+        for (Map.Entry<SshFingerprint.DIGESTS, String> e : fingerPrints.entrySet()) {
+            TextView textView = createTextView(this, "(" + e.getKey() + ") " + e.getValue());
+            textView.setScaleX(0.7f);
+            fingerPrintsLayout.addView(textView,
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        }
     }
 
     @Override
@@ -117,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 releaseWakeLock();
                 sshDaemon.stop();
                 enableInput(true);
+                ((LinearLayout) findViewById(R.id.server_fingerprints)).removeAllViews();
                 button.setImageResource(R.drawable.play);
             } else {
                 acquireWakelock();

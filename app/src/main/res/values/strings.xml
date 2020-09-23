@@ -11,6 +11,5 @@
     <string name="default_password_value">password</string>
 
     <string name="interface_label_text">Network Interfaces</string>
-    <string name="digest_error">Error</string>
 
 </resources>

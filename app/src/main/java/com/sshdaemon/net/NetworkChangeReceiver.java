@@ -20,6 +20,8 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.sshdaemon.util.TextViewHelper.createTextView;
+
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -76,13 +78,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                         actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
                         actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
-    }
-
-    private TextView createTextView(Context context, String text) {
-        TextView textView = new TextView(context);
-        textView.setText(text);
-        textView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-        return textView;
     }
 
     private void showNetworkInterfaces(Context context) {

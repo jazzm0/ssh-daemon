@@ -27,35 +27,35 @@
             android:paddingTop="16dp">
 
 
-            <com.google.android.material.textfield.TextInputLayout
+<!--            <com.google.android.material.textfield.TextInputLayout-->
+<!--                style="@style/Widget.CardContent"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="4dp"-->
+<!--                android:hint="@string/fingerprints_label_text">-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/sha256_fingerprint"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:textScaleX="0.7" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/md5_fingerprint"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:textScaleX="0.7" />-->
+
+<!--            </com.google.android.material.textfield.TextInputLayout>-->
+
+            <LinearLayout
+                android:id="@+id/server_fingerprints"
                 style="@style/Widget.CardContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp">
 
-                <TextView
-                    android:id="@+id/fingerprints_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fingerprints_label_text"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/sha256_fingerprint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/sha1_fingerprint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/md5_fingerprint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/network_interfaces"
