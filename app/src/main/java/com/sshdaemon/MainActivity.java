@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 
@@ -43,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
         TextInputEditText port = findViewById(R.id.port_value);
         TextInputEditText user = findViewById(R.id.user_value);
         TextInputEditText password = findViewById(R.id.password_value);
+        Button generate = findViewById(R.id.generate);
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
+        generate.setClickable(enable);
     }
 
     private void releaseWakeLock() {
@@ -73,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         for (Map.Entry<SshFingerprint.DIGESTS, String> e : fingerPrints.entrySet()) {
             TextView textView = createTextView(this, "(" + e.getKey() + ") " + e.getValue());
-            textView.setScaleX(0.7f);
             fingerPrintsLayout.addView(textView,
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         }
@@ -113,6 +116,11 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         if (sshDaemon != null)
             startStopClicked(findViewById(R.id.start_stop_action));
+    }
+
+    public void generateClicked(View view) {
+        TextInputEditText password = findViewById(R.id.password_value);
+        password.setText(getRandomString(5));
     }
 
     public void startStopClicked(View view) {
