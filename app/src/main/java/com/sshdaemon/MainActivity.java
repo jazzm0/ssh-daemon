@@ -1,22 +1,29 @@
 package com.sshdaemon;
 
+import android.Manifest;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
+import com.sshdaemon.sshd.SshFingerprint;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -48,6 +55,13 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    private void setFingerPrints(Map<SshFingerprint.DIGESTS, String> fingerPrints) {
+        TextView md5 = findViewById(R.id.md5_fingerprint);
+        TextView sha256 = findViewById(R.id.sha256_fingerprint);
+        md5.setText("MD5: " + fingerPrints.getOrDefault(SshFingerprint.DIGESTS.MD5, getString(R.string.digest_error)));
+        sha256.setText("SHA256: " + fingerPrints.getOrDefault(SshFingerprint.DIGESTS.SHA256, getString(R.string.digest_error)));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +73,15 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock((PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP),
+        wakeLock = powerManager.newWakeLock((PowerManager.PARTIAL_WAKE_LOCK |
+                        PowerManager.ACQUIRE_CAUSES_WAKEUP),
                 "SshDaemon:SshDaemonWakeLock");
+
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
     }
 
     @Override
@@ -81,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
         TextInputEditText port = findViewById(R.id.port_value);
         TextInputEditText user = findViewById(R.id.user_value);
         TextInputEditText password = findViewById(R.id.password_value);
-        String path = Objects.requireNonNull(getExternalFilesDir(null)).toString();
+//        String path = Objects.requireNonNull(getExternalFilesDir(null)).toString();
+        String path = Environment.getExternalStorageDirectory().getPath();
 
         String realPort = getValue(port);
         if (realPort.equals("Port")) realPort = "8022";
@@ -99,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 acquireWakelock();
                 sshDaemon = new SshDaemon(path, Integer.parseInt(realPort), realUser, realPassword);
+                setFingerPrints(sshDaemon.getFingerPrints());
                 sshDaemon.start();
                 enableInput(false);
                 button.setImageResource(R.drawable.pause);

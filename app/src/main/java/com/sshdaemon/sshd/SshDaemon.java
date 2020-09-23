@@ -8,7 +8,13 @@ import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /***
  * __     _        ___
@@ -22,6 +28,7 @@ import java.util.Collections;
 public class SshDaemon {
 
     private final SshServer sshd;
+    private final List<KeyPair> keyPairs;
 
     public SshDaemon(String rootPath, int port, String user, String password) {
         System.setProperty("user.home", rootPath);
@@ -29,11 +36,26 @@ public class SshDaemon {
         sshd.setPort(port);
         sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         sshd.setPublickeyAuthenticator(new SshPublicKeyAuthenticator());
-        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Paths.get(rootPath)));
+        SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath));
+        sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
         SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
+        this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+    }
+
+    public Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
+        final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
+        final RSAPublicKey publicKey = (RSAPublicKey) this.keyPairs.get(0).getPublic();
+
+        try {
+            result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
+            result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public void start() throws IOException {
