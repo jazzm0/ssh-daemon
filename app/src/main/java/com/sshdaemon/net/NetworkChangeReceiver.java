@@ -13,6 +13,13 @@ import android.widget.TextView;
 
 import com.sshdaemon.R;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.TreeSet;
+
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -21,6 +28,40 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context) {
         this.networkInterfaces = networkInterfaces;
         showNetworkInterfaces(context);
+    }
+
+    private Set<String> getInterfaces() {
+
+        TreeSet<String> result = new TreeSet<>();
+
+        try {
+
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+
+            while (networkInterfaces.hasMoreElements()) {
+
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+
+                if ((!networkInterface.isLoopback()) &&
+                        networkInterface.isUp() &&
+                        !networkInterface.isVirtual()) {
+
+                    Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+
+                    while (addresses.hasMoreElements()) {
+                        InetAddress inetAddress = addresses.nextElement();
+                        String hostAddress = inetAddress.getHostAddress();
+                        if (!(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
+                            hostAddress = hostAddress.replace("%", " on interface ");
+                        }
+                        result.add(hostAddress);
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private boolean hasConnectivity(ConnectivityManager connectivityManager) {
@@ -59,9 +100,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
         networkInterfaces.addView(interfacesText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        NetworkInformation networkInformation = new NetworkInformation();
-
-        for (String interfaceAddress : networkInformation.getInfo())
+        for (String interfaceAddress : getInterfaces())
             networkInterfaces.addView(createTextView(context, interfaceAddress),
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 

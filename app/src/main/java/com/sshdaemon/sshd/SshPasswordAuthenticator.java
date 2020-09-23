@@ -7,13 +7,12 @@ import org.apache.sshd.server.session.ServerSession;
 
 public class SshPasswordAuthenticator implements PasswordAuthenticator {
 
-    private static final String TAG = "PasswordAuthenticator";
-    private static SshPasswordAuthenticator instance = new SshPasswordAuthenticator();
+    private final String user;
+    private final String password;
 
-    private final String user = "user";
-    private final String password = "password";
-
-    public SshPasswordAuthenticator() {
+    public SshPasswordAuthenticator(String user, String password) {
+        this.user = user;
+        this.password = password;
     }
 
     @Override

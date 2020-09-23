@@ -1,14 +1,13 @@
 <resources>
+
     <string name="app_name">SshDaemon</string>
     <string name="fingerprints_label_text">Fingerprints</string>
 
-    <string name="port_label_text">Port</string>
+    <string name="port_label_text">port</string>
     <string name="default_port_value">8022</string>
 
-    <string name="user_label_text">User</string>
     <string name="default_user_value">user</string>
 
-    <string name="password_label_text">Password</string>
     <string name="default_password_value">password</string>
 
     <string name="interface_label_text">Network Interfaces</string>
