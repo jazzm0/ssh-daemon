@@ -1,0 +1,72 @@
+package com.sshdaemon.sshd;
+
+import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
+import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/***
+ * __     _        ___
+ * / _\___| |__    /   \__ _  ___ _ __ ___   ___  _ __
+ * \ \/ __| '_ \  / /\ / _` |/ _ \ '_ ` _ \ / _ \| '_ \
+ * _\ \__ \ | | |/ /_// (_| |  __/ | | | | | (_) | | | |
+ * \__/___/_| |_/___,' \__,_|\___|_| |_| |_|\___/|_| |_|
+ */
+
+
+public class SshDaemon {
+
+    private final SshServer sshd;
+    private final List<KeyPair> keyPairs;
+
+    public SshDaemon(String rootPath, int port, String user, String password) {
+        System.setProperty("user.home", rootPath);
+        this.sshd = SshServer.setUpDefaultServer();
+        sshd.setPort(port);
+        sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
+        sshd.setPublickeyAuthenticator(new SshPublicKeyAuthenticator());
+        SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath));
+        sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
+        sshd.setShellFactory(new InteractiveProcessShellFactory());
+        SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
+        sshd.setSubsystemFactories(Collections.singletonList(factory));
+        sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
+        this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+    }
+
+    public Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
+        final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
+        final RSAPublicKey publicKey = (RSAPublicKey) this.keyPairs.get(0).getPublic();
+
+        try {
+            result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
+            result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void start() throws IOException {
+        sshd.start();
+    }
+
+    public void stop() throws IOException {
+        sshd.stop();
+    }
+
+    public boolean isRunning() {
+        return sshd.isStarted();
+    }
+}
