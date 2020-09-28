@@ -24,10 +24,13 @@ import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
 
+import org.slf4j.Logger;
+
 import java.util.Map;
 import java.util.Objects;
 
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
+import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SshDaemon sshDaemon;
     private PowerManager.WakeLock wakeLock;
+    private final Logger logger = getLogger();
 
     private String getValue(EditText t) {
         return t.getText().toString().equals("") ? t.getHint().toString() : t.getText().toString();
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 button.setImageResource(R.drawable.pause);
             }
         } catch (Exception e) {
+            logger.error("Exceptionm " + e);
         }
     }
 }

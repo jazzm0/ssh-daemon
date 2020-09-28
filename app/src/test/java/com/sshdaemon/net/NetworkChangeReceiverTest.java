@@ -8,7 +8,6 @@ import android.net.NetworkCapabilities;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -22,8 +21,7 @@ public class NetworkChangeReceiverTest {
 
     private final LinearLayout linearLayout = mock(LinearLayout.class);
     private final Context context = mock(Context.class);
-    private final Logger logger = mock(Logger.class);
-    private final NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver(linearLayout, context, logger);
+    private final NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver(linearLayout, context);
 
     @Test
     public void testNoConnectivity() {
