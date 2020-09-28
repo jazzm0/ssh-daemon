@@ -10,8 +10,6 @@ import android.net.NetworkCapabilities;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.sshdaemon.R;
 
 import org.apache.log4j.Logger;
@@ -23,17 +21,17 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
     private final LinearLayout networkInterfaces;
-    private final Logger logger = getLogger(AppCompatActivity.class);
+    private final Logger logger;
 
-    public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context) {
+    public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context, Logger logger) {
         this.networkInterfaces = networkInterfaces;
+        this.logger = logger;
         showNetworkInterfaces(context);
     }
 
@@ -71,6 +69,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     private boolean hasConnectivity(ConnectivityManager connectivityManager) {
+        if (connectivityManager == null)
+            return false;
+
         Network nw = connectivityManager.getActiveNetwork();
 
         if (nw == null) return false;

@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout linearLayout = findViewById(R.id.network_interfaces);
 
-        this.registerReceiver(new NetworkChangeReceiver(linearLayout, this),
+        this.registerReceiver(new NetworkChangeReceiver(linearLayout, this, logger),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
