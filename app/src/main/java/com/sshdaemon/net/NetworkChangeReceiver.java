@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.widget.LinearLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.sshdaemon.R;
