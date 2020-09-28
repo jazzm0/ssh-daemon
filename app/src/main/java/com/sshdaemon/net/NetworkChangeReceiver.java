@@ -27,11 +27,9 @@ import static com.sshdaemon.util.TextViewHelper.createTextView;
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
     private final LinearLayout networkInterfaces;
-    private final Logger logger;
 
-    public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context, Logger logger) {
+    public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context) {
         this.networkInterfaces = networkInterfaces;
-        this.logger = logger;
         showNetworkInterfaces(context);
     }
 
@@ -63,7 +61,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 }
             }
         } catch (SocketException e) {
-            logger.error("Exception " + e);
         }
         return result;
     }
