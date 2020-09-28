@@ -49,6 +49,7 @@ dependencies {
     implementation 'org.apache.mina:mina-core:3.0.0-M2'
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'org.slf4j:slf4j-log4j12:1.7.30'
+    implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
 
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
