@@ -24,7 +24,6 @@ import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -152,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 enableInput(false);
                 button.setImageResource(R.drawable.pause);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

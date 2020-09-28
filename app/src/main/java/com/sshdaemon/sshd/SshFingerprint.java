@@ -34,7 +34,7 @@ public class SshFingerprint {
 
     public static String fingerprintSHA256(BigInteger publicExponent, BigInteger modulus) throws NoSuchAlgorithmException {
         byte[] keyBlob = keyBlob(publicExponent, modulus);
-        byte[] sha256DigestPublic = MessageDigest.getInstance("SHA256").digest(keyBlob);
+        byte[] sha256DigestPublic = MessageDigest.getInstance("SHA-256").digest(keyBlob);
         return new String(Base64.getEncoder().encode(sha256DigestPublic));
     }
 

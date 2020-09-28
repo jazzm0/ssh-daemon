@@ -49,16 +49,13 @@ public class SshDaemon {
         this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 
-    public Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
+    public Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
         final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
         final RSAPublicKey publicKey = (RSAPublicKey) this.keyPairs.get(0).getPublic();
 
-        try {
-            result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
-            result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+        result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
+        result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
+
         return result;
     }
 
