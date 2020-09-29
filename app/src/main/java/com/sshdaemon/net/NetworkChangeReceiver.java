@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import com.sshdaemon.R;
 
+
+import org.slf4j.Logger;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -19,12 +22,14 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
     private final LinearLayout networkInterfaces;
+    private final Logger logger = getLogger();
 
     public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context) {
         this.networkInterfaces = networkInterfaces;
@@ -32,7 +37,6 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     private Set<String> getInterfaces() {
-
         TreeSet<String> result = new TreeSet<>();
 
         try {
@@ -60,12 +64,15 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            logger.error("Exception: " + e);
         }
         return result;
     }
 
     private boolean hasConnectivity(ConnectivityManager connectivityManager) {
+        if (connectivityManager == null)
+            return false;
+
         Network nw = connectivityManager.getActiveNetwork();
 
         if (nw == null) return false;
