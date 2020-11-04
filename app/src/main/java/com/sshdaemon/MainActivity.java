@@ -96,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock((PowerManager.PARTIAL_WAKE_LOCK |
-                        PowerManager.ACQUIRE_CAUSES_WAKEUP),
+        wakeLock = powerManager.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP,
                 "SshDaemon:SshDaemonWakeLock");
 
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
