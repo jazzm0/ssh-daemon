@@ -1,0 +1,7 @@
+Transferieren von Dateien von/auf das Handy in einem sicherem Verfahren mit dem ssh/sftp System.
+
+Eigenschaften:
+
+* kein root benötigt
+* basiert auf dem Apache Mina Projekt
+* sehr schnelle Übertragungsraten

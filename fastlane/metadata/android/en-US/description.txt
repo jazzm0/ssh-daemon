@@ -1,0 +1,7 @@
+Transfer files to/from your home in a secure well proven way using the ssh/sftp subsystem. You will need a client like WinSCP or Filezilla on your desktop machine.
+
+Features:
+
+* No root required
+* based on the Apache Mina project
+* very fast transfer rates.
