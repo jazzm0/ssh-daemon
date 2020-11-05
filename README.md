@@ -11,3 +11,6 @@ Simply clone the repository and import it to Android Studio.
 
 This project is based on the [mina-sshd](https://github.com/apache/mina-sshd) project. 
 
+## License
+
+This project is licensed under GNU GENERAL PUBLIC LICENSE Version 2 or any later version.
