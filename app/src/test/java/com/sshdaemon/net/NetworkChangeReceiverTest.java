@@ -42,6 +42,6 @@ public class NetworkChangeReceiverTest {
         ArgumentCaptor<View> view = ArgumentCaptor.forClass(View.class);
         ArgumentCaptor<LinearLayout.LayoutParams> layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
 
-        verify(linearLayout, times(5)).addView(view.capture(), layout.capture());
+        verify(linearLayout, times(7)).addView(view.capture(), layout.capture());
     }
 }
