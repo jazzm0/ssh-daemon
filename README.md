@@ -11,6 +11,10 @@ Simply clone the repository and import it to Android Studio.
 
 This project is based on the [mina-sshd](https://github.com/apache/mina-sshd) project. 
 
+## License
+
+This project is licensed under GNU GENERAL PUBLIC LICENSE Version 2 or any later version.
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.daemon.ssh/)
