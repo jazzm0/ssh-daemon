@@ -39,7 +39,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     protected static RSAPublicKey readKey(String key) throws Exception {
-        byte[] decodedKey = decodeBase64(key.split(String.valueOf(Character.SPACE_SEPARATOR))[1]);
+        byte[] decodedKey = decodeBase64(key.split(" ")[1]);
         DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
         String pubKeyFormat = new String(readElement(dataInputStream));
         if (!pubKeyFormat.equals("ssh-rsa"))

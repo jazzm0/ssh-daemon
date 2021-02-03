@@ -1,11 +1,14 @@
 package com.sshdaemon.sshd;
 
+import com.sshdaemon.MainActivity;
+
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.KeyPair;
@@ -39,7 +42,13 @@ public class SshDaemon {
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
         sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
-        sshd.setPublickeyAuthenticator(new SshPublicKeyAuthenticator());
+        String authorizedKeyPath = path + "/authorized_keys";
+        File authorizedKeyFile = new File(authorizedKeyPath);
+        if (authorizedKeyFile.exists()) {
+            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
+            sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+            sshd.setPublickeyAuthenticator(sshPublicKeyAuthenticator);
+        }
         SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
