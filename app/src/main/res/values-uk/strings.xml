@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">SshDaemon</string>
+
+    <string name="fingerprints_label_text">Відбитки</string>
+
+    <string name="interface_label_text">Мережеві інтерфейси</string>
+
+    <string name="port_label_text">порт</string>
+    <string name="default_port_value">8022</string>
+
+    <string name="default_user_value">користувач</string>
+
+    <string name="default_password_value">пароль</string>
+
+    <string name="generate">Генерувати</string>
+</resources>
