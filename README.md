@@ -1,3 +1,5 @@
+[<img src="https://img.shields.io/github/release/USER/REPO.svg?logo=github"]
+
 # SshDaemon 
 A simple  SSH/SFTP server for your Android phone. 
 
