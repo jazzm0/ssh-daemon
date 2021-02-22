@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,6 +36,7 @@ import java.util.Objects;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -113,14 +115,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (sshDaemon != null)
+        if (!isNull(sshDaemon))
             startStopClicked(findViewById(R.id.start_stop_action));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (sshDaemon != null)
+        if (!isNull(sshDaemon))
             startStopClicked(findViewById(R.id.start_stop_action));
     }
 
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton button = (FloatingActionButton) view;
 
         try {
-            if (!Objects.isNull(sshDaemon) && sshDaemon.isRunning()) {
+            if (!isNull(sshDaemon) && sshDaemon.isRunning()) {
                 releaseWakeLock();
                 sshDaemon.stop();
                 enableInput(true);
@@ -156,6 +158,11 @@ public class MainActivity extends AppCompatActivity {
                 sshDaemon.start();
                 enableInput(false);
                 button.setImageResource(R.drawable.pause);
+                if (sshDaemon.hasPublicKeyAuthentication()) {
+                    ImageView imageView;
+                    imageView = (ImageView) findViewById(R.id.key_based_authentication);
+                    imageView.setImageResource(R.drawable.key);
+                }
             }
         } catch (Exception e) {
             logger.error("Exceptionm " + e);
