@@ -24,6 +24,7 @@ import java.util.TreeSet;
 
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
 
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -70,16 +71,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     private boolean hasConnectivity(ConnectivityManager connectivityManager) {
-        if (connectivityManager == null)
+        if (isNull(connectivityManager))
             return false;
 
         Network nw = connectivityManager.getActiveNetwork();
 
-        if (nw == null) return false;
+        if (isNull(nw)) return false;
 
         NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
 
-        return actNw != null &&
+        return !isNull(actNw) &&
                 (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                         actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
                         actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||

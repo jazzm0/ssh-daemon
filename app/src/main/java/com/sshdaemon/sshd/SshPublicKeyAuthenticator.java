@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.unmodifiableSet;
+import static java.util.Objects.isNull;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 
@@ -63,7 +64,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         AndroidLogger.getLogger().debug("Try to add authorized key file " + file.getPath());
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
+            while (!isNull((line = bufferedReader.readLine()))) {
                 RSAPublicKey key = readKey(line);
                 authorizedKeys.add(key);
                 AndroidLogger.getLogger().debug("Added authorized key" + key.toString());

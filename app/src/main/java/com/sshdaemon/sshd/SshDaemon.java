@@ -76,6 +76,10 @@ public class SshDaemon {
         sshd.stop();
     }
 
+    public boolean hasPublicKeyAuthentication() {
+        return !this.keyPairs.isEmpty();
+    }
+
     public boolean isRunning() {
         return sshd.isStarted();
     }
