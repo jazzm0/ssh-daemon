@@ -1,6 +1,6 @@
 [<img src="https://img.shields.io/github/release/jazzm0/ssh-daemon.svg?logo=github"
      alt="Version"
-     height="80">](https://f-droid.org/packages/com.daemon.ssh/)
+     height="40">](https://f-droid.org/packages/com.daemon.ssh/)
 
 # SshDaemon 
 A simple  SSH/SFTP server for your Android phone. 
