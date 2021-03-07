@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">SshDaemon</string>
+
+    <string name="fingerprints_label_text">Отпечатки</string>
+
+    <string name="interface_label_text">Сетевые интерфейсы</string>
+
+    <string name="port_label_text">порт</string>
+
+    <string name="default_user_value">пользователь</string>
+
+    <string name="default_password_value">пароль</string>
+
+    <string name="generate">Генерировать</string>
+</resources>
