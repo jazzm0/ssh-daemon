@@ -6,7 +6,7 @@
 
     <string name="interface_label_text">Interfaces da rede</string>
 
-    <string name="port_label_text">port</string>
+    <string name="port_label_text">porta</string>
     <string name="default_port_value">8022</string>
 
     <string name="default_user_value">usuário</string>
