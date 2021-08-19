@@ -1,0 +1,7 @@
+Transfira arquivos de forma segura e comprovada, usando o subsistema ssh/sftp. Também precisará de um cliente tipo WinSCP ou Filezilla no seu computador.
+
+Funcionalidades:
+
+* Não requer acesso Root
+* baseado no projeto Apache Mina
+* velocidade de transferências muito rápidas.
