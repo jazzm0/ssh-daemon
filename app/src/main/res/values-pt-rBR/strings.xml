@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">SshDaemon</string>
+
+    <string name="fingerprints_label_text">Impressões digitais</string>
+
+    <string name="interface_label_text">Interfaces da rede</string>
+
+    <string name="port_label_text">porta</string>
+    <string name="default_port_value">8022</string>
+
+    <string name="default_user_value">usuário</string>
+
+    <string name="default_password_value">senha</string>
+
+    <string name="generate">Gerar</string>
+</resources>
