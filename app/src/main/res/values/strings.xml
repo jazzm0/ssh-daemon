@@ -7,6 +7,7 @@
     <string name="interface_label_text">Network Interfaces</string>
 
     <string name="port_label_text">port</string>
+
     <string name="default_port_value">8022</string>
 
     <string name="default_user_value">user</string>
@@ -14,4 +15,9 @@
     <string name="default_password_value">password</string>
 
     <string name="generate">Generate</string>
+
+    <string name="ssh_public_key_doesnt_exists">Create file authorized_keys in directory SshDaemon to enable key based authentication</string>
+
+    <string name="ssh_public_key_exists">Public key authentication enabled</string>
+
 </resources>

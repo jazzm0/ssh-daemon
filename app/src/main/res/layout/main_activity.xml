@@ -81,14 +81,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:hint="@string/default_password_value">
+                android:hint="@string/default_password_value"
+                app:passwordToggleDrawable="@drawable/show_password_selector"
+                app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password_value"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/default_password_value"
-                    android:inputType="textVisiblePassword"
+                    android:inputType="textPassword"
                     android:maxLines="1"
                     android:text="@string/default_password_value" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -118,7 +120,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:onClick="startStopClicked"
-                    android:src="@drawable/play"
+                    android:src="@drawable/play_arrow_black_24dp"
                     app:backgroundTint="?attr/actionModeSplitBackground"
                     app:layout_anchorGravity="bottom|right|end" />
 
@@ -128,7 +130,8 @@
                 android:id="@+id/key_based_authentication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right" />
+                android:layout_gravity="right"
+                android:onClick="keyClicked" />
 
         </LinearLayout>
     </ScrollView>

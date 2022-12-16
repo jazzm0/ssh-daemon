@@ -1,6 +1,8 @@
 package com.sshdaemon.sshd;
 
-import com.sshdaemon.MainActivity;
+import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
+
+import android.os.Environment;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
@@ -19,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
-
 /***
  * __     _        ___
  * / _\___| |__    /   \__ _  ___ _ __ ___   ___  _ __
@@ -32,6 +32,7 @@ import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 
 public class SshDaemon {
 
+    public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
     private final SshServer sshd;
     private final List<KeyPair> keyPairs;
 
@@ -42,7 +43,7 @@ public class SshDaemon {
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
         sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
-        String authorizedKeyPath = path + "/authorized_keys";
+        String authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         File authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
             final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
@@ -56,6 +57,17 @@ public class SshDaemon {
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
         this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+    }
+
+    public static boolean publicKeyAuthenticationExists() {
+        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
+        File authorizedKeyFile = new File(authorizedKeyPath);
+        boolean authorizedKeysExist = false;
+        if (authorizedKeyFile.exists()) {
+            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
+            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+        }
+        return authorizedKeysExist;
     }
 
     public Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
@@ -74,10 +86,6 @@ public class SshDaemon {
 
     public void stop() throws IOException {
         sshd.stop();
-    }
-
-    public boolean hasPublicKeyAuthentication() {
-        return !this.keyPairs.isEmpty();
     }
 
     public boolean isRunning() {

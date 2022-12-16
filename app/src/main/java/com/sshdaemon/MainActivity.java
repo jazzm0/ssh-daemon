@@ -1,6 +1,13 @@
 package com.sshdaemon;
 
+import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
+import static com.sshdaemon.sshd.SshPassword.getRandomString;
+import static com.sshdaemon.util.AndroidLogger.getLogger;
+import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
+
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -18,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -31,19 +39,13 @@ import com.sshdaemon.sshd.SshFingerprint;
 import org.slf4j.Logger;
 
 import java.util.Map;
-import java.util.Objects;
-
-import static com.sshdaemon.sshd.SshPassword.getRandomString;
-import static com.sshdaemon.util.AndroidLogger.getLogger;
-import static com.sshdaemon.util.TextViewHelper.createTextView;
-import static java.util.Objects.isNull;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private final Logger logger = getLogger();
     private SshDaemon sshDaemon;
     private PowerManager.WakeLock wakeLock;
-    private final Logger logger = getLogger();
 
     private String getValue(EditText t) {
         return t.getText().toString().equals("") ? t.getHint().toString() : t.getText().toString();
@@ -110,6 +112,13 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+        ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
+
+        if (publicKeyAuthenticationExists()) {
+            imageView.setImageResource(R.drawable.key_black_24dp);
+        } else {
+            imageView.setImageResource(R.drawable.key_off_black_24dp);
+        }
     }
 
     @Override
@@ -150,22 +159,30 @@ public class MainActivity extends AppCompatActivity {
                 releaseWakeLock();
                 sshDaemon.stop();
                 enableInput(true);
-                button.setImageResource(R.drawable.play);
+                button.setImageResource(R.drawable.play_arrow_black_24dp);
             } else {
                 acquireWakelock();
                 sshDaemon = new SshDaemon(path, Integer.parseInt(realPort), realUser, realPassword);
                 setFingerPrints(sshDaemon.getFingerPrints());
                 sshDaemon.start();
                 enableInput(false);
-                button.setImageResource(R.drawable.pause);
-                if (sshDaemon.hasPublicKeyAuthentication()) {
-                    ImageView imageView;
-                    imageView = (ImageView) findViewById(R.id.key_based_authentication);
-                    imageView.setImageResource(R.drawable.key);
-                }
+                button.setImageResource(R.drawable.pause_black_24dp);
+
             }
         } catch (Exception e) {
             logger.error("Exceptionm " + e);
         }
+    }
+
+    public void keyClicked(View view) {
+        Context context = getApplicationContext();
+
+        CharSequence text = publicKeyAuthenticationExists() ?
+                getResources().getString(R.string.ssh_public_key_exists) :
+                getResources().getString(R.string.ssh_public_key_doesnt_exists);
+
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
     }
 }

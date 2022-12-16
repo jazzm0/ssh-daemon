@@ -1,5 +1,11 @@
 package com.sshdaemon.sshd;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -12,10 +18,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 
 public class SshPublicKeyAuthenticatorTest {
 
@@ -32,7 +34,7 @@ public class SshPublicKeyAuthenticatorTest {
     public void testLoadKeyFromFilePath() throws NoSuchAlgorithmException, InvalidKeySpecException {
         Path resourceDirectory = Paths.get("src", "test", "resources");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
-        sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath);
+        assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
         Set<RSAPublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.size(), is(2));
 
@@ -49,7 +51,7 @@ public class SshPublicKeyAuthenticatorTest {
     public void testLoadDSAKeyFromFilePath() {
         Path resourceDirectory = Paths.get("src", "test", "resources");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/id_dsa.pub";
-        sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath);
+        assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
         sshPublicKeyAuthenticator.getAuthorizedKeys();
         Set<RSAPublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.isEmpty(), is(true));
@@ -59,7 +61,7 @@ public class SshPublicKeyAuthenticatorTest {
     public void testAuthenticationWithDifferentKeys() throws NoSuchAlgorithmException, InvalidKeySpecException {
         Path resourceDirectory = Paths.get("src", "test", "resources");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
-        sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath);
+        assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
 
         BigInteger exponent = new BigInteger("65537");
         KeySpec firstKey = new RSAPublicKeySpec(new BigInteger("21658742190318166967712730864679652658650859121969481181201380769435852715982079838796135745206268981260737877360141273622280512537469661232310601414632396577736750997307043633989350470146139654498683603607823966490835477269345553397205866827412911445557084380501015516582017566897110095005407768881980022943053565933828297090533987425102831869390057642704253755269803136323388759627399370507151238064778399477125470941103468997107204954580888346976963732529191611522789249471940599415587667163136427455499142265843852906870573003016543761403915579728832278943756709241709719567708592405407294409003276217649490282231"), exponent);
