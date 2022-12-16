@@ -4,6 +4,8 @@ import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PATH;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
 import static com.sshdaemon.sshd.SshDaemon.USER;
+
+
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
@@ -11,7 +13,9 @@ import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
 import android.Manifest;
+
 import android.app.ActivityManager;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
