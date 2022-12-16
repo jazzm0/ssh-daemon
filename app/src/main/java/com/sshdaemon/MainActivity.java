@@ -1,5 +1,11 @@
 package com.sshdaemon;
 
+import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
+import static com.sshdaemon.sshd.SshPassword.getRandomString;
+import static com.sshdaemon.util.AndroidLogger.getLogger;
+import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -35,20 +41,13 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Objects;
-
-import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
-import static com.sshdaemon.sshd.SshPassword.getRandomString;
-import static com.sshdaemon.util.AndroidLogger.getLogger;
-import static com.sshdaemon.util.TextViewHelper.createTextView;
-import static java.util.Objects.isNull;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private final Logger logger = getLogger();
     private SshDaemon sshDaemon;
     private PowerManager.WakeLock wakeLock;
-    private final Logger logger = getLogger();
 
     private String getValue(EditText t) {
         return t.getText().toString().equals("") ? t.getHint().toString() : t.getText().toString();
@@ -95,6 +94,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean publicKeyAuthenticationExists() {
+        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
+        File authorizedKeyFile = new File(authorizedKeyPath);
+        boolean authorizedKeysExist = false;
+        if (authorizedKeyFile.exists()) {
+            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
+            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+        }
+        return authorizedKeysExist;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,14 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
 
-        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
-        File authorizedKeyFile = new File(authorizedKeyPath);
-        boolean authorizedKeysExist = false;
-        if (authorizedKeyFile.exists()) {
-            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
-            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
-        }
-        if (authorizedKeysExist) {
+        if (publicKeyAuthenticationExists()) {
             imageView.setImageResource(R.drawable.key);
         } else {
             imageView.setImageResource(R.drawable.key_disabled);
@@ -186,9 +189,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void keyClicked(View view) {
         Context context = getApplicationContext();
-        CharSequence text = getResources().getString(R.string.ssh_public_key);
-        int duration = Toast.LENGTH_LONG;
 
+        CharSequence text = publicKeyAuthenticationExists() ?
+                getResources().getString(R.string.ssh_public_key_exists) :
+                getResources().getString(R.string.ssh_public_key_doesnt_exists);
+
+        int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
     }
