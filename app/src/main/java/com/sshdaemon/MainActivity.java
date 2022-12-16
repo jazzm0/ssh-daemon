@@ -1,6 +1,6 @@
 package com.sshdaemon;
 
-import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
+import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
@@ -35,11 +35,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
-import com.sshdaemon.sshd.SshPublicKeyAuthenticator;
 
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.util.Map;
 
 
@@ -92,17 +90,6 @@ public class MainActivity extends AppCompatActivity {
             fingerPrintsLayout.addView(textView,
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         }
-    }
-
-    private boolean publicKeyAuthenticationExists() {
-        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
-        File authorizedKeyFile = new File(authorizedKeyPath);
-        boolean authorizedKeysExist = false;
-        if (authorizedKeyFile.exists()) {
-            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
-            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
-        }
-        return authorizedKeysExist;
     }
 
     @Override

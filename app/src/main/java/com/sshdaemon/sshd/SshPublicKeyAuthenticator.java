@@ -1,5 +1,9 @@
 package com.sshdaemon.sshd;
 
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.Objects.isNull;
+
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
@@ -20,10 +24,6 @@ import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.HashSet;
 import java.util.Set;
-
-import static java.util.Collections.unmodifiableSet;
-import static java.util.Objects.isNull;
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 
 public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
