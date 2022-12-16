@@ -1,6 +1,7 @@
 package com.sshdaemon;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -27,12 +29,15 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
+import com.sshdaemon.sshd.SshPublicKeyAuthenticator;
 
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
@@ -110,6 +115,20 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+        ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
+
+        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
+        File authorizedKeyFile = new File(authorizedKeyPath);
+        boolean authorizedKeysExist = false;
+        if (authorizedKeyFile.exists()) {
+            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
+            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+        }
+        if (authorizedKeysExist) {
+            imageView.setImageResource(R.drawable.key);
+        } else {
+            imageView.setImageResource(R.drawable.key_disabled);
+        }
     }
 
     @Override
@@ -158,14 +177,19 @@ public class MainActivity extends AppCompatActivity {
                 sshDaemon.start();
                 enableInput(false);
                 button.setImageResource(R.drawable.pause);
-                if (sshDaemon.hasPublicKeyAuthentication()) {
-                    ImageView imageView;
-                    imageView = (ImageView) findViewById(R.id.key_based_authentication);
-                    imageView.setImageResource(R.drawable.key);
-                }
+
             }
         } catch (Exception e) {
             logger.error("Exceptionm " + e);
         }
+    }
+
+    public void keyClicked(View view) {
+        Context context = getApplicationContext();
+        CharSequence text = getResources().getString(R.string.ssh_public_key);
+        int duration = Toast.LENGTH_LONG;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
     }
 }

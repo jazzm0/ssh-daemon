@@ -128,7 +128,8 @@
                 android:id="@+id/key_based_authentication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right" />
+                android:layout_gravity="right"
+                android:onClick="keyClicked"/>
 
         </LinearLayout>
     </ScrollView>

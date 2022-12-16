@@ -59,7 +59,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         return unmodifiableSet(authorizedKeys);
     }
 
-    public void loadKeysFromPath(String authorizedKeysPath) {
+    public boolean loadKeysFromPath(String authorizedKeysPath) {
         File file = new File(authorizedKeysPath);
         AndroidLogger.getLogger().debug("Try to add authorized key file " + file.getPath());
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
@@ -71,7 +71,9 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
             }
         } catch (Exception e) {
             AndroidLogger.getLogger().debug("Could not read authorized key file " + file.getPath());
+            return false;
         }
+        return true;
     }
 
     @Override

@@ -14,4 +14,6 @@
     <string name="default_password_value">password</string>
 
     <string name="generate">Generate</string>
+
+    <string name="ssh_public_key">Create file authorized_keys in directory SshDaemon to enable key based authentication</string>
 </resources>

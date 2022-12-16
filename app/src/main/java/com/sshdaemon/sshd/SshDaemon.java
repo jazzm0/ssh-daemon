@@ -34,6 +34,7 @@ public class SshDaemon {
 
     private final SshServer sshd;
     private final List<KeyPair> keyPairs;
+    public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
 
     public SshDaemon(String rootPath, int port, String user, String password) {
         final String path = rootPath + "/" + "SshDaemon";
@@ -42,7 +43,7 @@ public class SshDaemon {
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
         sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
-        String authorizedKeyPath = path + "/authorized_keys";
+        String authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         File authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
             final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
