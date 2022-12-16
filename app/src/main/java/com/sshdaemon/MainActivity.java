@@ -115,9 +115,9 @@ public class MainActivity extends AppCompatActivity {
         ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
 
         if (publicKeyAuthenticationExists()) {
-            imageView.setImageResource(R.drawable.key);
+            imageView.setImageResource(R.drawable.key_black_24dp);
         } else {
-            imageView.setImageResource(R.drawable.key_disabled);
+            imageView.setImageResource(R.drawable.key_off_black_24dp);
         }
     }
 
@@ -159,14 +159,14 @@ public class MainActivity extends AppCompatActivity {
                 releaseWakeLock();
                 sshDaemon.stop();
                 enableInput(true);
-                button.setImageResource(R.drawable.play);
+                button.setImageResource(R.drawable.play_arrow_black_24dp);
             } else {
                 acquireWakelock();
                 sshDaemon = new SshDaemon(path, Integer.parseInt(realPort), realUser, realPassword);
                 setFingerPrints(sshDaemon.getFingerPrints());
                 sshDaemon.start();
                 enableInput(false);
-                button.setImageResource(R.drawable.pause);
+                button.setImageResource(R.drawable.pause_black_24dp);
 
             }
         } catch (Exception e) {

@@ -120,7 +120,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:onClick="startStopClicked"
-                    android:src="@drawable/play"
+                    android:src="@drawable/play_arrow_black_24dp"
                     app:backgroundTint="?attr/actionModeSplitBackground"
                     app:layout_anchorGravity="bottom|right|end" />
 

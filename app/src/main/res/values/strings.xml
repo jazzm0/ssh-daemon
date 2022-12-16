@@ -18,6 +18,6 @@
 
     <string name="ssh_public_key_doesnt_exists">Create file authorized_keys in directory SshDaemon to enable key based authentication</string>
 
-    <string name="ssh_public_key_exists">Authorized keys are loaded, public key authentication enabled</string>
+    <string name="ssh_public_key_exists">Public key authentication enabled</string>
 
 </resources>
