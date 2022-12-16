@@ -15,6 +15,10 @@ Simply clone the repository and import it to Android Studio.
 
 This project is based on the [mina-sshd](https://github.com/apache/mina-sshd) project. 
 
+## Icons
+
+I used the material icons [from](https://fonts.google.com/icons)
+
 ## License
 
 This project is licensed under GNU GENERAL PUBLIC LICENSE Version 2 or any later version.
