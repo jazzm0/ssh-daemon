@@ -1,8 +1,23 @@
 package com.sshdaemon.sshd;
 
+import static android.app.PendingIntent.FLAG_MUTABLE;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Intent;
 import android.os.Environment;
+import android.os.IBinder;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
+import com.sshdaemon.MainActivity;
+import com.sshdaemon.R;
+import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
@@ -30,14 +45,28 @@ import java.util.Map;
  */
 
 
-public class SshDaemon {
+public class SshDaemon extends Service {
+
+    public static String SSH_DAEMON = "SshDaemon";
+    public static String PATH = "path";
+    public static String PORT = "port";
+    public static String USER = "user";
+    public static String PASSWORD = "PASSWORD";
 
     public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
-    private final SshServer sshd;
-    private final List<KeyPair> keyPairs;
+    public static final String CHANNEL_ID = "SshDaemonServiceChannel";
+    private SshServer sshd;
+    private List<KeyPair> keyPairs;
+
+    public SshDaemon() {
+    }
 
     public SshDaemon(String rootPath, int port, String user, String password) {
-        final String path = rootPath + "/" + "SshDaemon";
+        init(rootPath, port, user, password);
+    }
+
+    private void init(String rootPath, int port, String user, String password) {
+        final String path = rootPath + "/" + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", rootPath);
         this.sshd = SshServer.setUpDefaultServer();
@@ -57,6 +86,16 @@ public class SshDaemon {
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
         this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+    }
+
+    private void createNotificationChannel() {
+        NotificationChannel serviceChannel = new NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_ID,
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(serviceChannel);
     }
 
     public static boolean publicKeyAuthenticationExists() {
@@ -80,15 +119,50 @@ public class SshDaemon {
         return result;
     }
 
-    public void start() throws IOException {
-        sshd.start();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        try {
+            String rootPath = intent.getStringExtra(PATH);
+            int port = intent.getIntExtra(PORT, 8022);
+            String user = intent.getStringExtra(USER);
+            String password = intent.getStringExtra(PASSWORD);
+
+            init(rootPath, port, user, password);
+
+            createNotificationChannel();
+
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                    0, notificationIntent, FLAG_MUTABLE);
+
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle(SSH_DAEMON)
+                    .setContentText("input")
+                    .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
+                    .setContentIntent(pendingIntent)
+                    .build();
+
+            startForeground(1, notification);
+            sshd.start();
+        } catch (IOException e) {
+            AndroidLogger.getLogger().error("Could not start daemon ", e);
+        }
+        return Service.START_STICKY;
     }
 
-    public void stop() throws IOException {
-        sshd.stop();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            sshd.stop();
+        } catch (IOException e) {
+            AndroidLogger.getLogger().error("Could not stop daemon ", e);
+        }
     }
 
-    public boolean isRunning() {
-        return sshd.isStarted();
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

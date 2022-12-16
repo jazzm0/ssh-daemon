@@ -1,5 +1,9 @@
 package com.sshdaemon;
 
+import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
+import static com.sshdaemon.sshd.SshDaemon.PATH;
+import static com.sshdaemon.sshd.SshDaemon.PORT;
+import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
@@ -7,6 +11,7 @@ import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,6 +34,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -38,6 +44,7 @@ import com.sshdaemon.sshd.SshFingerprint;
 
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -155,23 +162,43 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton button = (FloatingActionButton) view;
 
         try {
-            if (!isNull(sshDaemon) && sshDaemon.isRunning()) {
+            ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+            @SuppressWarnings("deprecation")
+            List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(1);
+            boolean started = false;
+            if (!runningServices.isEmpty()) {
+                started = runningServices.get(0).started;
+            }
+            if (started) {
                 releaseWakeLock();
-                sshDaemon.stop();
+                stopService();
                 enableInput(true);
                 button.setImageResource(R.drawable.play_arrow_black_24dp);
             } else {
                 acquireWakelock();
                 sshDaemon = new SshDaemon(path, Integer.parseInt(realPort), realUser, realPassword);
                 setFingerPrints(sshDaemon.getFingerPrints());
-                sshDaemon.start();
+                startService(path, Integer.parseInt(realPort), realUser, realPassword);
                 enableInput(false);
                 button.setImageResource(R.drawable.pause_black_24dp);
-
             }
         } catch (Exception e) {
-            logger.error("Exceptionm " + e);
+            logger.error("Exception " + e);
         }
+    }
+
+    public void startService(String path, int port, String user, String password) {
+        Intent sshDaemonIntent = new Intent(this, SshDaemon.class);
+        sshDaemonIntent.putExtra(PATH, path);
+        sshDaemonIntent.putExtra(PORT, port);
+        sshDaemonIntent.putExtra(USER, user);
+        sshDaemonIntent.putExtra(PASSWORD, password);
+        ContextCompat.startForegroundService(this, sshDaemonIntent);
+    }
+
+    public void stopService() {
+        Intent sshDaemonIntent = new Intent(this, SshDaemon.class);
+        stopService(sshDaemonIntent);
     }
 
     public void keyClicked(View view) {
