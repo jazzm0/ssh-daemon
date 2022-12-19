@@ -1,44 +1,28 @@
 package com.sshdaemon.sshd;
 
-import org.hamcrest.Matchers;
-import org.junit.Test;
-
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintMD5;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.hamcrest.Matchers;
+import org.junit.Test;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 public class SshFingerprintTest {
+
+    private final byte[] decodedKey = Base64.getDecoder().decode("AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAF9K9h1wxiYAH+FzBIAx9u3hJKaXbatDze1jSIT7YX748lPUko/04aABbMUd7SFWjmSUqYXz0ZaFuAbspTnl3fcaQAxaO2pm+8xGg41AxPAkcAa4hp2Mk6IqH2ctKfVPtZQHtB68Sy0+NsOYJmfSVWpKgMooVNYmOGVio6N7nfvfDS1IA==");
 
     @Test
     public void testMD5FingerPrint() throws NoSuchAlgorithmException {
-        assertThat(fingerprintMD5(new BigInteger("65537"),
-                new BigInteger("2139726877325149862" +
-                        "558767346282138909924923942278927239353487317822922249353940454045873278512336448" +
-                        "144458804688563173103164587346985515817538567205197492043757472493193301421397874" +
-                        "709156736829619840226493941562598520803730670417455028142099485663952857541562573" +
-                        "574192826644809458886721747913747671600022601369248875736561554251208504829695255" +
-                        "715434831934913912009294258232239270682769539545430083199023663524848796422474952" +
-                        "2466403477478312404963224179882559098764808624206740460726974443696026548920408696" +
-                        "352702041280403839528599647397514240869872956382225928616692876441292197340073341" +
-                        "044102840349254172193616624749")),
-                Matchers.is("7d:bf:b9:b3:f6:59:b9:50:71:4c:e6:2f:51:7c:ef:de"));
+        assertThat(fingerprintMD5(decodedKey),
+                Matchers.is("27:64:65:20:26:7f:29:3d:07:66:c3:4c:65:eb:6f:b4"));
     }
 
     @Test
     public void testSHA256FingerPrint() throws NoSuchAlgorithmException {
-        assertThat(fingerprintSHA256(new BigInteger("65537"),
-                new BigInteger("2139726877325149862" +
-                        "558767346282138909924923942278927239353487317822922249353940454045873278512336448" +
-                        "144458804688563173103164587346985515817538567205197492043757472493193301421397874" +
-                        "709156736829619840226493941562598520803730670417455028142099485663952857541562573" +
-                        "574192826644809458886721747913747671600022601369248875736561554251208504829695255" +
-                        "715434831934913912009294258232239270682769539545430083199023663524848796422474952" +
-                        "2466403477478312404963224179882559098764808624206740460726974443696026548920408696" +
-                        "352702041280403839528599647397514240869872956382225928616692876441292197340073341" +
-                        "044102840349254172193616624749")),
-                Matchers.is("+qJLUMHqtN6ccGkTc29greJ5gx4f98QbXWRBgyDK8i0="));
+        assertThat(fingerprintSHA256(decodedKey),
+                Matchers.is("GzveilxzWuMhxIZRtkoVUelLOtm86qjJHKOb1Sr10+Q="));
     }
 }
