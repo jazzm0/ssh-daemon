@@ -2,6 +2,8 @@ package com.sshdaemon.sshd;
 
 import static android.app.PendingIntent.FLAG_MUTABLE;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -47,25 +49,48 @@ import java.util.Map;
 
 public class SshDaemon extends Service {
 
+    public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
+    public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static String SSH_DAEMON = "SshDaemon";
     public static String PATH = "path";
     public static String PORT = "port";
     public static String USER = "user";
     public static String PASSWORD = "PASSWORD";
-
-    public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
-    public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     private SshServer sshd;
-    private List<KeyPair> keyPairs;
 
     public SshDaemon() {
     }
 
-    public SshDaemon(String rootPath, int port, String user, String password) {
-        init(rootPath, port, user, password);
+    public SshDaemon(int port, String user, String password) {
+        init(port, user, password);
     }
 
-    private void init(String rootPath, int port, String user, String password) {
+    public static boolean publicKeyAuthenticationExists() {
+        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
+        File authorizedKeyFile = new File(authorizedKeyPath);
+        boolean authorizedKeysExist = false;
+        if (authorizedKeyFile.exists()) {
+            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
+            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+        }
+        return authorizedKeysExist;
+    }
+
+    public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
+        String rootPath = isNull(Environment.getExternalStorageDirectory()) ? "/" : Environment.getExternalStorageDirectory().getPath();
+        SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + "/" + SSH_DAEMON + "/ssh_host_rsa_key"));
+        List<KeyPair> keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+        final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
+        final RSAPublicKey publicKey = (RSAPublicKey) keyPairs.get(0).getPublic();
+
+        result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
+        result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
+
+        return result;
+    }
+
+    private void init(int port, String user, String password) {
+        final String rootPath = Environment.getExternalStorageDirectory().getPath();
         final String path = rootPath + "/" + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", rootPath);
@@ -85,64 +110,39 @@ public class SshDaemon extends Service {
         SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
-        this.keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
-    }
-
-    private void createNotificationChannel() {
-        NotificationChannel serviceChannel = new NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_ID,
-                NotificationManager.IMPORTANCE_DEFAULT
-        );
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.createNotificationChannel(serviceChannel);
-    }
-
-    public static boolean publicKeyAuthenticationExists() {
-        String authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
-        File authorizedKeyFile = new File(authorizedKeyPath);
-        boolean authorizedKeysExist = false;
-        if (authorizedKeyFile.exists()) {
-            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
-            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
-        }
-        return authorizedKeysExist;
-    }
-
-    public Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
-        final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
-        final RSAPublicKey publicKey = (RSAPublicKey) this.keyPairs.get(0).getPublic();
-
-        result.put(SshFingerprint.DIGESTS.MD5, SshFingerprint.fingerprintMD5(publicKey.getPublicExponent(), publicKey.getModulus()));
-        result.put(SshFingerprint.DIGESTS.SHA256, SshFingerprint.fingerprintSHA256(publicKey.getPublicExponent(), publicKey.getModulus()));
-
-        return result;
+        simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
-            String rootPath = intent.getStringExtra(PATH);
-            int port = intent.getIntExtra(PORT, 8022);
-            String user = intent.getStringExtra(USER);
-            String password = intent.getStringExtra(PASSWORD);
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_ID,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
 
-            init(rootPath, port, user, password);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
 
-            createNotificationChannel();
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                    0, notificationIntent, FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                    0, notificationIntent, FLAG_MUTABLE);
-
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+            Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
-                    .setContentText("input")
+                    .setContentText(SSH_DAEMON)
                     .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
+                    .setOngoing(true)
                     .setContentIntent(pendingIntent)
                     .build();
 
             startForeground(1, notification);
+
+            int port = intent.getIntExtra(PORT, 8022);
+            String user = requireNonNull(intent.getStringExtra(USER), "User should be not null!");
+            String password = requireNonNull(intent.getStringExtra(PASSWORD), "Password should be not null!");
+            init(port, user, password);
             sshd.start();
         } catch (IOException e) {
             AndroidLogger.getLogger().error("Could not start daemon ", e);

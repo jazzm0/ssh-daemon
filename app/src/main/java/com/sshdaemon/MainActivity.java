@@ -1,21 +1,17 @@
 package com.sshdaemon;
 
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
-import static com.sshdaemon.sshd.SshDaemon.PATH;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
+import static com.sshdaemon.sshd.SshDaemon.SSH_DAEMON;
 import static com.sshdaemon.sshd.SshDaemon.USER;
-
-
+import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
-import static java.util.Objects.isNull;
 
 import android.Manifest;
-
 import android.app.ActivityManager;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -55,7 +51,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private final Logger logger = getLogger();
-    private SshDaemon sshDaemon;
     private PowerManager.WakeLock wakeLock;
 
     private String getValue(EditText t) {
@@ -135,15 +130,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isNull(sshDaemon))
-            startStopClicked(findViewById(R.id.start_stop_action));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (!isNull(sshDaemon))
-            startStopClicked(findViewById(R.id.start_stop_action));
     }
 
     public void generateClicked(View view) {
@@ -155,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
         TextInputEditText port = findViewById(R.id.port_value);
         TextInputEditText user = findViewById(R.id.user_value);
         TextInputEditText password = findViewById(R.id.password_value);
-//        String path = Objects.requireNonNull(getExternalFilesDir(null)).toString();
-        String path = Environment.getExternalStorageDirectory().getPath();
 
         String realPort = getValue(port);
         if (realPort.equals("Port")) realPort = "8022";
@@ -170,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             @SuppressWarnings("deprecation")
             List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(1);
             boolean started = false;
-            if (!runningServices.isEmpty()) {
+            if (!runningServices.isEmpty() && runningServices.get(0).service.flattenToString().contains(SSH_DAEMON)) {
                 started = runningServices.get(0).started;
             }
             if (started) {
@@ -180,9 +169,8 @@ public class MainActivity extends AppCompatActivity {
                 button.setImageResource(R.drawable.play_arrow_black_24dp);
             } else {
                 acquireWakelock();
-                sshDaemon = new SshDaemon(path, Integer.parseInt(realPort), realUser, realPassword);
-                setFingerPrints(sshDaemon.getFingerPrints());
-                startService(path, Integer.parseInt(realPort), realUser, realPassword);
+                setFingerPrints(getFingerPrints());
+                startService(Integer.parseInt(realPort), realUser, realPassword);
                 enableInput(false);
                 button.setImageResource(R.drawable.pause_black_24dp);
             }
@@ -191,9 +179,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startService(String path, int port, String user, String password) {
+    public void startService(int port, String user, String password) {
         Intent sshDaemonIntent = new Intent(this, SshDaemon.class);
-        sshDaemonIntent.putExtra(PATH, path);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);

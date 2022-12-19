@@ -1,5 +1,11 @@
 package com.sshdaemon.net;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -10,12 +16,6 @@ import android.widget.LinearLayout;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class NetworkChangeReceiverTest {
 
@@ -42,6 +42,6 @@ public class NetworkChangeReceiverTest {
         ArgumentCaptor<View> view = ArgumentCaptor.forClass(View.class);
         ArgumentCaptor<LinearLayout.LayoutParams> layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
 
-        verify(linearLayout, times(5)).addView(view.capture(), layout.capture());
+        verify(linearLayout, times(10)).addView(view.capture(), layout.capture());
     }
 }
