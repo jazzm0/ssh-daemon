@@ -56,11 +56,12 @@ public class SshFingerprint {
         writeArray(curve, buf);
 
         byte[] javaEncoding = key.getEncoded();
-        byte[] q = new byte[qLen];
+        if (javaEncoding.length > 0) {
+            byte[] q = new byte[qLen];
 
-        System.arraycopy(javaEncoding, javaEncoding.length - qLen, q, 0, qLen);
-        writeArray(q, buf);
-
+            System.arraycopy(javaEncoding, javaEncoding.length - qLen, q, 0, qLen);
+            writeArray(q, buf);
+        }
         return buf.toByteArray();
     }
 
