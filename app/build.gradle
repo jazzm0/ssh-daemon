@@ -48,10 +48,10 @@ android {
 dependencies {
     api 'com.google.android.material:material:1.7.0'
 
-    implementation 'org.apache.sshd:sshd-core:2.5.1'
-    implementation 'org.apache.sshd:sshd-sftp:2.5.1'
+    implementation 'org.apache.sshd:sshd-core:2.7.0'
+    implementation 'org.apache.sshd:sshd-sftp:2.7.0'
     implementation 'org.apache.mina:mina-core:3.0.0-M2'
-    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'org.slf4j:slf4j-log4j12:1.7.30'
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'commons-codec:commons-codec:1.15'

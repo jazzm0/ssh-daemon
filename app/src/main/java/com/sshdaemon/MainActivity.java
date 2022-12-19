@@ -118,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
+        try {
+            setFingerPrints(getFingerPrints());
+        } catch (Exception e) {
+            logger.error("Exception " + e);
+        }
+
         ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
 
         if (publicKeyAuthenticationExists()) {
