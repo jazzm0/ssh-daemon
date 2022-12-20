@@ -1,5 +1,9 @@
 package com.sshdaemon.net;
 
+import static com.sshdaemon.util.AndroidLogger.getLogger;
+import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +16,6 @@ import android.widget.TextView;
 
 import com.sshdaemon.R;
 
-
 import org.slf4j.Logger;
 
 import java.net.InetAddress;
@@ -21,10 +24,6 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static com.sshdaemon.util.AndroidLogger.getLogger;
-import static com.sshdaemon.util.TextViewHelper.createTextView;
-import static java.util.Objects.isNull;
 
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -57,7 +56,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                     while (addresses.hasMoreElements()) {
                         InetAddress inetAddress = addresses.nextElement();
                         String hostAddress = inetAddress.getHostAddress();
-                        if (!(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
+                        if (!isNull(hostAddress) && !(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
                             hostAddress = hostAddress.replace("%", " on interface ");
                         }
                         result.add(hostAddress);

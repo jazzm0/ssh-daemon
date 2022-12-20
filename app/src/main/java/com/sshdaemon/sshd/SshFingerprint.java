@@ -35,7 +35,7 @@ public class SshFingerprint {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
 
         int bitLength = key.getW().getAffineX().bitLength();
-        String curveName = null;
+        String curveName;
         int qLen;
         if (bitLength <= 256) {
             curveName = "nistp256";

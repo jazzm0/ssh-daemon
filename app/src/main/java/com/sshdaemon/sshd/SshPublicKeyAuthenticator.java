@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
 
-    private final Set<RSAPublicKey> authorizedKeys = new HashSet<>();
+    private final Set<PublicKey> authorizedKeys = new HashSet<>();
 
     public SshPublicKeyAuthenticator() {
     }
@@ -55,7 +55,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         return (RSAPublicKey) keyFactory.generatePublic(specification);
     }
 
-    public Set<RSAPublicKey> getAuthorizedKeys() {
+    Set<PublicKey> getAuthorizedKeys() {
         return unmodifiableSet(authorizedKeys);
     }
 

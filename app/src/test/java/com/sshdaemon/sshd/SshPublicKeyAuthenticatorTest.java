@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -35,7 +36,7 @@ public class SshPublicKeyAuthenticatorTest {
         Path resourceDirectory = Paths.get("src", "test", "resources");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
         assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
-        Set<RSAPublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
+        Set<PublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.size(), is(2));
 
         BigInteger exponent = new BigInteger("65537");
@@ -43,8 +44,8 @@ public class SshPublicKeyAuthenticatorTest {
         KeySpec secondKey = new RSAPublicKeySpec(new BigInteger("784057767550419878369497798651827476361889178814477573346641631234935186314436782078536135459192115951182846131604763290106347820711735919818466318881966145658619187844260657686465054388415729621256835109072466122751680324465523571218314239699133938274929722422531435916124040593004728158303703638151544229751515190620733194729793182402256827874540802963173001942073095959874409030457157131068008004452131416339302414300154381574660775550756346290523471370004641759457082400056951523140192837676235596014868691294116723696798672826048372197524626777597698825985438359440849049188507660150181938186465442057503356737043772475149570597456464086884083587865261320028768112850655672995490391301788008160746624607620536612729945152345637233101657918767620370276196646289217228948026575176667526067692435995447599542086540447642569281636925038610129227622664311974763550767950513197666055242104878427773497759504733742315824234665981633069516518731571901751350961661458615098275390788530389016622885595867572513280042783815166138155280065655067579686735407066393737630455891385113394433769584091954362175665925155421775122038568449049307648037245144977590866670732267987944408567171290527382426393459497954986775620782288149569534834718157"), exponent);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         assertThat(authorizedKeys, containsInAnyOrder(
-                (RSAPublicKey) keyFactory.generatePublic(firstKey),
-                (RSAPublicKey) keyFactory.generatePublic(secondKey)));
+                keyFactory.generatePublic(firstKey),
+                keyFactory.generatePublic(secondKey)));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class SshPublicKeyAuthenticatorTest {
         String absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/id_dsa.pub";
         assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
         sshPublicKeyAuthenticator.getAuthorizedKeys();
-        Set<RSAPublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
+        Set<PublicKey> authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.isEmpty(), is(true));
     }
 
