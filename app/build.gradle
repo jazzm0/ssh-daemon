@@ -62,7 +62,6 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'net.i2p.crypto:eddsa:0.3.0'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
