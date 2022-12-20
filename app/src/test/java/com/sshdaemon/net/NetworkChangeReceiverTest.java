@@ -1,7 +1,11 @@
 package com.sshdaemon.net;
 
+import static com.sshdaemon.net.NetworkChangeReceiver.getInterfaces;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,8 +18,11 @@ import android.net.NetworkCapabilities;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Set;
 
 public class NetworkChangeReceiverTest {
 
@@ -23,9 +30,16 @@ public class NetworkChangeReceiverTest {
     private final Context context = mock(Context.class);
     private final NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver(linearLayout, context);
 
+    @Before
+    public void setup() {
+        reset(linearLayout);
+        reset(context);
+    }
+
     @Test
     public void testNoConnectivity() {
         networkChangeReceiver.onReceive(context, mock(Intent.class));
+        verify(linearLayout, times(0)).addView(any(), any());
     }
 
     @Test
@@ -42,6 +56,10 @@ public class NetworkChangeReceiverTest {
         ArgumentCaptor<View> view = ArgumentCaptor.forClass(View.class);
         ArgumentCaptor<LinearLayout.LayoutParams> layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
 
-        verify(linearLayout, times(13)).addView(view.capture(), layout.capture());
+        final Set<String> interfaces = getInterfaces();
+
+        assertFalse(interfaces.isEmpty());
+
+        verify(linearLayout, times(interfaces.size() + 1)).addView(view.capture(), layout.capture());
     }
 }
