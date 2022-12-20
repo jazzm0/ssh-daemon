@@ -28,15 +28,15 @@ import java.util.TreeSet;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+    private static final Logger logger = getLogger();
     private final LinearLayout networkInterfaces;
-    private final Logger logger = getLogger();
 
     public NetworkChangeReceiver(LinearLayout networkInterfaces, Context context) {
         this.networkInterfaces = networkInterfaces;
         showNetworkInterfaces(context);
     }
 
-    private Set<String> getInterfaces() {
+    static Set<String> getInterfaces() {
         TreeSet<String> result = new TreeSet<>();
 
         try {
