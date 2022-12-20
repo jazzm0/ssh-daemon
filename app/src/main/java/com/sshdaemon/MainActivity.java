@@ -124,23 +124,13 @@ public class MainActivity extends AppCompatActivity {
             logger.error("Exception " + e);
         }
 
-        ImageView imageView = (ImageView) findViewById(R.id.key_based_authentication);
+        ImageView imageView = findViewById(R.id.key_based_authentication);
 
         if (publicKeyAuthenticationExists()) {
             imageView.setImageResource(R.drawable.key_black_24dp);
         } else {
             imageView.setImageResource(R.drawable.key_off_black_24dp);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     public void generateClicked(View view) {

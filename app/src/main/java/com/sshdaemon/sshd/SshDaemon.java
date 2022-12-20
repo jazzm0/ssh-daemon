@@ -1,6 +1,6 @@
 package com.sshdaemon.sshd;
 
-import static android.app.PendingIntent.FLAG_MUTABLE;
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static com.sshdaemon.sshd.SshFingerprint.encode;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintMD5;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
@@ -54,11 +54,10 @@ public class SshDaemon extends Service {
 
     public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
-    public static String SSH_DAEMON = "SshDaemon";
-    public static String PATH = "path";
-    public static String PORT = "port";
-    public static String USER = "user";
-    public static String PASSWORD = "PASSWORD";
+    public static final String SSH_DAEMON = "SshDaemon";
+    public static final String PORT = "port";
+    public static final String USER = "user";
+    public static final String PASSWORD = "PASSWORD";
     private SshServer sshd;
 
     public SshDaemon() {
@@ -79,7 +78,7 @@ public class SshDaemon extends Service {
         return authorizedKeysExist;
     }
 
-    public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException, IOException {
+    public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
         String rootPath = isNull(Environment.getExternalStorageDirectory()) ? "/" : Environment.getExternalStorageDirectory().getPath();
         SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + "/" + SSH_DAEMON + "/ssh_host_rsa_key"));
         List<KeyPair> keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
@@ -130,7 +129,7 @@ public class SshDaemon extends Service {
 
             Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                    0, notificationIntent, FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                    0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
