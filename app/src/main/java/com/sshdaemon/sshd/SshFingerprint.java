@@ -1,5 +1,7 @@
 package com.sshdaemon.sshd;
 
+import org.apache.sshd.common.digest.BuiltinDigests;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,12 +24,12 @@ public class SshFingerprint {
     }
 
     public static String fingerprintMD5(byte[] keyBlob) throws NoSuchAlgorithmException {
-        byte[] md5DigestPublic = MessageDigest.getInstance("MD5").digest(keyBlob);
+        byte[] md5DigestPublic = MessageDigest.getInstance(BuiltinDigests.Constants.MD5).digest(keyBlob);
         return bytesToHex(md5DigestPublic).replaceAll("(.{2})(?!$)", "$1:");
     }
 
     public static String fingerprintSHA256(byte[] keyBlob) throws NoSuchAlgorithmException {
-        byte[] sha256DigestPublic = MessageDigest.getInstance("SHA-256").digest(keyBlob);
+        byte[] sha256DigestPublic = MessageDigest.getInstance(BuiltinDigests.Constants.SHA256).digest(keyBlob);
         return new String(Base64.getEncoder().encode(sha256DigestPublic));
     }
 
