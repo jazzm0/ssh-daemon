@@ -4,6 +4,7 @@ import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static com.sshdaemon.sshd.SshFingerprint.encode;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintMD5;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
+import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
@@ -29,12 +30,14 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +55,12 @@ import java.util.Map;
 
 public class SshDaemon extends Service {
 
+    static {
+        Security.removeProvider("BC");
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    private static final Logger logger = getLogger();
     public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
@@ -78,15 +87,19 @@ public class SshDaemon extends Service {
         return authorizedKeysExist;
     }
 
-    public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() throws NoSuchAlgorithmException {
-        String rootPath = isNull(Environment.getExternalStorageDirectory()) ? "/" : Environment.getExternalStorageDirectory().getPath();
-        SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + "/" + SSH_DAEMON + "/ssh_host_rsa_key"));
-        List<KeyPair> keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+    public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
         final Map<SshFingerprint.DIGESTS, String> result = new HashMap<>();
-        final ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
-        final byte[] encodedKey = encode(publicKey);
-        result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(encodedKey));
-        result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(encodedKey));
+        try {
+            String rootPath = isNull(Environment.getExternalStorageDirectory()) ? "/" : Environment.getExternalStorageDirectory().getPath();
+            SimpleGeneratorHostKeyProvider simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + "/" + SSH_DAEMON + "/ssh_host_rsa_key"));
+            List<KeyPair> keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
+            final ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
+            final byte[] encodedKey = encode(publicKey);
+            result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(encodedKey));
+            result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(encodedKey));
+        } catch (Exception e) {
+            logger.error("Exception while getting fingerprints: ", e);
+        }
 
         return result;
     }
