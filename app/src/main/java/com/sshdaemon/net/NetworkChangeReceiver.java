@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,10 +17,8 @@ import com.sshdaemon.R;
 
 import org.slf4j.Logger;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,29 +34,28 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     static Set<String> getInterfaces() {
-        TreeSet<String> result = new TreeSet<>();
+        var result = new TreeSet<String>();
 
         try {
 
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            var networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
             while (networkInterfaces.hasMoreElements()) {
 
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                var networkInterface = networkInterfaces.nextElement();
 
                 if ((!networkInterface.isLoopback()) &&
                         networkInterface.isUp() &&
                         !networkInterface.isVirtual()) {
 
-                    Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                    var addresses = networkInterface.getInetAddresses();
 
                     while (addresses.hasMoreElements()) {
-                        InetAddress inetAddress = addresses.nextElement();
-                        String hostAddress = inetAddress.getHostAddress();
+                        var inetAddress = addresses.nextElement();
+                        var hostAddress = inetAddress.getHostAddress();
                         if (!isNull(hostAddress) && !(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
-                            hostAddress = hostAddress.replace("%", " on interface ");
+                            result.add(hostAddress.replace("%", " on interface "));
                         }
-                        result.add(hostAddress);
                     }
                 }
             }
@@ -73,11 +69,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if (isNull(connectivityManager))
             return false;
 
-        Network nw = connectivityManager.getActiveNetwork();
+        var nw = connectivityManager.getActiveNetwork();
 
         if (isNull(nw)) return false;
 
-        NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+        var actNw = connectivityManager.getNetworkCapabilities(nw);
 
         return !isNull(actNw) &&
                 (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
@@ -94,14 +90,14 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 .getSystemService(Context.CONNECTIVITY_SERVICE)))
             return;
 
-        TextView interfacesText = new TextView(context);
+        var interfacesText = new TextView(context);
         interfacesText.setText(R.string.interface_label_text);
         interfacesText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         interfacesText.setTypeface(null, Typeface.BOLD);
 
         networkInterfaces.addView(interfacesText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        for (String interfaceAddress : getInterfaces())
+        for (var interfaceAddress : getInterfaces())
             networkInterfaces.addView(createTextView(context, interfaceAddress),
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 

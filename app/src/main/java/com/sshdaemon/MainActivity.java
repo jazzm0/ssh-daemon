@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,7 +38,6 @@ import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -50,17 +48,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableViews(boolean enable) {
-        TextInputEditText port = findViewById(R.id.port_value);
-        TextInputEditText user = findViewById(R.id.user_value);
-        TextInputEditText password = findViewById(R.id.password_value);
-        Button generate = findViewById(R.id.generate);
+        var port = findViewById(R.id.port_value);
+        var user = findViewById(R.id.user_value);
+        var password = findViewById(R.id.password_value);
+        var generate = findViewById(R.id.generate);
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
         generate.setClickable(enable);
 
-        View view = findViewById(R.id.start_stop_action);
-        FloatingActionButton button = (FloatingActionButton) view;
+        var view = findViewById(R.id.start_stop_action);
+        var button = (FloatingActionButton) view;
         if (enable) {
             button.setImageResource(R.drawable.play_arrow_black_24dp);
         } else {
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         fingerPrintsLayout.removeAllViews();
 
-        TextView interfacesText = new TextView(this);
+        var interfacesText = new TextView(this);
         interfacesText.setText(R.string.fingerprints_label_text);
         interfacesText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         interfacesText.setTypeface(null, Typeface.BOLD);
@@ -82,17 +80,17 @@ public class MainActivity extends AppCompatActivity {
         fingerPrintsLayout.addView(interfacesText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
         for (Map.Entry<SshFingerprint.DIGESTS, String> e : fingerPrints.entrySet()) {
-            TextView textView = createTextView(this, "(" + e.getKey() + ") " + e.getValue());
+            var textView = createTextView(this, "(" + e.getKey() + ") " + e.getValue());
             fingerPrintsLayout.addView(textView,
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         }
     }
 
     private boolean isStarted() {
-        ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        var am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         @SuppressWarnings("deprecation")
-        List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(1);
-        boolean started = false;
+        var runningServices = am.getRunningServices(1);
+        var started = false;
         if (!runningServices.isEmpty() && runningServices.get(0).service.flattenToString().contains(SSH_DAEMON)) {
             started = runningServices.get(0).started;
         }
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        LinearLayout linearLayout = findViewById(R.id.network_interfaces);
+        var linearLayout = (LinearLayout) findViewById(R.id.network_interfaces);
 
         this.registerReceiver(new NetworkChangeReceiver(linearLayout, this),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -144,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void keyClicked(View view) {
-        CharSequence text = publicKeyAuthenticationExists() ?
+        var text = publicKeyAuthenticationExists() ?
                 getResources().getString(R.string.ssh_public_key_exists) :
                 getResources().getString(R.string.ssh_public_key_doesnt_exists);
 
@@ -164,16 +162,16 @@ public class MainActivity extends AppCompatActivity {
         } else {
             enableViews(false);
             setFingerPrints(getFingerPrints());
-            final String port = getValue(findViewById(R.id.port_value));
-            final String user = getValue(findViewById(R.id.user_value));
-            final String password = getValue(findViewById(R.id.password_value));
+            final var port = getValue(findViewById(R.id.port_value));
+            final var user = getValue(findViewById(R.id.user_value));
+            final var password = getValue(findViewById(R.id.password_value));
 
             startService(Integer.parseInt(port), user, password);
         }
     }
 
     public void startService(int port, String user, String password) {
-        Intent sshDaemonIntent = new Intent(this, SshDaemon.class);
+        var sshDaemonIntent = new Intent(this, SshDaemon.class);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);
@@ -181,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stopService() {
-        Intent sshDaemonIntent = new Intent(this, SshDaemon.class);
+        var sshDaemonIntent = new Intent(this, SshDaemon.class);
         stopService(sshDaemonIntent);
     }
 }

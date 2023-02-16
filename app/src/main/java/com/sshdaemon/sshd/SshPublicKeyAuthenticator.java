@@ -20,7 +20,6 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,23 +33,23 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     private static byte[] readElement(DataInput dataInputStream) throws IOException {
-        byte[] buffer = new byte[dataInputStream.readInt()];
+        var buffer = new byte[dataInputStream.readInt()];
         dataInputStream.readFully(buffer);
         return buffer;
     }
 
     protected static RSAPublicKey readKey(String key) throws Exception {
-        byte[] decodedKey = decodeBase64(key.split(" ")[1]);
-        DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
-        String pubKeyFormat = new String(readElement(dataInputStream));
+        var decodedKey = decodeBase64(key.split(" ")[1]);
+        var dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
+        var pubKeyFormat = new String(readElement(dataInputStream));
         if (!pubKeyFormat.equals("ssh-rsa"))
             throw new IllegalAccessException("Unsupported format");
 
-        byte[] publicExponent = readElement(dataInputStream);
-        byte[] modulus = readElement(dataInputStream);
+        var publicExponent = readElement(dataInputStream);
+        var modulus = readElement(dataInputStream);
 
-        KeySpec specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
+        var keyFactory = KeyFactory.getInstance("RSA");
 
         return (RSAPublicKey) keyFactory.generatePublic(specification);
     }
@@ -60,12 +59,12 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     public boolean loadKeysFromPath(String authorizedKeysPath) {
-        File file = new File(authorizedKeysPath);
+        var file = new File(authorizedKeysPath);
         AndroidLogger.getLogger().debug("Try to add authorized key file " + file.getPath());
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String line;
             while (!isNull((line = bufferedReader.readLine()))) {
-                RSAPublicKey key = readKey(line);
+                var key = readKey(line);
                 authorizedKeys.add(key);
                 AndroidLogger.getLogger().debug("Added authorized key" + key.toString());
             }

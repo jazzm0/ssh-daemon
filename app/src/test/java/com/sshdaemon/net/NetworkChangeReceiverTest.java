@@ -22,8 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Set;
-
 public class NetworkChangeReceiverTest {
 
     private final LinearLayout linearLayout = mock(LinearLayout.class);
@@ -44,19 +42,19 @@ public class NetworkChangeReceiverTest {
 
     @Test
     public void testViewsAreAdded() {
-        ConnectivityManager connectivityManager = mock(ConnectivityManager.class);
-        Network network = mock(Network.class);
-        NetworkCapabilities networkCapabilities = mock(NetworkCapabilities.class);
+        var connectivityManager = mock(ConnectivityManager.class);
+        var network = mock(Network.class);
+        var networkCapabilities = mock(NetworkCapabilities.class);
         when(networkCapabilities.hasTransport(anyInt())).thenReturn(true);
         when(connectivityManager.getActiveNetwork()).thenReturn(network);
         when(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities);
         when(context.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
         networkChangeReceiver.onReceive(context, mock(Intent.class));
 
-        ArgumentCaptor<View> view = ArgumentCaptor.forClass(View.class);
-        ArgumentCaptor<LinearLayout.LayoutParams> layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
+        var view = ArgumentCaptor.forClass(View.class);
+        var layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
 
-        final Set<String> interfaces = getInterfaces();
+        final var interfaces = getInterfaces();
 
         assertFalse(interfaces.isEmpty());
 

@@ -9,15 +9,11 @@ import static org.hamcrest.core.Is.is;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
 public class SshDaemonTest {
 
     @Test
-    public void testLoadKeys() throws NoSuchAlgorithmException, IOException {
-        Map<SshFingerprint.DIGESTS, String> fingerPrints = getFingerPrints();
+    public void testLoadKeys() {
+        var fingerPrints = getFingerPrints();
         assertThat(fingerPrints.containsKey(SshFingerprint.DIGESTS.MD5), Matchers.is(true));
         assertThat(fingerPrints.containsKey(SshFingerprint.DIGESTS.SHA256), Matchers.is(true));
         assertThat(fingerPrints.get(SshFingerprint.DIGESTS.MD5), is(not(nullValue())));
