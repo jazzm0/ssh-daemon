@@ -54,9 +54,8 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         var inetAddress = addresses.nextElement();
                         var hostAddress = inetAddress.getHostAddress();
                         if (!isNull(hostAddress) && !(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
-                            hostAddress = hostAddress.replace("%", " on interface ");
+                            result.add(hostAddress.replace("%", " on interface "));
                         }
-                        result.add(hostAddress);
                     }
                 }
             }

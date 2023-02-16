@@ -19,6 +19,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         var appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.sshdaemon", appContext.getPackageName());
+        assertEquals("com.daemon.ssh", appContext.getPackageName());
     }
 }
