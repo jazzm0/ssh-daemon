@@ -1,10 +1,10 @@
 package com.sshdaemon.sshd;
 
-import org.junit.Test;
-
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import org.junit.Test;
 
 public class SshPasswordTest {
 

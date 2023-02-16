@@ -52,18 +52,19 @@ import java.util.Map;
 
 public class SshDaemon extends Service {
 
-    static {
-        Security.removeProvider("BC");
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
-    private static final Logger logger = getLogger();
     public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
     public static final String PORT = "port";
     public static final String USER = "user";
     public static final String PASSWORD = "PASSWORD";
+    private static final Logger logger = getLogger();
+
+    static {
+        Security.removeProvider("BC");
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     private SshServer sshd;
 
     public SshDaemon() {

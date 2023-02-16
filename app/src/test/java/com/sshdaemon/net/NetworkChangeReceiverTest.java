@@ -22,8 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Set;
-
 public class NetworkChangeReceiverTest {
 
     private final LinearLayout linearLayout = mock(LinearLayout.class);

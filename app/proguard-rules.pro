@@ -20,9 +20,9 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--dontshrink
--dontoptimize
--dontpreverify
+#-dontshrink
+#-dontoptimize
+#-dontpreverify
 -verbose
 
 -dontwarn javax.management.**
@@ -31,6 +31,12 @@
 -dontwarn org.apache.commons.logging.**
 -dontwarn org.slf4j.**
 -dontwarn org.json.**
+-dontwarn java.rmi.**
+-dontwarn javax.lang.**
+-dontwarn javax.naming.**
+-dontwarn javax.security.auth.**
+-dontwarn org.apache.tomcat.jni.**
+-dontwarn org.ietf.jgss.**
 
 
 -keep public class * extends android.app.Activity

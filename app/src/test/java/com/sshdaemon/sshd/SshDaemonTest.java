@@ -9,8 +9,6 @@ import static org.hamcrest.core.Is.is;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import java.util.Map;
-
 public class SshDaemonTest {
 
     @Test
