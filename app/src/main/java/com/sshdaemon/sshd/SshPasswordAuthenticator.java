@@ -1,5 +1,7 @@
 package com.sshdaemon.sshd;
 
+import static java.util.Objects.requireNonNull;
+
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
@@ -11,8 +13,8 @@ public class SshPasswordAuthenticator implements PasswordAuthenticator {
     private final String password;
 
     public SshPasswordAuthenticator(String user, String password) {
-        this.user = user;
-        this.password = password;
+        this.user = requireNonNull(user);
+        this.password = requireNonNull(password);
     }
 
     @Override
