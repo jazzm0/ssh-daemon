@@ -20,4 +20,6 @@
 
     <string name="ssh_public_key_exists">Public key authentication enabled</string>
 
+    <string name="read_only">read only</string>
+
 </resources>

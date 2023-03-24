@@ -25,6 +25,7 @@ import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
@@ -57,7 +58,8 @@ public class SshDaemon extends Service {
     public static final String SSH_DAEMON = "SshDaemon";
     public static final String PORT = "port";
     public static final String USER = "user";
-    public static final String PASSWORD = "PASSWORD";
+    public static final String PASSWORD = "password";
+    public static final String READ_ONLY = "readOnly";
     private static final Logger logger = getLogger();
 
     static {
@@ -70,8 +72,8 @@ public class SshDaemon extends Service {
     public SshDaemon() {
     }
 
-    public SshDaemon(int port, String user, String password) {
-        init(port, user, password);
+    public SshDaemon(int port, String user, String password, boolean readOnly) {
+        init(port, user, password, readOnly);
     }
 
     public static boolean publicKeyAuthenticationExists() {
@@ -102,7 +104,7 @@ public class SshDaemon extends Service {
         return result;
     }
 
-    private void init(int port, String user, String password) {
+    private void init(int port, String user, String password, boolean readOnly) {
         final var rootPath = Environment.getExternalStorageDirectory().getPath();
         final var path = rootPath + "/" + SSH_DAEMON;
         createDirIfNotExists(path);
@@ -121,6 +123,9 @@ public class SshDaemon extends Service {
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
         var factory = new SftpSubsystemFactory.Builder().build();
+        if (readOnly) {
+            factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
+        }
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
         simpleGeneratorHostKeyProvider.loadKeys(null);
@@ -155,7 +160,8 @@ public class SshDaemon extends Service {
             var port = intent.getIntExtra(PORT, 8022);
             var user = requireNonNull(intent.getStringExtra(USER), "User should be not null!");
             var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password should be not null!");
-            init(port, user, password);
+            var readOnly = intent.getBooleanExtra(READ_ONLY, false);
+            init(port, user, password, readOnly);
             sshd.start();
         } catch (IOException e) {
             AndroidLogger.getLogger().error("Could not start daemon ", e);

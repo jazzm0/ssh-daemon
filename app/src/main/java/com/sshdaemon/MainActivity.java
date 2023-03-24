@@ -2,6 +2,7 @@ package com.sshdaemon;
 
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
+import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
 import static com.sshdaemon.sshd.SshDaemon.SSH_DAEMON;
 import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
@@ -33,6 +34,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
@@ -52,10 +54,13 @@ public class MainActivity extends AppCompatActivity {
         var user = findViewById(R.id.user_value);
         var password = findViewById(R.id.password_value);
         var generate = findViewById(R.id.generate);
+        var readonly = findViewById(R.id.readonly_switch);
+
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
         generate.setClickable(enable);
+        readonly.setEnabled(enable);
 
         var view = findViewById(R.id.start_stop_action);
         var button = (FloatingActionButton) view;
@@ -165,16 +170,19 @@ public class MainActivity extends AppCompatActivity {
             final var port = getValue(findViewById(R.id.port_value));
             final var user = getValue(findViewById(R.id.user_value));
             final var password = getValue(findViewById(R.id.password_value));
+            final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
 
-            startService(Integer.parseInt(port), user, password);
+            startService(Integer.parseInt(port), user, password, readOnly);
         }
     }
 
-    public void startService(int port, String user, String password) {
+    public void startService(int port, String user, String password, boolean readOnly) {
         var sshDaemonIntent = new Intent(this, SshDaemon.class);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);
+        sshDaemonIntent.putExtra(READ_ONLY, readOnly);
+
         ContextCompat.startForegroundService(this, sshDaemonIntent);
     }
 
