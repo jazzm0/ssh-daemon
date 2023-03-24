@@ -5,11 +5,43 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.os.Environment;
+
+import org.apache.sshd.server.SshServer;
 import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Environment.class, SshServer.class})
 public class SshDaemonTest {
+
+    @Rule
+    TemporaryFolder tempFolder = new TemporaryFolder();
+
+    SshServer sshServer = mock(SshServer.class);
+
+    @Before
+    public void doSetup() throws IOException {
+        PowerMockito.mockStatic(Environment.class);
+        PowerMockito.mockStatic(SshServer.class);
+
+        when(Environment.getExternalStorageDirectory()).thenReturn(tempFolder.newFolder());
+        when(SshServer.setUpDefaultServer()).thenReturn(sshServer);
+    }
+
 
     @Test
     public void testLoadKeys() {
@@ -18,5 +50,12 @@ public class SshDaemonTest {
         assertThat(fingerPrints.containsKey(SshFingerprint.DIGESTS.SHA256), Matchers.is(true));
         assertThat(fingerPrints.get(SshFingerprint.DIGESTS.MD5), is(not(nullValue())));
         assertThat(fingerPrints.get(SshFingerprint.DIGESTS.SHA256), is(not(nullValue())));
+    }
+
+    @Test
+    public void testReadOnlySubsystem() {
+        var daemon = new SshDaemon(22, "user", "password", true);
+        verify(sshServer).setPort(22);
+        verify(sshServer).setPasswordAuthenticator(new SshPasswordAuthenticator("user", "password"));
     }
 }
