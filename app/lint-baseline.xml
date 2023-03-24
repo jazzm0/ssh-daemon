@@ -1,58 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues name="AGP (7.3.1)" by="lint 7.3.1" client="gradle" dependencies="false" format="6"
-    type="baseline" variant="all" version="7.3.1">
+<issues by="lint Electric Eel | 2022.1.1 Patch 2" format="5">
 
-    <issue
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.MANAGE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        id="ScopedStorage"
+    <issue id="ScopedStorage"
         message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE">
-        <location column="36" file="src/main/AndroidManifest.xml" line="5" />
+        <location file="src/main/AndroidManifest.xml" line="5" />
     </issue>
 
-    <issue
-        errorLine1="                    0, notificationIntent, FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);"
-        errorLine2="                                           ~~~~~~~~~~~~" id="InlinedApi"
-        message="Field requires API level 31 (current min is 26): `android.app.PendingIntent#FLAG_MUTABLE`">
-        <location column="44" file="src/main/java/com/sshdaemon/sshd/SshDaemon.java" line="133" />
+    <issue id="UsingOnClickInXml"
+        message="Use databinding or explicit wiring of click listener in code">
+        <location file="src/main/res/layout/main_activity.xml" line="111" />
     </issue>
 
-    <issue errorLine1="    implementation &apos;org.apache.sshd:sshd-core:2.7.0&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" id="GradleDependency"
-        message="A newer version of org.apache.sshd:sshd-core than 2.7.0 is available: 2.9.2">
-        <location column="20" file="build.gradle" line="57" />
+    <issue id="UsingOnClickInXml"
+        message="Use databinding or explicit wiring of click listener in code">
+        <location file="src/main/res/layout/main_activity.xml" line="122" />
     </issue>
 
-    <issue errorLine1="    implementation &apos;org.apache.sshd:sshd-sftp:2.7.0&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" id="GradleDependency"
-        message="A newer version of org.apache.sshd:sshd-sftp than 2.7.0 is available: 2.9.2">
-        <location column="20" file="build.gradle" line="58" />
+    <issue id="UsingOnClickInXml"
+        message="Use databinding or explicit wiring of click listener in code">
+        <location file="src/main/res/layout/main_activity.xml" line="141" />
     </issue>
 
-    <issue errorLine1="    &lt;string name=&quot;default_port_value&quot;>8022&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~" id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;default_port_value&quot; is not translated in &quot;ru&quot; (Russian)">
-        <location column="13" file="src/main/res/values/strings.xml" line="11" />
+        <location file="src/main/res/values/strings.xml" line="11" />
     </issue>
 
-    <issue
-        errorLine1="    &lt;string name=&quot;ssh_public_key_doesnt_exists&quot;>Create file authorized_keys in directory SshDaemon to enable key based authentication&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;ssh_public_key_doesnt_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location column="13" file="src/main/res/values/strings.xml" line="19" />
+        <location file="src/main/res/values/strings.xml" line="19" />
     </issue>
 
-    <issue
-        errorLine1="    &lt;string name=&quot;ssh_public_key_exists&quot;>Public key authentication enabled&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~" id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;ssh_public_key_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location column="13" file="src/main/res/values/strings.xml" line="21" />
+        <location file="src/main/res/values/strings.xml" line="21" />
     </issue>
 
-    <issue errorLine1="        if (!wakeLock.isHeld()) wakeLock.acquire();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~" id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery.">
-        <location column="33" file="src/main/java/com/sshdaemon/MainActivity.java" line="77" />
+    <issue id="MissingTranslation"
+        message="&quot;read_only&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
+        <location file="src/main/res/values/strings.xml" line="23" />
     </issue>
 
     <issue id="ObsoleteSdkInt"
@@ -60,34 +46,42 @@
         <location file="src/main/res/mipmap-anydpi-v26" />
     </issue>
 
-    <issue errorLine1="    android:background=&quot;@android:color/holo_blue_dark&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" id="Overdraw"
+    <issue id="Overdraw"
         message="Possible overdraw: Root element paints background `@android:color/holo_blue_dark` with a theme that also paints a background (inferred theme is `@style/Theme.SshDaemon`)">
-        <location column="5" file="src/main/res/layout/main_activity.xml" line="9" />
+        <location file="src/main/res/layout/main_activity.xml" line="9" />
     </issue>
 
-    <issue
-        errorLine1="                &lt;com.google.android.material.floatingactionbutton.FloatingActionButton"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        id="ContentDescription" message="Missing `contentDescription` attribute on image">
-        <location column="18" file="src/main/res/layout/main_activity.xml" line="115" />
+    <issue id="MonochromeLauncherIcon"
+        message="The application adaptive icon is missing a monochrome tag">
+        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml" line="2" />
     </issue>
 
-    <issue errorLine1="            &lt;ImageView" errorLine2="             ~~~~~~~~~"
-        id="ContentDescription" message="Missing `contentDescription` attribute on image">
-        <location column="14" file="src/main/res/layout/main_activity.xml" line="129" />
+    <issue id="MonochromeLauncherIcon"
+        message="The application adaptive icon is missing a monochrome tag">
+        <location file="src/main/res/mipmap-anydpi/ic_launcher.xml" line="2" />
     </issue>
 
-    <issue errorLine1="                &lt;Button" errorLine2="                 ~~~~~~"
-        id="RelativeOverlap"
+    <issue id="MonochromeLauncherIcon"
+        message="The application adaptive roundIcon is missing a monochrome tag">
+        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" line="2" />
+    </issue>
+
+    <issue id="MonochromeLauncherIcon"
+        message="The application adaptive roundIcon is missing a monochrome tag">
+        <location file="src/main/res/mipmap-anydpi/ic_launcher_round.xml" line="2" />
+    </issue>
+
+    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
+        <location file="src/main/res/layout/main_activity.xml" line="115" />
+    </issue>
+
+    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
+        <location file="src/main/res/layout/main_activity.xml" line="136" />
+    </issue>
+
+    <issue id="RelativeOverlap"
         message="`@id/generate` can overlap `@id/start_stop_action` if @id/start_stop_action, @string/generate grow due to localized text expansion">
-        <location column="18" file="src/main/res/layout/main_activity.xml" line="103" />
-    </issue>
-
-    <issue errorLine1="                android:layout_gravity=&quot;right&quot;"
-        errorLine2="                                        ~~~~~" id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
-        <location column="41" file="src/main/res/layout/main_activity.xml" line="133" />
+        <location file="src/main/res/layout/main_activity.xml" line="103" />
     </issue>
 
 </issues>
