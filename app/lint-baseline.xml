@@ -1,139 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint Electric Eel | 2022.1.1 Patch 2">
+<issues by="lint Electric Eel | 2022.1.1 Patch 2" format="5">
 
-    <issue
-        id="ScopedStorage"
+    <issue id="ScopedStorage"
         message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="5"/>
+        <location file="src/main/AndroidManifest.xml" line="5" />
     </issue>
 
-    <issue
-        id="UsingOnClickInXml"
+    <issue id="UsingOnClickInXml"
         message="Use databinding or explicit wiring of click listener in code">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="111"/>
+        <location file="src/main/res/layout/main_activity.xml" line="111" />
     </issue>
 
-    <issue
-        id="UsingOnClickInXml"
+    <issue id="UsingOnClickInXml"
         message="Use databinding or explicit wiring of click listener in code">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="122"/>
+        <location file="src/main/res/layout/main_activity.xml" line="122" />
     </issue>
 
-    <issue
-        id="UsingOnClickInXml"
+    <issue id="UsingOnClickInXml"
         message="Use databinding or explicit wiring of click listener in code">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="141"/>
+        <location file="src/main/res/layout/main_activity.xml" line="141" />
     </issue>
 
-    <issue
-        id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;default_port_value&quot; is not translated in &quot;ru&quot; (Russian)">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="11"/>
+        <location file="src/main/res/values/strings.xml" line="11" />
     </issue>
 
-    <issue
-        id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;ssh_public_key_doesnt_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="19"/>
+        <location file="src/main/res/values/strings.xml" line="19" />
     </issue>
 
-    <issue
-        id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;ssh_public_key_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="21"/>
+        <location file="src/main/res/values/strings.xml" line="21" />
     </issue>
 
-    <issue
-        id="MissingTranslation"
+    <issue id="MissingTranslation"
         message="&quot;read_only&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="23"/>
+        <location file="src/main/res/values/strings.xml" line="23" />
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
+    <issue id="ObsoleteSdkInt"
         message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
-        <location
-            file="src/main/res/mipmap-anydpi-v26"/>
+        <location file="src/main/res/mipmap-anydpi-v26" />
     </issue>
 
-    <issue
-        id="Overdraw"
+    <issue id="Overdraw"
         message="Possible overdraw: Root element paints background `@android:color/holo_blue_dark` with a theme that also paints a background (inferred theme is `@style/Theme.SshDaemon`)">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="9"/>
+        <location file="src/main/res/layout/main_activity.xml" line="9" />
     </issue>
 
-    <issue
-        id="MonochromeLauncherIcon"
+    <issue id="MonochromeLauncherIcon"
         message="The application adaptive icon is missing a monochrome tag">
-        <location
-            file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
-            line="2"/>
+        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml" line="2" />
     </issue>
 
-    <issue
-        id="MonochromeLauncherIcon"
+    <issue id="MonochromeLauncherIcon"
         message="The application adaptive icon is missing a monochrome tag">
-        <location
-            file="src/main/res/mipmap-anydpi/ic_launcher.xml"
-            line="2"/>
+        <location file="src/main/res/mipmap-anydpi/ic_launcher.xml" line="2" />
     </issue>
 
-    <issue
-        id="MonochromeLauncherIcon"
+    <issue id="MonochromeLauncherIcon"
         message="The application adaptive roundIcon is missing a monochrome tag">
-        <location
-            file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
-            line="2"/>
+        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" line="2" />
     </issue>
 
-    <issue
-        id="MonochromeLauncherIcon"
+    <issue id="MonochromeLauncherIcon"
         message="The application adaptive roundIcon is missing a monochrome tag">
-        <location
-            file="src/main/res/mipmap-anydpi/ic_launcher_round.xml"
-            line="2"/>
+        <location file="src/main/res/mipmap-anydpi/ic_launcher_round.xml" line="2" />
     </issue>
 
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="115"/>
+    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
+        <location file="src/main/res/layout/main_activity.xml" line="115" />
     </issue>
 
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="136"/>
+    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
+        <location file="src/main/res/layout/main_activity.xml" line="136" />
     </issue>
 
-    <issue
-        id="RelativeOverlap"
+    <issue id="RelativeOverlap"
         message="`@id/generate` can overlap `@id/start_stop_action` if @id/start_stop_action, @string/generate grow due to localized text expansion">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="103"/>
+        <location file="src/main/res/layout/main_activity.xml" line="103" />
     </issue>
 
 </issues>
