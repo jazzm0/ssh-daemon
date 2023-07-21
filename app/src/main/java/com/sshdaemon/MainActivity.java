@@ -14,6 +14,7 @@ import static com.sshdaemon.util.TextViewHelper.createTextView;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (publicKeyAuthenticationExists()) {
             imageView.setImageResource(R.drawable.key_black_24dp);
-            if (passwordAuthenticationEnabled.isActivated()) {
+            if (passwordAuthenticationEnabled.isChecked()) {
                 setPasswordGroupVisibility(View.VISIBLE);
                 enablePasswordAuthentication(enable, true);
             } else {
@@ -143,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        restoreValues();
         updateViews();
     }
 
@@ -170,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
         setFingerPrints(getFingerPrints());
         generateClicked(null);
+        restoreValues();
         updateViews();
     }
 
@@ -205,9 +208,34 @@ public class MainActivity extends AppCompatActivity {
             final var password = getValue(findViewById(R.id.password_value));
             final var passwordAuthenticationEnabled = ((SwitchMaterial) findViewById(R.id.password_authentication_enabled)).isChecked();
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
+            storeValues(port, user, passwordAuthenticationEnabled, readOnly);
 
             startService(Integer.parseInt(port), user, password, passwordAuthenticationEnabled, readOnly);
         }
+    }
+
+    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly) {
+        var editor = this.getPreferences(Context.MODE_PRIVATE).edit();
+
+        editor.putString(getString(R.string.default_port_value), port);
+        editor.putString(getString(R.string.default_user_value), user);
+        editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
+        editor.putBoolean(getString(R.string.read_only), readOnly);
+
+        editor.apply();
+    }
+
+    private void restoreValues() {
+        var preferences = this.getPreferences(Context.MODE_PRIVATE);
+        var port = (TextView) findViewById(R.id.port_value);
+        var user = (TextView) findViewById(R.id.user_value);
+        var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
+        var readonly = (SwitchMaterial) findViewById(R.id.readonly_switch);
+
+        port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
+        user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
+        passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
+        readonly.setChecked(preferences.getBoolean(getString(R.string.read_only), false));
     }
 
     public void startService(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
