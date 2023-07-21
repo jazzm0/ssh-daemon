@@ -20,6 +20,8 @@
 
     <string name="ssh_public_key_exists">Используется аутентификация открытым ключом</string>
 
+    <string name="password_authentication_enabled">Пароль активовано</string>
+
     <string name="read_only">только чтение</string>
 
 </resources>

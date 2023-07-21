@@ -20,5 +20,7 @@
 
     <string name="ssh_public_key_exists">Autenticação por chave pública ativada</string>
 
+    <string name="password_authentication_enabled">Senha ativada</string>
+
     <string name="read_only">somente leitura</string>
 </resources>
