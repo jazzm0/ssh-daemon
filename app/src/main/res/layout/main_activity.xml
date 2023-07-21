@@ -62,6 +62,7 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/user_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -78,6 +79,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/password_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -131,6 +133,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/read_only"
+                app:useMaterialThemeColors="true" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/password_authentication_enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="passwordSwitchClicked"
+                android:text="@string/password_authentication_enabled"
                 app:useMaterialThemeColors="true" />
 
             <ImageView

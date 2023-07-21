@@ -59,6 +59,8 @@ public class SshDaemon extends Service {
     public static final String PORT = "port";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
+
+    public static final String PASSWORD_AUTH_ENABLED = "passwordAuthenticationEnabled";
     public static final String READ_ONLY = "readOnly";
     private static final Logger logger = getLogger();
 
@@ -72,8 +74,8 @@ public class SshDaemon extends Service {
     public SshDaemon() {
     }
 
-    public SshDaemon(int port, String user, String password, boolean readOnly) {
-        init(port, user, password, readOnly);
+    public SshDaemon(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
+        init(port, user, password, passwordAuthenticationEnabled, readOnly);
     }
 
     public static boolean publicKeyAuthenticationExists() {
@@ -104,20 +106,22 @@ public class SshDaemon extends Service {
         return result;
     }
 
-    private void init(int port, String user, String password, boolean readOnly) {
+    private void init(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
         final var rootPath = Environment.getExternalStorageDirectory().getPath();
         final var path = rootPath + "/" + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", rootPath);
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
-        sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
             final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
             sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
             sshd.setPublickeyAuthenticator(sshPublicKeyAuthenticator);
+        }
+        if (passwordAuthenticationEnabled || !authorizedKeyFile.exists()) {
+            sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
         var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
@@ -160,8 +164,9 @@ public class SshDaemon extends Service {
             var port = intent.getIntExtra(PORT, 8022);
             var user = requireNonNull(intent.getStringExtra(USER), "User should be not null!");
             var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password should be not null!");
+            var passwordAuthenticationEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
             var readOnly = intent.getBooleanExtra(READ_ONLY, false);
-            init(port, user, password, readOnly);
+            init(port, user, password, passwordAuthenticationEnabled, readOnly);
             sshd.start();
         } catch (IOException e) {
             AndroidLogger.getLogger().error("Could not start daemon ", e);

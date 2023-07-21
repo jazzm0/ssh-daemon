@@ -64,7 +64,7 @@ public class SshDaemonTest {
 
     @Test
     public void testReadOnlySubsystem() {
-        new SshDaemon(22, "user", "password", true);
+        new SshDaemon(22, "user", "password", true, true);
 
         verify(sshServer).setPort(22);
         verify(sshServer).setPasswordAuthenticator(new SshPasswordAuthenticator("user", "password"));
@@ -77,7 +77,7 @@ public class SshDaemonTest {
 
     @Test
     public void testReadWriteSubsystem() {
-        new SshDaemon(22, "user", "password", false);
+        new SshDaemon(22, "user", "password", true, false);
 
         verify(sshServer).setPort(22);
         verify(sshServer).setPasswordAuthenticator(new SshPasswordAuthenticator("user", "password"));
