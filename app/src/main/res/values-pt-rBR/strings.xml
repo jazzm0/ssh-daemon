@@ -7,6 +7,7 @@
     <string name="interface_label_text">Interfaces da rede</string>
 
     <string name="port_label_text">porta</string>
+
     <string name="default_port_value">8022</string>
 
     <string name="default_user_value">usuário</string>
@@ -14,4 +15,10 @@
     <string name="default_password_value">senha</string>
 
     <string name="generate">Gerar</string>
+
+    <string name="ssh_public_key_doesnt_exists">Crie o arquivo authorized_keys no diretório SshDaemon para habilitar a autenticação baseada em chave</string>
+
+    <string name="ssh_public_key_exists">Используется аутентификация открытым ключом</string>
+
+    <string name="read_only">только чтение</string>
 </resources>
