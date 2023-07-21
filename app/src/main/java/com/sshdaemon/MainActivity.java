@@ -188,13 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void passwordSwitchClicked(View passwordAuthenticationEnabled) {
         var passwordSwitch = (SwitchMaterial) passwordAuthenticationEnabled;
-        if (passwordSwitch.isActivated()) {
-            enablePasswordAuthentication(true, false);
-            setPasswordGroupVisibility(View.GONE);
-        } else {
-            enablePasswordAuthentication(true, true);
-            setPasswordGroupVisibility(View.VISIBLE);
-        }
+        enablePasswordAuthentication(true, !passwordSwitch.isActivated());
         updateViews();
     }
 
