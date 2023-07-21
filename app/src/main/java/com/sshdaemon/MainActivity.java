@@ -1,6 +1,7 @@
 package com.sshdaemon;
 
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
+import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
 import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
 import static com.sshdaemon.sshd.SshDaemon.SSH_DAEMON;
@@ -54,13 +55,30 @@ public class MainActivity extends AppCompatActivity {
         var user = findViewById(R.id.user_value);
         var password = findViewById(R.id.password_value);
         var generate = findViewById(R.id.generate);
+        var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
         var readonly = findViewById(R.id.readonly_switch);
+        ImageView imageView = findViewById(R.id.key_based_authentication);
 
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
         generate.setClickable(enable);
         readonly.setEnabled(enable);
+
+        if (publicKeyAuthenticationExists()) {
+            imageView.setImageResource(R.drawable.key_black_24dp);
+            if (passwordAuthenticationEnabled.isActivated()) {
+                setPasswordGroupVisibility(View.VISIBLE);
+                enablePasswordAuthentication(enable, true);
+            } else {
+                setPasswordGroupVisibility(View.GONE);
+                enablePasswordAuthentication(enable, false);
+            }
+        } else {
+            imageView.setImageResource(R.drawable.key_off_black_24dp);
+            setPasswordGroupVisibility(View.VISIBLE);
+            enablePasswordAuthentication(enable && publicKeyAuthenticationExists(), true);
+        }
 
         var view = findViewById(R.id.start_stop_action);
         var button = (FloatingActionButton) view;
@@ -69,6 +87,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
             button.setImageResource(R.drawable.pause_black_24dp);
         }
+    }
+
+    private void setPasswordGroupVisibility(int visibility) {
+        var generate = findViewById(R.id.generate);
+        var passwordLayout = findViewById(R.id.password_layout);
+        var userLayout = findViewById(R.id.user_layout);
+        userLayout.setVisibility(visibility);
+        passwordLayout.setVisibility(visibility);
+        generate.setVisibility(visibility);
+    }
+
+    private void enablePasswordAuthentication(boolean enabled, boolean activated) {
+        var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
+        passwordAuthenticationEnabled.setEnabled(enabled);
+        passwordAuthenticationEnabled.setChecked(activated);
+        passwordAuthenticationEnabled.setActivated(activated);
     }
 
     private void setFingerPrints(Map<SshFingerprint.DIGESTS, String> fingerPrints) {
@@ -135,14 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setFingerPrints(getFingerPrints());
-
-        ImageView imageView = findViewById(R.id.key_based_authentication);
-
-        if (publicKeyAuthenticationExists()) {
-            imageView.setImageResource(R.drawable.key_black_24dp);
-        } else {
-            imageView.setImageResource(R.drawable.key_off_black_24dp);
-        }
+        generateClicked(null);
         updateViews();
     }
 
@@ -159,6 +186,18 @@ public class MainActivity extends AppCompatActivity {
         password.setText(getRandomString(5));
     }
 
+    public void passwordSwitchClicked(View passwordAuthenticationEnabled) {
+        var passwordSwitch = (SwitchMaterial) passwordAuthenticationEnabled;
+        if (passwordSwitch.isActivated()) {
+            enablePasswordAuthentication(true, false);
+            setPasswordGroupVisibility(View.GONE);
+        } else {
+            enablePasswordAuthentication(true, true);
+            setPasswordGroupVisibility(View.VISIBLE);
+        }
+        updateViews();
+    }
+
     public void startStopClicked(View view) {
 
         if (isStarted()) {
@@ -170,17 +209,19 @@ public class MainActivity extends AppCompatActivity {
             final var port = getValue(findViewById(R.id.port_value));
             final var user = getValue(findViewById(R.id.user_value));
             final var password = getValue(findViewById(R.id.password_value));
+            final var passwordAuthenticationEnabled = ((SwitchMaterial) findViewById(R.id.password_authentication_enabled)).isChecked();
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
 
-            startService(Integer.parseInt(port), user, password, readOnly);
+            startService(Integer.parseInt(port), user, password, passwordAuthenticationEnabled, readOnly);
         }
     }
 
-    public void startService(int port, String user, String password, boolean readOnly) {
+    public void startService(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
         var sshDaemonIntent = new Intent(this, SshDaemon.class);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);
+        sshDaemonIntent.putExtra(PASSWORD_AUTH_ENABLED, passwordAuthenticationEnabled);
         sshDaemonIntent.putExtra(READ_ONLY, readOnly);
 
         ContextCompat.startForegroundService(this, sshDaemonIntent);

@@ -18,8 +18,10 @@
 
     <string name="ssh_public_key_doesnt_exists">Create file authorized_keys in directory SshDaemon to enable key based authentication</string>
 
-    <string name="ssh_public_key_exists">Autenticação por chave pública ativada</string>
+    <string name="ssh_public_key_exists">Public key authentication enabled</string>
 
-    <string name="read_only">somente leitura</string>
+    <string name="password_authentication_enabled">Password enabled</string>
+
+    <string name="read_only">read-only</string>
 
 </resources>
