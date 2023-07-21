@@ -141,6 +141,30 @@ public class MainActivity extends AppCompatActivity {
         enableViews(!isStarted());
     }
 
+    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly) {
+        var editor = this.getPreferences(Context.MODE_PRIVATE).edit();
+
+        editor.putString(getString(R.string.default_port_value), port);
+        editor.putString(getString(R.string.default_user_value), user);
+        editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
+        editor.putBoolean(getString(R.string.read_only), readOnly);
+
+        editor.apply();
+    }
+
+    private void restoreValues() {
+        var preferences = this.getPreferences(Context.MODE_PRIVATE);
+        var port = (TextView) findViewById(R.id.port_value);
+        var user = (TextView) findViewById(R.id.user_value);
+        var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
+        var readonly = (SwitchMaterial) findViewById(R.id.readonly_switch);
+
+        port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
+        user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
+        passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
+        readonly.setChecked(preferences.getBoolean(getString(R.string.read_only), false));
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -186,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void generateClicked(View view) {
         TextInputEditText password = findViewById(R.id.password_value);
-        password.setText(getRandomString(5));
+        password.setText(getRandomString(6));
     }
 
     public void passwordSwitchClicked(View passwordAuthenticationEnabled) {
@@ -212,30 +236,6 @@ public class MainActivity extends AppCompatActivity {
 
             startService(Integer.parseInt(port), user, password, passwordAuthenticationEnabled, readOnly);
         }
-    }
-
-    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly) {
-        var editor = this.getPreferences(Context.MODE_PRIVATE).edit();
-
-        editor.putString(getString(R.string.default_port_value), port);
-        editor.putString(getString(R.string.default_user_value), user);
-        editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
-        editor.putBoolean(getString(R.string.read_only), readOnly);
-
-        editor.apply();
-    }
-
-    private void restoreValues() {
-        var preferences = this.getPreferences(Context.MODE_PRIVATE);
-        var port = (TextView) findViewById(R.id.port_value);
-        var user = (TextView) findViewById(R.id.user_value);
-        var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
-        var readonly = (SwitchMaterial) findViewById(R.id.readonly_switch);
-
-        port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
-        user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
-        passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
-        readonly.setChecked(preferences.getBoolean(getString(R.string.read_only), false));
     }
 
     public void startService(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
