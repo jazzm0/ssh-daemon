@@ -30,7 +30,7 @@ public class SshPublicKeyAuthenticatorTest {
     @Test
     public void testLoadED25519Key() throws Exception {
         var publicKey = SshPublicKeyAuthenticator.readKey("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJ0j5BztROLdZYHf8cpJsJr9jd8gCRUfm6oe9k3Bhh0 @quantenzitrone:matrix.org");
-        assertThat(publicKey.getFormat(), is("EdDSA"));
+        assertThat(publicKey.getFormat(), is("X.509"));
         assertThat(publicKey.getEncoded(), is(new byte[]{48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, 98, 116, -113, -112, 115, -75, 19, -117, 117, -106, 7, 127, -57, 41, 38, -62, 107, -10, 55, 124, -128, 36, 84, 126, 110, -88, 123, -39, 55, 6, 24, 116}));
     }
 

@@ -36,7 +36,7 @@ import java.util.List;
 public class SshDaemonTest {
 
     @Rule
-    TemporaryFolder tempFolder = new TemporaryFolder();
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     SshServer sshServer = mock(SshServer.class);
 
