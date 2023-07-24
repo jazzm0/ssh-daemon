@@ -6,8 +6,13 @@ import static java.util.Objects.isNull;
 
 import com.sshdaemon.util.AndroidLogger;
 
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
+
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -38,20 +43,24 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         return buffer;
     }
 
-    protected static RSAPublicKey readKey(String key) throws Exception {
+    protected static PublicKey readKey(String key) throws Exception {
         var decodedKey = decodeBase64(key.split(" ")[1]);
         var dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
         var pubKeyFormat = new String(readElement(dataInputStream));
-        if (!pubKeyFormat.equals("ssh-rsa"))
-            throw new IllegalAccessException("Unsupported format");
+        if (pubKeyFormat.equals("ssh-rsa")) {
+            var publicExponent = readElement(dataInputStream);
+            var modulus = readElement(dataInputStream);
 
-        var publicExponent = readElement(dataInputStream);
-        var modulus = readElement(dataInputStream);
+            var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
+            var keyFactory = KeyFactory.getInstance("RSA");
 
-        var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
-        var keyFactory = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) keyFactory.generatePublic(specification);
 
-        return (RSAPublicKey) keyFactory.generatePublic(specification);
+        } else if (pubKeyFormat.equals("ssh-ed25519")) {
+            var publicKey = new Ed25519PublicKeyParameters(readElement(dataInputStream), 0);
+            return new EdDSAPublicKey(new EdDSAPublicKeySpec(publicKey.getEncoded(), EdDSANamedCurveTable.ED_25519_CURVE_SPEC));
+        }
+        throw new UnknownPublicKeyFormatException(pubKeyFormat);
     }
 
     Set<PublicKey> getAuthorizedKeys() {
