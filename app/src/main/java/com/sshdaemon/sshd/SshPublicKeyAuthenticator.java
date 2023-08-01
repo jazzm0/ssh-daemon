@@ -1,6 +1,5 @@
 package com.sshdaemon.sshd;
 
-import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.isNull;
 
@@ -26,6 +25,7 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,7 +44,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     protected static PublicKey readKey(String key) throws Exception {
-        var decodedKey = decodeBase64(key.split(" ")[1]);
+        var decodedKey = Base64.getDecoder().decode((key.split(" ")[1]));
         var dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
         var pubKeyFormat = new String(readElement(dataInputStream));
         if (pubKeyFormat.equals("ssh-rsa")) {
