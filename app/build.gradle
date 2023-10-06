@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
 
     namespace 'com.sshdaemon'
 
@@ -9,8 +9,8 @@ android {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
         targetSdkVersion 33
-        versionCode 25
-        versionName "2.1.9"
+        versionCode 26
+        versionName "2.1.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -45,7 +45,7 @@ android {
 
 
 dependencies {
-    api 'com.google.android.material:material:1.9.0'
+    api 'com.google.android.material:material:1.10.0'
 
     implementation 'org.apache.sshd:sshd-core:2.10.0'
     implementation 'org.apache.sshd:sshd-sftp:2.10.0'
