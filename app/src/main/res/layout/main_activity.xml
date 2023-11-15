@@ -150,6 +150,13 @@
                 android:layout_gravity="end"
                 android:onClick="keyClicked" />
 
+            <Spinner
+                android:id="@+id/sftp_paths"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/sftp_root_path"
+                android:textColor="@android:color/holo_blue_dark" />
+
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

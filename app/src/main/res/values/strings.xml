@@ -22,6 +22,8 @@
 
     <string name="password_authentication_enabled">Password enabled</string>
 
+    <string name="sftp_root_path">Root path</string>
+
     <string name="read_only">read-only</string>
 
 </resources>

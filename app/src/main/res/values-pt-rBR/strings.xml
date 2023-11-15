@@ -22,5 +22,7 @@
 
     <string name="password_authentication_enabled">Senha ativada</string>
 
+    <string name="sftp_root_path">Caminho raiz</string>
+
     <string name="read_only">somente leitura</string>
 </resources>

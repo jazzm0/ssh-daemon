@@ -22,5 +22,7 @@
 
     <string name="password_authentication_enabled">Пароль активирован</string>
 
+    <string name="sftp_root_path">Корневой путь</string>
+
     <string name="read_only">только чтение</string>
 </resources>
