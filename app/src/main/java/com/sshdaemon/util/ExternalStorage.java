@@ -8,7 +8,6 @@ import android.os.Environment;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -27,12 +26,12 @@ public class ExternalStorage {
         var locations = new LinkedHashSet<String>();
         final var directories = context.getExternalFilesDirs(null);
         if (directories.length == 0) {
-            return Collections.emptyList();
+            return List.of("/");
         }
-        final var appSuffixLength = directories[0].getPath().replace(Environment.getExternalStorageDirectory().getPath(), " ").length();
+        final var appSuffixLength = directories[0].getPath().replace(getRootPath(), " ").length();
         for (var directory : directories) {
             var path = directory.getPath();
-            locations.add(path.substring(0, path.length() - appSuffixLength + 1) + "/");
+            locations.add(path.substring(0, path.length() - appSuffixLength + 1));
         }
         return new ArrayList<>(locations);
     }
