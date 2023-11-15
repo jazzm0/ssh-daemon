@@ -10,8 +10,9 @@ import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
-import static com.sshdaemon.util.ExternalStorage.getRootPath;
+import static com.sshdaemon.util.ExternalStorage.getAllStorageLocations;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
+import static java.util.Objects.isNull;
 
 import android.Manifest;
 import android.app.ActivityManager;
@@ -27,9 +28,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,16 +60,24 @@ public class MainActivity extends AppCompatActivity {
         var port = findViewById(R.id.port_value);
         var user = findViewById(R.id.user_value);
         var password = findViewById(R.id.password_value);
+        var sftpRootPaths = (Spinner) findViewById(R.id.sftp_paths);
         var generate = findViewById(R.id.generate);
         var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
         var readonly = findViewById(R.id.readonly_switch);
-        ImageView imageView = findViewById(R.id.key_based_authentication);
+        var imageView = (ImageView) findViewById(R.id.key_based_authentication);
 
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
+        sftpRootPaths.setEnabled(enable);
         generate.setClickable(enable);
         readonly.setEnabled(enable);
+
+        if (isNull(sftpRootPaths.getSelectedItem())) {
+            var adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getAllStorageLocations(this));
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            sftpRootPaths.setAdapter(adapter);
+        }
 
         if (publicKeyAuthenticationExists()) {
             imageView.setImageResource(R.drawable.key_black_24dp);
@@ -222,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startStopClicked(View view) {
-
+        final var sftpRootPath = ((Spinner) findViewById(R.id.sftp_paths)).getSelectedItem().toString();
         if (isStarted()) {
             enableViews(true);
             stopService();
@@ -236,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
             storeValues(port, user, passwordAuthenticationEnabled, readOnly);
 
-            startService(Integer.parseInt(port), user, password, getRootPath(), passwordAuthenticationEnabled, readOnly);
+            startService(Integer.parseInt(port), user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
         }
     }
 

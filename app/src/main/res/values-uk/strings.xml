@@ -22,6 +22,8 @@
 
     <string name="password_authentication_enabled">Пароль активовано</string>
 
+    <string name="sftp_root_path">Корінний шлях</string>
+
     <string name="read_only">только чтение</string>
 
 </resources>
