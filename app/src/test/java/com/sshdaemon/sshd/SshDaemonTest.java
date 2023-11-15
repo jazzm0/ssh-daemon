@@ -24,5 +24,4 @@ public class SshDaemonTest {
         assertThat(fingerPrints.get(SshFingerprint.DIGESTS.MD5), is(not(nullValue())));
         assertThat(fingerPrints.get(SshFingerprint.DIGESTS.SHA256), is(not(nullValue())));
     }
-
 }

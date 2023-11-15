@@ -4,11 +4,13 @@ import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
 import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
+import static com.sshdaemon.sshd.SshDaemon.SFTP_ROOT_PATH;
 import static com.sshdaemon.sshd.SshDaemon.SSH_DAEMON;
 import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
+import static com.sshdaemon.util.ExternalStorage.getRootPath;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 
 import android.Manifest;
@@ -234,15 +236,16 @@ public class MainActivity extends AppCompatActivity {
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
             storeValues(port, user, passwordAuthenticationEnabled, readOnly);
 
-            startService(Integer.parseInt(port), user, password, passwordAuthenticationEnabled, readOnly);
+            startService(Integer.parseInt(port), user, password, getRootPath(), passwordAuthenticationEnabled, readOnly);
         }
     }
 
-    public void startService(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
+    public void startService(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
         var sshDaemonIntent = new Intent(this, SshDaemon.class);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);
+        sshDaemonIntent.putExtra(SFTP_ROOT_PATH, sftpRootPath);
         sshDaemonIntent.putExtra(PASSWORD_AUTH_ENABLED, passwordAuthenticationEnabled);
         sshDaemonIntent.putExtra(READ_ONLY, readOnly);
 

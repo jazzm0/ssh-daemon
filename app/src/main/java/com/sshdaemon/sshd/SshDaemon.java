@@ -6,7 +6,7 @@ import static com.sshdaemon.sshd.SshFingerprint.fingerprintMD5;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
-import static java.util.Objects.isNull;
+import static com.sshdaemon.util.ExternalStorage.getRootPath;
 import static java.util.Objects.requireNonNull;
 
 import android.app.NotificationChannel;
@@ -14,7 +14,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Environment;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
@@ -53,13 +52,13 @@ import java.util.Map;
 
 public class SshDaemon extends Service {
 
-    public static final String AUTHORIZED_KEY_PATH = "/SshDaemon/authorized_keys";
+    public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
     public static final String PORT = "port";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
-
+    public static final String SFTP_ROOT_PATH = "sftpRootPath";
     public static final String PASSWORD_AUTH_ENABLED = "passwordAuthenticationEnabled";
     public static final String READ_ONLY = "readOnly";
     private static final Logger logger = getLogger();
@@ -74,12 +73,12 @@ public class SshDaemon extends Service {
     public SshDaemon() {
     }
 
-    public SshDaemon(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
-        init(port, user, password, passwordAuthenticationEnabled, readOnly);
+    public SshDaemon(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
+        init(port, user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
     }
 
     public static boolean publicKeyAuthenticationExists() {
-        var authorizedKeyPath = Environment.getExternalStorageDirectory().getPath() + AUTHORIZED_KEY_PATH;
+        var authorizedKeyPath = getRootPath() + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         var authorizedKeysExist = false;
         if (authorizedKeyFile.exists()) {
@@ -92,8 +91,8 @@ public class SshDaemon extends Service {
     public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
         final var result = new HashMap<SshFingerprint.DIGESTS, String>();
         try {
-            var rootPath = isNull(Environment.getExternalStorageDirectory()) ? "/" : Environment.getExternalStorageDirectory().getPath();
-            var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + "/" + SSH_DAEMON + "/ssh_host_rsa_key"));
+            var rootPath = getRootPath();
+            var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + SSH_DAEMON + "/ssh_host_rsa_key"));
             var keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
             final ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
             final byte[] encodedKey = encode(publicKey);
@@ -106,11 +105,11 @@ public class SshDaemon extends Service {
         return result;
     }
 
-    private void init(int port, String user, String password, boolean passwordAuthenticationEnabled, boolean readOnly) {
-        final var rootPath = Environment.getExternalStorageDirectory().getPath();
-        final var path = rootPath + "/" + SSH_DAEMON;
+    private void init(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
+        final var rootPath = getRootPath();
+        final var path = rootPath + SSH_DAEMON;
         createDirIfNotExists(path);
-        System.setProperty("user.home", rootPath);
+        System.setProperty("user.home", sftpRootPath);
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
@@ -131,7 +130,7 @@ public class SshDaemon extends Service {
             factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
         }
         sshd.setSubsystemFactories(Collections.singletonList(factory));
-        sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(rootPath)));
+        sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
         simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 
@@ -164,9 +163,10 @@ public class SshDaemon extends Service {
             var port = intent.getIntExtra(PORT, 8022);
             var user = requireNonNull(intent.getStringExtra(USER), "User should be not null!");
             var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password should be not null!");
+            var sftpRootPath = requireNonNull(intent.getStringExtra(SFTP_ROOT_PATH), "SFTP root path should be not null!");
             var passwordAuthenticationEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
             var readOnly = intent.getBooleanExtra(READ_ONLY, false);
-            init(port, user, password, passwordAuthenticationEnabled, readOnly);
+            init(port, user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
             sshd.start();
         } catch (IOException e) {
             AndroidLogger.getLogger().error("Could not start daemon ", e);
