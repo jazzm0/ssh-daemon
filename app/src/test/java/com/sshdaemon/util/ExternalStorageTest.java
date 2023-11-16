@@ -2,6 +2,7 @@ package com.sshdaemon.util;
 
 import static com.sshdaemon.util.ExternalStorage.getAllStorageLocations;
 import static com.sshdaemon.util.ExternalStorage.getRootPath;
+import static com.sshdaemon.util.ExternalStorage.hasMultipleStorageLocations;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,5 +34,26 @@ public class ExternalStorageTest {
         var contextMock = mock(Context.class);
         when(contextMock.getExternalFilesDirs(any())).thenReturn(new File[]{new File("/foo/suffix"), new File("/bar/suffix")});
         assertThat(getAllStorageLocations(contextMock).get(0), is("/"));
+    }
+
+    @Test
+    public void testNullPathsAreIgnored() {
+        var contextMock = mock(Context.class);
+        when(contextMock.getExternalFilesDirs(any())).thenReturn(new File[]{null, new File("/bar/suffix")});
+        assertThat(getAllStorageLocations(contextMock).get(0), is("/"));
+    }
+
+    @Test
+    public void testNullPathsAreIgnoredInExistenceTest() {
+        var contextMock = mock(Context.class);
+        when(contextMock.getExternalFilesDirs(any())).thenReturn(new File[]{null, new File("/bar/suffix")});
+        assertThat(hasMultipleStorageLocations(contextMock), is(false));
+    }
+
+    @Test
+    public void testSamePathsAreIgnoredInExistenceTest() {
+        var contextMock = mock(Context.class);
+        when(contextMock.getExternalFilesDirs(any())).thenReturn(new File[]{new File("/bar/suffix"), new File("/bar/suffix")});
+        assertThat(hasMultipleStorageLocations(contextMock), is(false));
     }
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExternalStorage {
 
@@ -24,22 +25,30 @@ public class ExternalStorage {
     }
 
     public static boolean hasMultipleStorageLocations(Context context) {
-        var directories = Arrays.stream(context.getExternalFilesDirs(null)).filter(d -> !isNull(d)).toArray();
-        return !isNull(directories) && directories.length > 1;
+        return Arrays
+                .stream(context.getExternalFilesDirs(null))
+                .filter(d -> !isNull(d))
+                .distinct()
+                .count() > 1;
     }
 
     public static List<String> getAllStorageLocations(Context context) {
         var locations = new LinkedHashSet<String>();
-        final var directories = context.getExternalFilesDirs(null);
-        if (directories.length == 0) {
+
+        final var directories = Arrays
+                .stream(context.getExternalFilesDirs(null))
+                .filter(d -> !isNull(d))
+                .map(File::getPath)
+                .collect(Collectors.toList());
+
+        if (directories.size() == 0) {
             return List.of("/");
         }
-        final var appSuffixLength = directories[0].getPath().replace(getRootPath(), " ").length();
+
+        final var appSuffixLength = directories.get(0).replace(getRootPath(), " ").length();
+
         for (var directory : directories) {
-            if (!isNull(directory)) {
-                var path = directory.getPath();
-                locations.add(path.substring(0, path.length() - appSuffixLength + 1));
-            }
+            locations.add(directory.substring(0, directory.length() - appSuffixLength + 1));
         }
         return new ArrayList<>(locations);
     }
