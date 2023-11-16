@@ -9,8 +9,8 @@ android {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
         targetSdkVersion 34
-        versionCode 28
-        versionName "2.1.12"
+        versionCode 29
+        versionName "2.1.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
