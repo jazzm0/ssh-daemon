@@ -11,6 +11,7 @@ import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.ExternalStorage.getAllStorageLocations;
+import static com.sshdaemon.util.ExternalStorage.hasMultipleStorageLocations;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
@@ -72,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         sftpRootPaths.setEnabled(enable);
         generate.setClickable(enable);
         readonly.setEnabled(enable);
+
+        if (hasMultipleStorageLocations(this)) {
+            sftpRootPaths.setVisibility(View.VISIBLE);
+        } else {
+            sftpRootPaths.setVisibility(View.GONE);
+        }
 
         if (isNull(sftpRootPaths.getSelectedItem())) {
             var adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getAllStorageLocations(this));
@@ -233,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startStopClicked(View view) {
-        final var sftpRootPath = ((Spinner) findViewById(R.id.sftp_paths)).getSelectedItem().toString();
         if (isStarted()) {
             enableViews(true);
             stopService();
@@ -243,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             final var port = getValue(findViewById(R.id.port_value));
             final var user = getValue(findViewById(R.id.user_value));
             final var password = getValue(findViewById(R.id.password_value));
+            final var sftpRootPath = ((Spinner) findViewById(R.id.sftp_paths)).getSelectedItem().toString();
             final var passwordAuthenticationEnabled = ((SwitchMaterial) findViewById(R.id.password_authentication_enabled)).isChecked();
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
             storeValues(port, user, passwordAuthenticationEnabled, readOnly);
