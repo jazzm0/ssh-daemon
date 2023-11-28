@@ -19,15 +19,4 @@
             file="$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15to18/1.75/f16e5252ad7a46d5eaf255231b0a5da307599082/bcpkix-jdk15to18-1.75.jar"/>
     </issue>
 
-    <issue
-        id="RelativeOverlap"
-        message="`@id/generate` can overlap `@id/start_stop_action` if @id/start_stop_action, @string/generate grow due to localized text expansion"
-        errorLine1="                &lt;Button"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/main/res/layout/main_activity.xml"
-            line="104"
-            column="18"/>
-    </issue>
-
 </issues>
