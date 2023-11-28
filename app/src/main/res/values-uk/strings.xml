@@ -26,4 +26,8 @@
 
     <string name="read_only">только чтение</string>
 
+    <string name="starts_stops_server">Запускає/зупиняє сервер</string>
+
+    <string name="shows_key_based_authentication_enabled_disabled">Показує, чи включено/виключено аутентифікацію за ключем</string>
+
 </resources>

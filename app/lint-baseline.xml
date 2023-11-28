@@ -1,87 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues by="lint Electric Eel | 2022.1.1 Patch 2" format="5">
+<issues format="6" by="lint 8.1.4" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.4)" variant="all" version="8.1.4">
 
-    <issue id="ScopedStorage"
-        message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE">
-        <location file="src/main/AndroidManifest.xml" line="5" />
+    <issue
+        id="ScopedStorage"
+        message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.MANAGE_EXTERNAL_STORAGE&quot; />"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="5"
+            column="36"/>
     </issue>
 
-    <issue id="UsingOnClickInXml"
-        message="Use databinding or explicit wiring of click listener in code">
-        <location file="src/main/res/layout/main_activity.xml" line="111" />
+    <issue
+        id="TrustAllX509TrustManager"
+        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
+        <location
+            file="$GRADLE_USER_HOME/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15to18/1.75/f16e5252ad7a46d5eaf255231b0a5da307599082/bcpkix-jdk15to18-1.75.jar"/>
     </issue>
 
-    <issue id="UsingOnClickInXml"
-        message="Use databinding or explicit wiring of click listener in code">
-        <location file="src/main/res/layout/main_activity.xml" line="122" />
-    </issue>
-
-    <issue id="UsingOnClickInXml"
-        message="Use databinding or explicit wiring of click listener in code">
-        <location file="src/main/res/layout/main_activity.xml" line="141" />
-    </issue>
-
-    <issue id="MissingTranslation"
-        message="&quot;default_port_value&quot; is not translated in &quot;ru&quot; (Russian)">
-        <location file="src/main/res/values/strings.xml" line="11" />
-    </issue>
-
-    <issue id="MissingTranslation"
-        message="&quot;ssh_public_key_doesnt_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location file="src/main/res/values/strings.xml" line="19" />
-    </issue>
-
-    <issue id="MissingTranslation"
-        message="&quot;ssh_public_key_exists&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location file="src/main/res/values/strings.xml" line="21" />
-    </issue>
-
-    <issue id="MissingTranslation"
-        message="&quot;read_only&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)">
-        <location file="src/main/res/values/strings.xml" line="23" />
-    </issue>
-
-    <issue id="ObsoleteSdkInt"
-        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
-        <location file="src/main/res/mipmap-anydpi-v26" />
-    </issue>
-
-    <issue id="Overdraw"
-        message="Possible overdraw: Root element paints background `@android:color/holo_blue_dark` with a theme that also paints a background (inferred theme is `@style/Theme.SshDaemon`)">
-        <location file="src/main/res/layout/main_activity.xml" line="9" />
-    </issue>
-
-    <issue id="MonochromeLauncherIcon"
-        message="The application adaptive icon is missing a monochrome tag">
-        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml" line="2" />
-    </issue>
-
-    <issue id="MonochromeLauncherIcon"
-        message="The application adaptive icon is missing a monochrome tag">
-        <location file="src/main/res/mipmap-anydpi/ic_launcher.xml" line="2" />
-    </issue>
-
-    <issue id="MonochromeLauncherIcon"
-        message="The application adaptive roundIcon is missing a monochrome tag">
-        <location file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" line="2" />
-    </issue>
-
-    <issue id="MonochromeLauncherIcon"
-        message="The application adaptive roundIcon is missing a monochrome tag">
-        <location file="src/main/res/mipmap-anydpi/ic_launcher_round.xml" line="2" />
-    </issue>
-
-    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
-        <location file="src/main/res/layout/main_activity.xml" line="115" />
-    </issue>
-
-    <issue id="ContentDescription" message="Missing `contentDescription` attribute on image">
-        <location file="src/main/res/layout/main_activity.xml" line="136" />
-    </issue>
-
-    <issue id="RelativeOverlap"
-        message="`@id/generate` can overlap `@id/start_stop_action` if @id/start_stop_action, @string/generate grow due to localized text expansion">
-        <location file="src/main/res/layout/main_activity.xml" line="103" />
+    <issue
+        id="RelativeOverlap"
+        message="`@id/generate` can overlap `@id/start_stop_action` if @id/start_stop_action, @string/generate grow due to localized text expansion"
+        errorLine1="                &lt;Button"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/res/layout/main_activity.xml"
+            line="104"
+            column="18"/>
     </issue>
 
 </issues>

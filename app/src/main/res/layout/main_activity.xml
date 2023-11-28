@@ -6,7 +6,6 @@
     android:id="@+id/viewBottom"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_blue_dark"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity">
 
@@ -120,6 +119,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:clickable="true"
+                    android:contentDescription="@string/starts_stops_server"
                     android:focusable="true"
                     android:onClick="startStopClicked"
                     android:src="@drawable/play_arrow_black_24dp"
@@ -148,6 +148,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:contentDescription="@string/shows_key_based_authentication_enabled_disabled"
                 android:onClick="keyClicked" />
 
             <Spinner

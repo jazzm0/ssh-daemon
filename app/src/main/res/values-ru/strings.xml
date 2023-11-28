@@ -25,4 +25,9 @@
     <string name="sftp_root_path">Корневой путь</string>
 
     <string name="read_only">только чтение</string>
+
+    <string name="starts_stops_server">Запускает/Останавливает сервер</string>
+
+    <string name="shows_key_based_authentication_enabled_disabled">Показывает включенную/отключенную аутентификацию на основе ключа</string>
+
 </resources>
