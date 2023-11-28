@@ -9,8 +9,8 @@ android {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
         targetSdkVersion 34
-        versionCode 30
-        versionName "2.1.14"
+        versionCode 31
+        versionName "2.1.15"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -47,13 +47,13 @@ android {
 dependencies {
     api 'com.google.android.material:material:1.10.0'
 
-    implementation 'org.apache.sshd:sshd-core:2.10.0'
-    implementation 'org.apache.sshd:sshd-sftp:2.10.0'
-    implementation 'org.apache.sshd:sshd-contrib:2.10.0'
-    implementation 'org.slf4j:slf4j-api:2.0.7'
-    implementation 'org.slf4j:slf4j-log4j12:2.0.7'
-    implementation 'org.bouncycastle:bcpkix-jdk15to18:1.75'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.75'
+    implementation 'org.apache.sshd:sshd-core:2.11.0'
+    implementation 'org.apache.sshd:sshd-sftp:2.11.0'
+    implementation 'org.apache.sshd:sshd-contrib:2.11.0'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-log4j12:2.0.9'
+    implementation 'org.bouncycastle:bcpkix-jdk15to18:1.77'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.77'
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'net.i2p.crypto:eddsa:0.3.0'
 
