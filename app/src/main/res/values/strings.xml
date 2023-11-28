@@ -26,4 +26,8 @@
 
     <string name="read_only">read-only</string>
 
+    <string name="starts_stops_server">Starts/Stops server</string>
+
+    <string name="shows_key_based_authentication_enabled_disabled">Shows key based authentication enabled/disabled</string>
+
 </resources>

@@ -25,4 +25,9 @@
     <string name="sftp_root_path">Caminho raiz</string>
 
     <string name="read_only">somente leitura</string>
+
+    <string name="starts_stops_server">Inicia/Para o servidor</string>
+
+    <string name="shows_key_based_authentication_enabled_disabled">Mostra autenticação baseada em chave habilitada/desabilitada</string>
+
 </resources>
