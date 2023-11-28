@@ -26,6 +26,7 @@
 -verbose
 
 -dontwarn javax.management.**
+-dontwarn javax.annotation.**
 -dontwarn java.lang.management.**
 -dontwarn org.apache.log4j.**
 -dontwarn org.apache.commons.logging.**
@@ -37,6 +38,11 @@
 -dontwarn javax.security.auth.**
 -dontwarn org.apache.tomcat.jni.**
 -dontwarn org.ietf.jgss.**
+-dontwarn org.hamcrest.**
+-dontwarn org.junit.**
+-dontwarn org.opentest4j.**
+-dontwarn org.w3c.dom.bootstrap.**
+-dontwarn edu.umd.cs.findbugs.**
 
 
 -keep public class * extends android.app.Activity
