@@ -16,15 +16,15 @@
 
     <string name="generate">Генерувати</string>
 
-    <string name="ssh_public_key_doesnt_exists">Создайте файл authorized_keys в каталоге SshDaemon, чтобы использовать аутентификацию на основе ключей</string>
+    <string name="ssh_public_key_doesnt_exists">Створіть файл authorized_keys у каталозі SshDaemon, щоб увімкнути автентифікацію на основі ключів</string>
 
-    <string name="ssh_public_key_exists">Используется аутентификация открытым ключом</string>
+    <string name="ssh_public_key_exists">Автентифікація відкритим ключем увімкнена</string>
 
-    <string name="password_authentication_enabled">Пароль активовано</string>
+    <string name="password_authentication_enabled">Пароль увімкнено</string>
 
     <string name="sftp_root_path">Корінний шлях</string>
 
-    <string name="read_only">только чтение</string>
+    <string name="read_only">тільки для читання</string>
 
     <string name="starts_stops_server">Запускає/зупиняє сервер</string>
 
