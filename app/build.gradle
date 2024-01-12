@@ -9,8 +9,8 @@ android {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
         targetSdkVersion 34
-        versionCode 31
-        versionName "2.1.15"
+        versionCode 32
+        versionName "2.1.16"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -45,7 +45,7 @@ android {
 
 
 dependencies {
-    api 'com.google.android.material:material:1.10.0'
+    api 'com.google.android.material:material:1.11.0'
 
     implementation 'org.apache.sshd:sshd-core:2.11.0'
     implementation 'org.apache.sshd:sshd-sftp:2.11.0'
