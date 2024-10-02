@@ -58,7 +58,7 @@ public class SshPublicKeyAuthenticatorTest {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/id_dsa.pub";
         assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
-        sshPublicKeyAuthenticator.getAuthorizedKeys();
+
         var authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.isEmpty(), is(true));
     }

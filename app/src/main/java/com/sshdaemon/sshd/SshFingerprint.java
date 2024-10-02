@@ -25,7 +25,7 @@ public class SshFingerprint {
         CURVE_MAP.put(521, NISTP521);
     }
 
-    public static String bytesToHex(byte[] bytes) {
+    private static String bytesToHex(byte[] bytes) {
         var hexChars = new char[bytes.length * 2];
         for (var j = 0; j < bytes.length; j++) {
             var v = bytes[j] & 0xFF;
@@ -33,6 +33,36 @@ public class SshFingerprint {
             hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    private static String getCurveName(int bitLength) {
+        return CURVE_MAP.entrySet().stream()
+                .filter(entry -> bitLength <= entry.getKey())
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("ECDSA bit length unsupported: " + bitLength));
+    }
+
+    private static int getQLen(int bitLength) {
+        if (bitLength <= 256) return 65;
+        if (bitLength <= 384) return 97;
+        if (bitLength <= 521) return 133;
+        throw new RuntimeException("ECDSA bit length unsupported: " + bitLength);
+    }
+
+    private static void writeArray(final byte[] arr, final ByteArrayOutputStream baos) {
+        for (var shift = 24; shift >= 0; shift -= 8) {
+            baos.write((arr.length >>> shift) & 0xFF);
+        }
+        baos.write(arr, 0, arr.length);
+    }
+
+    public static String fingerprintMD5(ECPublicKey publicKey) throws NoSuchAlgorithmException {
+        return fingerprintMD5(encode(publicKey));
+    }
+
+    public static String fingerprintSHA256(ECPublicKey publicKey) throws NoSuchAlgorithmException {
+        return fingerprintSHA256(encode(publicKey));
     }
 
     public static String fingerprintMD5(byte[] keyBlob) throws NoSuchAlgorithmException {
@@ -63,28 +93,6 @@ public class SshFingerprint {
             writeArray(q, buf);
         }
         return buf.toByteArray();
-    }
-
-    private static String getCurveName(int bitLength) {
-        return CURVE_MAP.entrySet().stream()
-                .filter(entry -> bitLength <= entry.getKey())
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ECDSA bit length unsupported: " + bitLength));
-    }
-
-    private static int getQLen(int bitLength) {
-        if (bitLength <= 256) return 65;
-        if (bitLength <= 384) return 97;
-        if (bitLength <= 521) return 133;
-        throw new RuntimeException("ECDSA bit length unsupported: " + bitLength);
-    }
-
-    public static void writeArray(final byte[] arr, final ByteArrayOutputStream baos) {
-        for (var shift = 24; shift >= 0; shift -= 8) {
-            baos.write((arr.length >>> shift) & 0xFF);
-        }
-        baos.write(arr, 0, arr.length);
     }
 
     public enum DIGESTS {
