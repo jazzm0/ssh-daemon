@@ -54,7 +54,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
             var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
             var keyFactory = KeyFactory.getInstance("RSA");
 
-            return (RSAPublicKey) keyFactory.generatePublic(specification);
+            return keyFactory.generatePublic(specification);
 
         } else if (pubKeyFormat.equals("ssh-ed25519")) {
             var publicKey = new Ed25519PublicKeyParameters(readElement(dataInputStream), 0);
