@@ -23,12 +23,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
-
 
 public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
 
@@ -44,7 +42,11 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     protected static PublicKey readKey(String key) throws Exception {
-        var decodedKey = Base64.getDecoder().decode((key.split(" ")[1]));
+        var parts = key.split(" ");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Invalid key format");
+        }
+        var decodedKey = Base64.getDecoder().decode(parts[1]);
         var dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
         var pubKeyFormat = new String(readElement(dataInputStream));
         if (pubKeyFormat.equals("ssh-rsa")) {
@@ -54,7 +56,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
             var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
             var keyFactory = KeyFactory.getInstance("RSA");
 
-            return (RSAPublicKey) keyFactory.generatePublic(specification);
+            return keyFactory.generatePublic(specification);
 
         } else if (pubKeyFormat.equals("ssh-ed25519")) {
             var publicKey = new Ed25519PublicKeyParameters(readElement(dataInputStream), 0);
@@ -75,10 +77,10 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
             while (!isNull((line = bufferedReader.readLine()))) {
                 var key = readKey(line);
                 authorizedKeys.add(key);
-                AndroidLogger.getLogger().debug("Added authorized key" + key.toString());
+                AndroidLogger.getLogger().debug("Added authorized key " + key.toString());
             }
         } catch (Exception e) {
-            AndroidLogger.getLogger().debug("Could not read authorized key file " + file.getPath());
+            AndroidLogger.getLogger().error("Could not read authorized key file " + file.getPath(), e);
             return false;
         }
         return true;

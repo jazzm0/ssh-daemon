@@ -11,9 +11,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 
 public class SshPublicKeyAuthenticatorTest {
@@ -58,13 +56,13 @@ public class SshPublicKeyAuthenticatorTest {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/id_dsa.pub";
         assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
-        sshPublicKeyAuthenticator.getAuthorizedKeys();
+
         var authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
         assertThat(authorizedKeys.isEmpty(), is(true));
     }
 
     @Test
-    public void testAuthenticationWithDifferentKeys() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public void testAuthenticationWithDifferentKeys() throws Exception {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
         assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
@@ -75,8 +73,20 @@ public class SshPublicKeyAuthenticatorTest {
         var thirdKey = new RSAPublicKeySpec(new BigInteger("801927917580758757979472556844251061760106383062627255825844583234477172790822215181804115531524750167110626578753641854839364115183295134199855565705144171967726133540156054269874189394350513031624322275630868353550082435946449319622372805788192807194970449569969122740243642313771155978930558037041288538032621167596518567745650173750903408431586471621670551481448236654798300138271016665710707996714088857315862552285448835022674484517837235751299196272185180808003335278208338200082797063402819475274804059251132953473839761384934730254695012273980048687260755946494082294536504365854421042209747262215825867288895826525289860017356087972232374369407427514550781201588459581132834605833136171102931440301693064676022315949585452254976583732273279685241548589989552958501585967916294792046822598474933776631974472781228885380669240991739694442254830793044605848889551686184197217760849351416181286067575078914864978102172921573494121943905751707671961364840577714192853806567108935276748552313084033867404574544169457199433681276796221829523529342719064559112634681882823253467088788554399120329634693450227027912364246515879972958896483379084082357407915577538153708816300929136449401980058929992848710222259418850185043358239451"), exponent);
         var keyFactory = KeyFactory.getInstance("RSA");
 
+        var ed25519Key = SshPublicKeyAuthenticator.readKey("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJ0j5BztROLdZYHf8cpJsJr9jd8gCRUfm6oe9k3Bhh0 @quantenzitrone:matrix.org");
+
         assertThat(sshPublicKeyAuthenticator.authenticate(null, keyFactory.generatePublic(firstKey), null), is(true));
         assertThat(sshPublicKeyAuthenticator.authenticate(null, keyFactory.generatePublic(secondKey), null), is(true));
         assertThat(sshPublicKeyAuthenticator.authenticate(null, keyFactory.generatePublic(thirdKey), null), is(false));
+        assertThat(sshPublicKeyAuthenticator.authenticate(null, ed25519Key, null), is(true));
+    }
+
+    @Test
+    public void testLoadInvalidKeyContent() throws Exception {
+        var resourceDirectory = Paths.get("src", "test", "resources");
+        var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/invalid_authorized_keys";
+        assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
+        var authorizedKeys = sshPublicKeyAuthenticator.getAuthorizedKeys();
+        assertThat(authorizedKeys.isEmpty(), is(true));
     }
 }

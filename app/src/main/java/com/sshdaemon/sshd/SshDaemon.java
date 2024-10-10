@@ -1,7 +1,6 @@
 package com.sshdaemon.sshd;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
-import static com.sshdaemon.sshd.SshFingerprint.encode;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintMD5;
 import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
@@ -95,9 +94,9 @@ public class SshDaemon extends Service {
             var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + SSH_DAEMON + "/ssh_host_rsa_key"));
             var keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
             final ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
-            final byte[] encodedKey = encode(publicKey);
-            result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(encodedKey));
-            result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(encodedKey));
+
+            result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(publicKey));
+            result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(publicKey));
         } catch (Exception e) {
             logger.error("Exception while getting fingerprints: ", e);
         }

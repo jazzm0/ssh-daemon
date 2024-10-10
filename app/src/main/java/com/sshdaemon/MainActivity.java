@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
         var linearLayout = (LinearLayout) findViewById(R.id.network_interfaces);
 
-        this.registerReceiver(new NetworkChangeReceiver(linearLayout, this),
+        this.registerReceiver(new NetworkChangeReceiver(linearLayout, this.getSystemService(ConnectivityManager.class)),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
