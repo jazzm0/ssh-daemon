@@ -16,12 +16,13 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.SshDaemon">
+        <profileable android:shell="true" />
 
         <service
             android:name="com.sshdaemon.sshd.SshDaemon"
-            android:foregroundServiceType="dataSync"
             android:enabled="true"
             android:exported="true"
+            android:foregroundServiceType="dataSync"
             android:permission="android.permission.INTERNET" />
 
         <activity

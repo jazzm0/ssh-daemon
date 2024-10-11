@@ -26,10 +26,13 @@ public class NetworkChangeReceiverTest {
 
     private final LinearLayout linearLayout = mock(LinearLayout.class);
     private final Context context = mock(Context.class);
-    private final NetworkChangeReceiver networkChangeReceiver = new NetworkChangeReceiver(linearLayout, context);
+    private NetworkChangeReceiver networkChangeReceiver;
+    private ConnectivityManager connectivityManager;
 
     @Before
     public void setup() {
+        connectivityManager = mock(ConnectivityManager.class);
+        networkChangeReceiver = new NetworkChangeReceiver(linearLayout, connectivityManager);
         reset(linearLayout);
         reset(context);
     }
@@ -42,7 +45,6 @@ public class NetworkChangeReceiverTest {
 
     @Test
     public void testViewsAreAdded() {
-        var connectivityManager = mock(ConnectivityManager.class);
         var network = mock(Network.class);
         var networkCapabilities = mock(NetworkCapabilities.class);
         when(networkCapabilities.hasTransport(anyInt())).thenReturn(true);
