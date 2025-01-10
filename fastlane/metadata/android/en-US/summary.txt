@@ -1,1 +1,1 @@
-Simpe ssh/sftp server without root.
+Simple ssh/sftp server without root.
