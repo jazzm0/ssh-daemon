@@ -57,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         return t.getText().toString().equals("") ? t.getHint().toString() : t.getText().toString();
     }
 
+    private void createSpinnerAdapter(Spinner sftpRootPaths) {
+        if (isNull(sftpRootPaths.getSelectedItem())) {
+            var adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getAllStorageLocations(this));
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            sftpRootPaths.setAdapter(adapter);
+        }
+    }
+
     private void enableViews(boolean enable) {
         var port = findViewById(R.id.port_value);
         var user = findViewById(R.id.user_value);
@@ -80,11 +88,7 @@ public class MainActivity extends AppCompatActivity {
             sftpRootPaths.setVisibility(View.GONE);
         }
 
-        if (isNull(sftpRootPaths.getSelectedItem())) {
-            var adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getAllStorageLocations(this));
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            sftpRootPaths.setAdapter(adapter);
-        }
+        createSpinnerAdapter(sftpRootPaths);
 
         if (publicKeyAuthenticationExists()) {
             imageView.setImageResource(R.drawable.key_black_24dp);
@@ -161,11 +165,12 @@ public class MainActivity extends AppCompatActivity {
         enableViews(!isStarted());
     }
 
-    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly) {
+    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly, String sftpRootPath) {
         var editor = this.getPreferences(Context.MODE_PRIVATE).edit();
 
         editor.putString(getString(R.string.default_port_value), port);
         editor.putString(getString(R.string.default_user_value), user);
+        editor.putString(getString(R.string.sftp_root_path), sftpRootPath);
         editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
         editor.putBoolean(getString(R.string.read_only), readOnly);
 
@@ -178,11 +183,15 @@ public class MainActivity extends AppCompatActivity {
         var user = (TextView) findViewById(R.id.user_value);
         var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
         var readonly = (SwitchMaterial) findViewById(R.id.readonly_switch);
+        var sftpRootPath = (Spinner) findViewById(R.id.sftp_paths);
 
         port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
         user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
         passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
         readonly.setChecked(preferences.getBoolean(getString(R.string.read_only), false));
+        createSpinnerAdapter(sftpRootPath);
+        var position = ((ArrayAdapter<String>) sftpRootPath.getAdapter()).getPosition(preferences.getString(getString(R.string.sftp_root_path), "/"));
+        sftpRootPath.setSelection(position);
     }
 
     @Override
@@ -252,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
             final var sftpRootPath = ((Spinner) findViewById(R.id.sftp_paths)).getSelectedItem().toString();
             final var passwordAuthenticationEnabled = ((SwitchMaterial) findViewById(R.id.password_authentication_enabled)).isChecked();
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
-            storeValues(port, user, passwordAuthenticationEnabled, readOnly);
+            storeValues(port, user, passwordAuthenticationEnabled, readOnly, sftpRootPath);
 
             startService(Integer.parseInt(port), user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
         }

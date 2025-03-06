@@ -6,6 +6,9 @@ import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 import static com.sshdaemon.util.ExternalStorage.getRootPath;
+import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
+import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
+import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 import android.app.NotificationChannel;
@@ -23,6 +26,7 @@ import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.util.threads.ThreadUtils;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
@@ -38,6 +42,7 @@ import java.security.Security;
 import java.security.interfaces.ECPublicKey;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /***
@@ -61,6 +66,7 @@ public class SshDaemon extends Service {
     public static final String PASSWORD_AUTH_ENABLED = "passwordAuthenticationEnabled";
     public static final String READ_ONLY = "readOnly";
     private static final Logger logger = getLogger();
+    private static final int THREAD_POOL_SIZE = 10;
 
     static {
         Security.removeProvider("BC");
@@ -111,6 +117,7 @@ public class SshDaemon extends Service {
         System.setProperty("user.home", sftpRootPath);
         this.sshd = SshServer.setUpDefaultServer();
         sshd.setPort(port);
+        sshd.setCompressionFactories(List.of(zlib, delayedZlib));
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
@@ -121,10 +128,17 @@ public class SshDaemon extends Service {
         if (passwordAuthenticationEnabled || !authorizedKeyFile.exists()) {
             sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
+
         var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
-        var factory = new SftpSubsystemFactory.Builder().build();
+        var threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
+        logger.info("Thread pool size: {}", threadPools);
+
+        var factory = new SftpSubsystemFactory.Builder()
+                .withExecutorServiceProvider(() ->
+                        ThreadUtils.newFixedThreadPool("SFTP-Subsystem", threadPools))
+                .build();
         if (readOnly) {
             factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
         }

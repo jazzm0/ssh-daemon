@@ -41,7 +41,7 @@ public class ExternalStorage {
                 .map(File::getPath)
                 .collect(Collectors.toList());
 
-        if (directories.size() == 0) {
+        if (directories.isEmpty()) {
             return List.of("/");
         }
 
