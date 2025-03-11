@@ -33,7 +33,7 @@ public class SshFingerprintTest {
                 Matchers.is("27:64:65:20:26:7f:29:3d:07:66:c3:4c:65:eb:6f:b4"));
     }
 
-    //    @Test
+    @Test
     public void testMD5FingerPrintPublicKey() throws NoSuchAlgorithmException {
         assertThat(fingerprintMD5(publicKey),
                 Matchers.is("0c:78:6e:0c:06:41:79:c3:c6:08:75:cb:cf:81:20:d2"));
@@ -45,7 +45,7 @@ public class SshFingerprintTest {
                 Matchers.is("GzveilxzWuMhxIZRtkoVUelLOtm86qjJHKOb1Sr10+Q="));
     }
 
-    //    @Test
+    @Test
     public void testSHA256FingerPrintPublicKey() throws NoSuchAlgorithmException {
         assertThat(fingerprintSHA256(publicKey),
                 Matchers.is("74PJTvpjtpKF/+M25EdRMqwimWF9oX4w35EK6UEhefM="));

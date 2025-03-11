@@ -43,6 +43,8 @@
 -dontwarn org.opentest4j.**
 -dontwarn org.w3c.dom.bootstrap.**
 -dontwarn edu.umd.cs.findbugs.**
+-dontwarn com.android.org.conscrypt.**
+-dontwarn org.apache.harmony.xnet.provider.**
 
 
 -keep public class * extends android.app.Activity
@@ -52,6 +54,8 @@
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
+-keep class com.android.org.conscrypt.** { *; }
+-keep class org.apache.harmony.xnet.provider.** { *; }
 -keep class javax** { *; }
 -keep class org** { *; }
 

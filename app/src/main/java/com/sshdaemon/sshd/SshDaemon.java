@@ -33,6 +33,7 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.conscrypt.Conscrypt;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public class SshDaemon extends Service {
     static {
         Security.removeProvider("BC");
         Security.addProvider(new BouncyCastleProvider());
+        Security.insertProviderAt(Conscrypt.newProvider(), 1);
     }
 
     private SshServer sshd;
