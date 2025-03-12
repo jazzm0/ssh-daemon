@@ -6,6 +6,11 @@ import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 import static com.sshdaemon.util.ExternalStorage.getRootPath;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes128ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes128gcm;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes192ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
 import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
 import static java.lang.Math.max;
@@ -25,7 +30,6 @@ import com.sshdaemon.MainActivity;
 import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
-import org.apache.sshd.common.cipher.BuiltinCiphers;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.common.util.security.SecurityProviderChoice;
 import org.apache.sshd.common.util.security.SecurityUtils;
@@ -127,12 +131,7 @@ public class SshDaemon extends Service {
 
         this.sshd = ServerBuilder
                 .builder()
-                .cipherFactories(List.of(
-                        BuiltinCiphers.aes128ctr,
-                        BuiltinCiphers.aes192ctr,
-                        BuiltinCiphers.aes256ctr,
-                        BuiltinCiphers.aes128gcm,
-                        BuiltinCiphers.aes256gcm))
+                .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
                 .compressionFactories(List.of(zlib, delayedZlib))
                 .build();
 
