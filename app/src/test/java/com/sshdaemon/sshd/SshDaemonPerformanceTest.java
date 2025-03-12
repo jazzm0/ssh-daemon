@@ -27,9 +27,10 @@ import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.apache.sshd.sftp.client.SftpClientFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -37,19 +38,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class SshDaemonPerformanceTest {
+class SshDaemonPerformanceTest {
 
     private SshClient client;
     private ClientSession session;
     private SftpClient sftpClient;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         client = SshClient.setUpDefaultClient();
         client.setCompressionFactories(List.of(zlib, delayedZlib));
         client.start();
 
-        session = client.connect("user", "10.94.221.97", 8022)
+        session = client.connect("user", "localhost", 8022)
                 .verify(10, TimeUnit.SECONDS)
                 .getSession();
         session.addPasswordIdentity("gux");
@@ -57,8 +58,8 @@ public class SshDaemonPerformanceTest {
         sftpClient = SftpClientFactory.instance().createSftpClient(session);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         if (sftpClient != null) {
             sftpClient.close();
         }
@@ -70,8 +71,9 @@ public class SshDaemonPerformanceTest {
         }
     }
 
+    @Disabled("This should not be executed in github workflow")
     @Test
-    public void uploadLatency() throws Exception {
+    void uploadLatency() throws Exception {
 
         for (int megabytes : Arrays.asList(1, 5, 10, 50, 100)) {
             long t0 = System.currentTimeMillis();

@@ -7,17 +7,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
-public class SshDaemonTest {
+class SshDaemonTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
-    public void testLoadKeys() {
+    void testLoadKeys() {
         var fingerPrints = getFingerPrints();
         assertThat(fingerPrints.containsKey(SshFingerprint.DIGESTS.MD5), Matchers.is(true));
         assertThat(fingerPrints.containsKey(SshFingerprint.DIGESTS.SHA256), Matchers.is(true));

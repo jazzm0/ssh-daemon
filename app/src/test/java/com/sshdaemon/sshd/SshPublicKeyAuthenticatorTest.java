@@ -3,10 +3,10 @@ package com.sshdaemon.sshd;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.nio.file.Paths;
@@ -14,26 +14,26 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
 
-public class SshPublicKeyAuthenticatorTest {
+class SshPublicKeyAuthenticatorTest {
 
     private final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
 
     @Test
-    public void testLoadRSAKey() throws Exception {
+    void testLoadRSAKey() throws Exception {
         var rsaPublicKey = (RSAPublicKey) SshPublicKeyAuthenticator.readKey("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrkf5RHFcmmnPFxfOVsVOCdDVfs04dZg+/n808/NEdyOPuyAde4UIvZbzKEjW9brtEvOHCFfxZuXa0TbTIUau9p+4gWTGXIONcarwJ7LtNUlWfJiWYmIWVgyNnpzVftcW3mi8gRGxPbCJM2yVeB7gv452wvWPDe9TFdpgbwhLBqVIRG6EBHC0VBXX8qKNCbFoclYbiXa5DfwMkxYwN2yyKaSu75e0H4FP4BehaqQ6SfBIThqQRVdcx9J9Du3GzTi4ArN0timPAQ+X17pWxgEQ3qNbj49Lnteu+NSmb0PawcrP+Ykd7oy82kXm/hRM6cLjS1GOTsXpGDFf0NevAW8b3 D050150@WDFL34195932A");
         assertThat(rsaPublicKey.getPublicExponent(), is(new BigInteger("65537")));
         assertThat(rsaPublicKey.getModulus(), is(new BigInteger("21658742190318166967712730864679652658650859121969481181201380769435852715982079838796135745206268981260737877360141273622280512537469661232310601414632396577736750997307043633989350470146139654498683603607823966490835477269345553397205866827412911445557084380501015516582017566897110095005407768881980022943053565933828297090533987425102831869390057642704253755269803136323388759627399370507151238064778399477125470941103468997107204954580888346976963732529191611522789249471940599415587667163136427455499142265843852906870573003016543761403915579728832278943756709241709719567708592405407294409003276217649490282231")));
     }
 
     @Test
-    public void testLoadED25519Key() throws Exception {
+    void testLoadED25519Key() throws Exception {
         var publicKey = SshPublicKeyAuthenticator.readKey("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJ0j5BztROLdZYHf8cpJsJr9jd8gCRUfm6oe9k3Bhh0 @quantenzitrone:matrix.org");
         assertThat(publicKey.getFormat(), is("X.509"));
         assertThat(publicKey.getEncoded(), is(new byte[]{48, 42, 48, 5, 6, 3, 43, 101, 112, 3, 33, 0, 98, 116, -113, -112, 115, -75, 19, -117, 117, -106, 7, 127, -57, 41, 38, -62, 107, -10, 55, 124, -128, 36, 84, 126, 110, -88, 123, -39, 55, 6, 24, 116}));
     }
 
     @Test
-    public void testLoadKeyFromFilePath() throws Exception {
+    void testLoadKeyFromFilePath() throws Exception {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
         assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
@@ -52,7 +52,7 @@ public class SshPublicKeyAuthenticatorTest {
     }
 
     @Test
-    public void testLoadDSAKeyFromFilePath() {
+    void testLoadDSAKeyFromFilePath() {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/id_dsa.pub";
         assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
@@ -62,7 +62,7 @@ public class SshPublicKeyAuthenticatorTest {
     }
 
     @Test
-    public void testAuthenticationWithDifferentKeys() throws Exception {
+    void testAuthenticationWithDifferentKeys() throws Exception {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/authorized_keys";
         assertTrue(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));
@@ -82,7 +82,7 @@ public class SshPublicKeyAuthenticatorTest {
     }
 
     @Test
-    public void testLoadInvalidKeyContent() throws Exception {
+    void testLoadInvalidKeyContent() throws Exception {
         var resourceDirectory = Paths.get("src", "test", "resources");
         var absolutePath = resourceDirectory.toFile().getAbsolutePath() + "/invalid_authorized_keys";
         assertFalse(sshPublicKeyAuthenticator.loadKeysFromPath(absolutePath));

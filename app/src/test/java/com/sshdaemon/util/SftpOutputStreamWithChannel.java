@@ -15,6 +15,7 @@ import java.util.Objects;
  *
  * @author <a href="mailto:dev@mina.apache.org">Apache MINA SSHD Project</a>
  */
+
 public class SftpOutputStreamWithChannel extends OutputStreamWithChannel implements SftpClientHolder {
     private final SftpClient client;
     private final String path;

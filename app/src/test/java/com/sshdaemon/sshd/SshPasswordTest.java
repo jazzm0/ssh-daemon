@@ -1,20 +1,20 @@
 package com.sshdaemon.sshd;
 
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SshPasswordTest {
+class SshPasswordTest {
 
     @Test
-    public void testCorrectLength() {
+    void testCorrectLength() {
         assertEquals(10, getRandomString(10).length());
     }
 
     @Test
-    public void testSecondDontEqual() {
+    void testSecondDontEqual() {
         assertNotEquals(getRandomString(10), getRandomString(10));
     }
 }
