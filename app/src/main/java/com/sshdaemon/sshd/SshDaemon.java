@@ -31,9 +31,9 @@ import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
-import org.apache.sshd.common.util.security.SecurityProviderChoice;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
+import org.apache.sshd.contrib.common.util.security.androidopenssl.AndroidOpenSSLSecurityProviderRegistrar;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
@@ -80,9 +80,12 @@ public class SshDaemon extends Service {
         if (SecurityUtils.isRegistrationCompleted()) {
             logger.info("Security provider registration is already completed");
         } else {
-            SecurityUtils.registerSecurityProvider(new ConsCryptSecurityProviderRegistrar());
-            SecurityUtils.setDefaultProviderChoice(SecurityProviderChoice.toSecurityProviderChoice(ConsCryptSecurityProviderRegistrar.NAME));
-            logger.info("Set security provider to:{}, registration completed:{}", ConsCryptSecurityProviderRegistrar.NAME, SecurityUtils.isRegistrationCompleted());
+            try {
+                SecurityUtils.registerSecurityProvider(new AndroidOpenSSLSecurityProviderRegistrar());
+                logger.info("Set security provider to:{}, registration completed:{}", AndroidOpenSSLSecurityProviderRegistrar.NAME, SecurityUtils.isRegistrationCompleted());
+            } catch (Exception e) {
+                logger.error("Exception while registering security provider: ", e);
+            }
         }
     }
 
