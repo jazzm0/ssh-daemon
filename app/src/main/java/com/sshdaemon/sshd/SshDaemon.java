@@ -26,14 +26,13 @@ import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.conscrypt.Conscrypt;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -71,8 +70,11 @@ public class SshDaemon extends Service {
 
     static {
         Security.removeProvider("BC");
-        Security.addProvider(new BouncyCastleProvider());
-        Security.insertProviderAt(Conscrypt.newProvider(), 1);
+        if (SecurityUtils.isRegistrationCompleted()) {
+            logger.info("Security provider registration is already completed");
+        } else {
+            SecurityUtils.registerSecurityProvider(new ConsCryptSecurityProviderRegistrar());
+        }
     }
 
     private SshServer sshd;
