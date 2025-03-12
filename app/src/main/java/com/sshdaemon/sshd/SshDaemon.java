@@ -25,14 +25,18 @@ import com.sshdaemon.MainActivity;
 import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
+import org.apache.sshd.common.cipher.BuiltinCiphers;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.util.security.SecurityProviderChoice;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
+import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -74,7 +78,9 @@ public class SshDaemon extends Service {
             logger.info("Security provider registration is already completed");
         } else {
             SecurityUtils.registerSecurityProvider(new ConsCryptSecurityProviderRegistrar());
+            SecurityUtils.setDefaultProviderChoice(SecurityProviderChoice.toSecurityProviderChoice("ConsCryptWrapper"));
         }
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     private SshServer sshd;
@@ -119,9 +125,19 @@ public class SshDaemon extends Service {
         final var path = rootPath + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", sftpRootPath);
-        this.sshd = SshServer.setUpDefaultServer();
+
+        this.sshd = ServerBuilder
+                .builder()
+                .cipherFactories(List.of(
+                        BuiltinCiphers.aes128ctr,
+                        BuiltinCiphers.aes192ctr,
+                        BuiltinCiphers.aes256ctr,
+                        BuiltinCiphers.aes128gcm,
+                        BuiltinCiphers.aes256gcm))
+                .compressionFactories(List.of(zlib, delayedZlib))
+                .build();
+
         sshd.setPort(port);
-        sshd.setCompressionFactories(List.of(zlib, delayedZlib));
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
@@ -148,6 +164,7 @@ public class SshDaemon extends Service {
         }
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
+
         simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 
