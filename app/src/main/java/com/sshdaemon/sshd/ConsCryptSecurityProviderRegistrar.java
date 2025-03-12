@@ -46,11 +46,6 @@ public class ConsCryptSecurityProviderRegistrar extends AbstractSecurityProvider
     }
 
     @Override
-    public String getProviderName() {
-        return NAME;
-    }
-
-    @Override
     public boolean isEnabled() {
         return true;
     }

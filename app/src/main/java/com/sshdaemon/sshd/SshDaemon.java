@@ -36,7 +36,6 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -78,9 +77,9 @@ public class SshDaemon extends Service {
             logger.info("Security provider registration is already completed");
         } else {
             SecurityUtils.registerSecurityProvider(new ConsCryptSecurityProviderRegistrar());
-            SecurityUtils.setDefaultProviderChoice(SecurityProviderChoice.toSecurityProviderChoice("ConsCryptWrapper"));
+            SecurityUtils.setDefaultProviderChoice(SecurityProviderChoice.toSecurityProviderChoice(ConsCryptSecurityProviderRegistrar.NAME));
+            logger.info("Set security provider to:{}, registration completed:{}", ConsCryptSecurityProviderRegistrar.NAME, SecurityUtils.isRegistrationCompleted());
         }
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     private SshServer sshd;
@@ -138,6 +137,7 @@ public class SshDaemon extends Service {
                 .build();
 
         sshd.setPort(port);
+
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
@@ -145,13 +145,16 @@ public class SshDaemon extends Service {
             sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
             sshd.setPublickeyAuthenticator(sshPublicKeyAuthenticator);
         }
+
         if (passwordAuthenticationEnabled || !authorizedKeyFile.exists()) {
             sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
 
         var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
+
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
+
         var threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("Thread pool size: {}", threadPools);
 
@@ -159,9 +162,11 @@ public class SshDaemon extends Service {
                 .withExecutorServiceProvider(() ->
                         ThreadUtils.newFixedThreadPool("SFTP-Subsystem", threadPools))
                 .build();
+
         if (readOnly) {
             factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
         }
+
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
 
