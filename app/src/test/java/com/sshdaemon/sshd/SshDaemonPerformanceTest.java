@@ -21,8 +21,6 @@ package com.sshdaemon.sshd;
 import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
 import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
 
-import com.sshdaemon.util.SftpOutputStreamWithChannel;
-
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.sftp.client.SftpClient;
@@ -30,9 +28,8 @@ import org.apache.sshd.sftp.client.SftpClientFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
-import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -72,19 +69,15 @@ class SshDaemonPerformanceTest {
     }
 
     @Disabled("This should not be executed in github workflow")
-    @Test
+    @RepeatedTest(5)
     void uploadLatency() throws Exception {
-
-        for (int megabytes : Arrays.asList(1, 5, 10, 50, 100)) {
+        var uploadSizes = Arrays.asList(1, 5, 10, 50, 100);
+        var totalSpeed = 0d;
+        for (int megabytes : uploadSizes) {
             long t0 = System.currentTimeMillis();
             try (SftpClient client = SftpClientFactory.instance().createSftpClient(session)) {
-                try (OutputStream os = new BufferedOutputStream(
-                        new SftpOutputStreamWithChannel(
-                                client, 32768, "out.txt",
-                                Arrays.asList(SftpClient.OpenMode.Write,
-                                        SftpClient.OpenMode.Create,
-                                        SftpClient.OpenMode.Truncate)),
-                        32768)) {
+                try (OutputStream os = client.write("out.txt", 32768,
+                        SftpClient.OpenMode.Write, SftpClient.OpenMode.Create, SftpClient.OpenMode.Truncate)) {
                     byte[] bytes = "123456789abcdef\n".getBytes();
                     for (int i = 0; i < 1024 * 1024 * megabytes / bytes.length; i++) {
                         os.write(bytes);
@@ -93,7 +86,10 @@ class SshDaemonPerformanceTest {
             }
             long t1 = System.currentTimeMillis();
             long uploadDuration = t1 - t0;
-            System.out.println("Upload duration: " + uploadDuration + " ms for " + megabytes + " MB" + " speed: " + (megabytes * 1000 * 1024 / (uploadDuration)) + " kB/s");
+            var speed = ((double) (megabytes * 1000 * 1024)) / (uploadDuration);
+            totalSpeed += speed;
+            System.out.println("Upload duration: " + uploadDuration + " ms for " + megabytes + " MB" + " speed: " + speed + " kB/s");
         }
+        System.out.println("Average speed: " + totalSpeed / uploadSizes.size() + " kB/s");
     }
 }
