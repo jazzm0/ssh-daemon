@@ -6,6 +6,11 @@ import static com.sshdaemon.sshd.SshFingerprint.fingerprintSHA256;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static com.sshdaemon.util.ExternalStorage.createDirIfNotExists;
 import static com.sshdaemon.util.ExternalStorage.getRootPath;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes128ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes128gcm;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes192ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
+import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
 import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
 import static java.lang.Math.max;
@@ -26,13 +31,15 @@ import com.sshdaemon.R;
 import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
+import org.apache.sshd.contrib.common.util.security.androidopenssl.AndroidOpenSSLSecurityProviderRegistrar;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
+import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -70,7 +77,16 @@ public class SshDaemon extends Service {
 
     static {
         Security.removeProvider("BC");
-        Security.addProvider(new BouncyCastleProvider());
+        if (SecurityUtils.isRegistrationCompleted()) {
+            logger.info("Security provider registration is already completed");
+        } else {
+            try {
+                SecurityUtils.registerSecurityProvider(new AndroidOpenSSLSecurityProviderRegistrar());
+                logger.info("Set security provider to:{}, registration completed:{}", AndroidOpenSSLSecurityProviderRegistrar.NAME, SecurityUtils.isRegistrationCompleted());
+            } catch (Exception e) {
+                logger.error("Exception while registering security provider: ", e);
+            }
+        }
     }
 
     private SshServer sshd;
@@ -115,9 +131,15 @@ public class SshDaemon extends Service {
         final var path = rootPath + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", sftpRootPath);
-        this.sshd = SshServer.setUpDefaultServer();
+
+        this.sshd = ServerBuilder
+                .builder()
+                .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
+                .compressionFactories(List.of(zlib, delayedZlib))
+                .build();
+
         sshd.setPort(port);
-        sshd.setCompressionFactories(List.of(zlib, delayedZlib));
+
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
@@ -125,13 +147,16 @@ public class SshDaemon extends Service {
             sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
             sshd.setPublickeyAuthenticator(sshPublicKeyAuthenticator);
         }
+
         if (passwordAuthenticationEnabled || !authorizedKeyFile.exists()) {
             sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
 
         var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
+
         sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
+
         var threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("Thread pool size: {}", threadPools);
 
@@ -139,11 +164,14 @@ public class SshDaemon extends Service {
                 .withExecutorServiceProvider(() ->
                         ThreadUtils.newFixedThreadPool("SFTP-Subsystem", threadPools))
                 .build();
+
         if (readOnly) {
             factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
         }
+
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
+
         simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 

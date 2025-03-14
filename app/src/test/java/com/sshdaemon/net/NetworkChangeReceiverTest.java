@@ -1,7 +1,7 @@
 package com.sshdaemon.net;
 
 import static com.sshdaemon.net.NetworkChangeReceiver.getInterfaces;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -18,19 +18,19 @@ import android.net.NetworkCapabilities;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-public class NetworkChangeReceiverTest {
+class NetworkChangeReceiverTest {
 
     private final LinearLayout linearLayout = mock(LinearLayout.class);
     private final Context context = mock(Context.class);
     private NetworkChangeReceiver networkChangeReceiver;
     private ConnectivityManager connectivityManager;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         connectivityManager = mock(ConnectivityManager.class);
         networkChangeReceiver = new NetworkChangeReceiver(linearLayout, connectivityManager);
         reset(linearLayout);
@@ -38,13 +38,13 @@ public class NetworkChangeReceiverTest {
     }
 
     @Test
-    public void testNoConnectivity() {
+    void testNoConnectivity() {
         networkChangeReceiver.onReceive(context, mock(Intent.class));
         verify(linearLayout, times(0)).addView(any(), any());
     }
 
     @Test
-    public void testViewsAreAdded() {
+    void testViewsAreAdded() {
         var network = mock(Network.class);
         var networkCapabilities = mock(NetworkCapabilities.class);
         when(networkCapabilities.hasTransport(anyInt())).thenReturn(true);
