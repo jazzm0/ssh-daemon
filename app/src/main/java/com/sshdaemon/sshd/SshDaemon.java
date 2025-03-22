@@ -13,6 +13,7 @@ import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
 import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
+import static org.apache.sshd.common.compression.BuiltinCompressions.none;
 import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
@@ -135,7 +136,7 @@ public class SshDaemon extends Service {
         this.sshd = ServerBuilder
                 .builder()
                 .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
-                .compressionFactories(List.of(zlib, delayedZlib))
+                .compressionFactories(List.of(none, zlib, delayedZlib))
                 .build();
 
         sshd.setPort(port);
