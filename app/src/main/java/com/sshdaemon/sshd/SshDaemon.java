@@ -12,8 +12,8 @@ import static org.apache.sshd.common.cipher.BuiltinCiphers.aes192ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static org.apache.sshd.common.compression.BuiltinCompressions.delayedZlib;
-import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
 import static org.apache.sshd.common.compression.BuiltinCompressions.none;
+import static org.apache.sshd.common.compression.BuiltinCompressions.zlib;
 import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
