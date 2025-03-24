@@ -136,7 +136,7 @@ public class SshDaemon extends Service {
         this.sshd = ServerBuilder
                 .builder()
                 .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
-                .compressionFactories(List.of(zlib, delayedZlib, none))
+                .compressionFactories(List.of(none, zlib, delayedZlib))
                 .build();
 
         sshd.setPort(port);
