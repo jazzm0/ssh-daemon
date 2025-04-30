@@ -30,13 +30,13 @@ import com.sshdaemon.R;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
-import org.apache.sshd.contrib.common.util.security.androidopenssl.AndroidOpenSSLSecurityProviderRegistrar;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -74,15 +74,13 @@ public class SshDaemon extends Service {
     static {
         Security.removeProvider("BC");
         if (SecurityUtils.isRegistrationCompleted()) {
-            logger.info("Security provider registration already completed");
+            logger.info("Security provider registration is already completed");
         } else {
             try {
-                SecurityUtils.registerSecurityProvider(new AndroidOpenSSLSecurityProviderRegistrar());
-                logger.info("Set security provider to: {}, registration completed: {}",
-                        AndroidOpenSSLSecurityProviderRegistrar.NAME,
-                        SecurityUtils.isRegistrationCompleted());
+                Security.addProvider(new BouncyCastleProvider());
+                logger.info("Set security provider to:{}, registration completed:{}", BouncyCastleProvider.PROVIDER_NAME, SecurityUtils.isRegistrationCompleted());
             } catch (Exception e) {
-                logger.error("Failed to register security provider", e);
+                logger.error("Exception while registering security provider: ", e);
             }
         }
     }
