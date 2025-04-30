@@ -12,10 +12,10 @@ import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -25,44 +25,72 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
 
-    private final Set<PublicKey> authorizedKeys = new HashSet<>();
+    private static final Logger LOGGER = AndroidLogger.getLogger();
+    private static final String KEY_TYPE_RSA = "ssh-rsa";
+    private static final String KEY_TYPE_ED25519 = "ssh-ed25519";
+    private final Set<PublicKey> authorizedKeys = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public SshPublicKeyAuthenticator() {
     }
 
-    private static byte[] readElement(DataInput dataInputStream) throws IOException {
-        var buffer = new byte[dataInputStream.readInt()];
-        dataInputStream.readFully(buffer);
+    private static byte[] readElement(DataInputStream dataInput) throws IOException {
+        int length = dataInput.readInt();
+        if (length < 0 || length > 1024 * 1024) { // Prevent excessive allocation
+            throw new IOException("Invalid element length: " + length);
+        }
+        byte[] buffer = new byte[length];
+        dataInput.readFully(buffer);
         return buffer;
     }
 
     protected static PublicKey readKey(String key) throws Exception {
-        var parts = key.split(" ");
+        if (isNull(key) || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key string is empty or null");
+        }
+
+        String[] parts = key.trim().split("\\s+");
         if (parts.length < 2) {
-            throw new IllegalArgumentException("Invalid key format");
+            throw new IllegalArgumentException("Invalid key format: expected at least type and key");
         }
-        var decodedKey = Base64.getDecoder().decode(parts[1]);
-        var dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey));
-        var pubKeyFormat = new String(readElement(dataInputStream));
-        if (pubKeyFormat.equals("ssh-rsa")) {
-            var publicExponent = readElement(dataInputStream);
-            var modulus = readElement(dataInputStream);
 
-            var specification = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
-            var keyFactory = KeyFactory.getInstance("RSA");
-
-            return keyFactory.generatePublic(specification);
-
-        } else if (pubKeyFormat.equals("ssh-ed25519")) {
-            var publicKey = new Ed25519PublicKeyParameters(readElement(dataInputStream), 0);
-            return new EdDSAPublicKey(new EdDSAPublicKeySpec(publicKey.getEncoded(), EdDSANamedCurveTable.ED_25519_CURVE_SPEC));
+        String keyType = parts[0];
+        byte[] decodedKey;
+        try {
+            decodedKey = Base64.getDecoder().decode(parts[1]);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid Base64 encoding in key", e);
         }
-        throw new UnknownPublicKeyFormatException(pubKeyFormat);
+
+        try (DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey))) {
+            String pubKeyFormat = new String(readElement(dataInputStream));
+            if (!pubKeyFormat.equals(keyType)) {
+                throw new IllegalArgumentException("Key type mismatch: expected " + keyType + ", got " + pubKeyFormat);
+            }
+
+            switch (pubKeyFormat) {
+                case KEY_TYPE_RSA:
+                    byte[] publicExponent = readElement(dataInputStream);
+                    byte[] modulus = readElement(dataInputStream);
+                    RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
+                    KeyFactory rsaFactory = KeyFactory.getInstance("RSA");
+                    return rsaFactory.generatePublic(spec);
+
+                case KEY_TYPE_ED25519:
+                    byte[] publicKeyBytes = readElement(dataInputStream);
+                    Ed25519PublicKeyParameters params = new Ed25519PublicKeyParameters(publicKeyBytes, 0);
+                    return new EdDSAPublicKey(new EdDSAPublicKeySpec(params.getEncoded(), EdDSANamedCurveTable.ED_25519_CURVE_SPEC));
+
+                default:
+                    throw new UnknownPublicKeyFormatException(pubKeyFormat);
+            }
+        }
     }
 
     Set<PublicKey> getAuthorizedKeys() {
@@ -70,28 +98,56 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     public boolean loadKeysFromPath(String authorizedKeysPath) {
-        var file = new File(authorizedKeysPath);
-        AndroidLogger.getLogger().debug("Try to add authorized key file " + file.getPath());
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while (!isNull((line = bufferedReader.readLine()))) {
-                var key = readKey(line);
-                authorizedKeys.add(key);
-                AndroidLogger.getLogger().debug("Added authorized key " + key.toString());
-            }
-        } catch (Exception e) {
-            AndroidLogger.getLogger().error("Could not read authorized key file " + file.getPath(), e);
+        if (isNull(authorizedKeysPath)) {
+            LOGGER.error("Authorized keys path is null");
             return false;
         }
-        return true;
+
+        File file = new File(authorizedKeysPath);
+        if (!file.exists() || !file.canRead()) {
+            LOGGER.error("Authorized keys file {} does not exist or is not readable", authorizedKeysPath);
+            return false;
+        }
+
+        LOGGER.debug("Loading authorized keys from {}", authorizedKeysPath);
+        authorizedKeys.clear();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                try {
+                    PublicKey key = readKey(line);
+                    if (authorizedKeys.add(key)) {
+                        LOGGER.debug("Added authorized key: type={}", key.getAlgorithm());
+                    } else {
+                        LOGGER.warn("Duplicate key ignored: {}", key.getAlgorithm());
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to parse key: {}", line, e);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to read authorized keys file {}", authorizedKeysPath, e);
+            return false;
+        }
+
+        LOGGER.info("Loaded {} authorized keys from {}", authorizedKeys.size(), authorizedKeysPath);
+        return !authorizedKeys.isEmpty();
     }
 
     @Override
     public boolean authenticate(String user, PublicKey publicKey, ServerSession serverSession) {
-        if (authorizedKeys.contains(publicKey)) {
-            AndroidLogger.getLogger().info("Successful public key authentication with key " + publicKey.toString() + " for user: " + user);
-            return true;
+        if (isNull(publicKey)) {
+            LOGGER.warn("Public key is null for user: {}", user);
+            return false;
         }
-        return false;
+        boolean authorized = authorizedKeys.contains(publicKey);
+        LOGGER.info("Public key authentication {} for user: {}, key type: {}",
+                authorized ? "succeeded" : "failed", user, publicKey.getAlgorithm());
+        return authorized;
     }
 }

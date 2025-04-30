@@ -26,18 +26,17 @@ import androidx.core.app.NotificationCompat;
 
 import com.sshdaemon.MainActivity;
 import com.sshdaemon.R;
-import com.sshdaemon.util.AndroidLogger;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.threads.ThreadUtils;
-import org.apache.sshd.contrib.common.util.security.androidopenssl.AndroidOpenSSLSecurityProviderRegistrar;
 import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEventListener;
 import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -57,8 +56,6 @@ import java.util.Map;
  * _\ \__ \ | | |/ /_// (_| |  __/ | | | | | (_) | | | |
  * \__/___/_| |_/___,' \__,_|\___|_| |_| |_|\___/|_| |_|
  */
-
-
 public class SshDaemon extends Service {
 
     public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
@@ -72,6 +69,7 @@ public class SshDaemon extends Service {
     public static final String READ_ONLY = "readOnly";
     private static final Logger logger = getLogger();
     private static final int THREAD_POOL_SIZE = 10;
+    private static final int DEFAULT_PORT = 8022;
 
     static {
         Security.removeProvider("BC");
@@ -79,8 +77,8 @@ public class SshDaemon extends Service {
             logger.info("Security provider registration is already completed");
         } else {
             try {
-                SecurityUtils.registerSecurityProvider(new AndroidOpenSSLSecurityProviderRegistrar());
-                logger.info("Set security provider to:{}, registration completed:{}", AndroidOpenSSLSecurityProviderRegistrar.NAME, SecurityUtils.isRegistrationCompleted());
+                Security.addProvider(new BouncyCastleProvider());
+                logger.info("Set security provider to:{}, registration completed:{}", BouncyCastleProvider.PROVIDER_NAME, SecurityUtils.isRegistrationCompleted());
             } catch (Exception e) {
                 logger.error("Exception while registering security provider: ", e);
             }
@@ -90,43 +88,57 @@ public class SshDaemon extends Service {
     private SshServer sshd;
 
     public SshDaemon() {
+        // Default constructor required for Service
     }
 
-    public SshDaemon(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
-        init(port, user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
+    public SshDaemon(int port, String user, String password, String sftpRootPath,
+                     boolean passwordAuthEnabled, boolean readOnly) {
+        init(port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
     }
 
     public static boolean publicKeyAuthenticationExists() {
         var authorizedKeyPath = getRootPath() + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
-        var authorizedKeysExist = false;
-        if (authorizedKeyFile.exists()) {
-            final var sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
-            authorizedKeysExist = sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
+        if (!authorizedKeyFile.exists()) {
+            return false;
         }
-        return authorizedKeysExist;
+        var authenticator = new SshPublicKeyAuthenticator();
+        return authenticator.loadKeysFromPath(authorizedKeyPath);
     }
 
     public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
-        final var result = new HashMap<SshFingerprint.DIGESTS, String>();
+        var result = new HashMap<SshFingerprint.DIGESTS, String>();
         try {
             var rootPath = getRootPath();
-            var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + SSH_DAEMON + "/ssh_host_rsa_key"));
-            var keyPairs = simpleGeneratorHostKeyProvider.loadKeys(null);
-            final ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
-
-            result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(publicKey));
-            result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(publicKey));
+            var keyProvider =
+                    new SimpleGeneratorHostKeyProvider(Paths.get(rootPath + SSH_DAEMON + "/ssh_host_rsa_key"));
+            var keyPairs = keyProvider.loadKeys(null);
+            if (!keyPairs.isEmpty()) {
+                ECPublicKey publicKey = (ECPublicKey) keyPairs.get(0).getPublic();
+                result.put(SshFingerprint.DIGESTS.MD5, fingerprintMD5(publicKey));
+                result.put(SshFingerprint.DIGESTS.SHA256, fingerprintSHA256(publicKey));
+            } else {
+                logger.warn("No host key pairs available");
+            }
         } catch (Exception e) {
-            logger.error("Exception while getting fingerprints: ", e);
+            logger.error("Failed to get fingerprints", e);
         }
-
         return result;
     }
 
-    private void init(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
-        final var rootPath = getRootPath();
-        final var path = rootPath + SSH_DAEMON;
+    private void init(int port, String user, String password, String sftpRootPath,
+                      boolean passwordAuthEnabled, boolean readOnly) {
+
+        if (port < 1024 || port > 65535) {
+            throw new IllegalArgumentException("Port must be between 1024 and 65535");
+        }
+        var sftpRoot = new File(sftpRootPath);
+        if (!sftpRoot.exists() || !sftpRoot.canWrite()) {
+            throw new IllegalArgumentException("SFTP root path does not exist or is not writable");
+        }
+
+        var rootPath = getRootPath();
+        var path = rootPath + SSH_DAEMON;
         createDirIfNotExists(path);
         System.setProperty("user.home", sftpRootPath);
 
@@ -134,91 +146,106 @@ public class SshDaemon extends Service {
                 .builder()
                 .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
                 .build();
-
         sshd.setPort(port);
 
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
         var authorizedKeyFile = new File(authorizedKeyPath);
         if (authorizedKeyFile.exists()) {
-            final SshPublicKeyAuthenticator sshPublicKeyAuthenticator = new SshPublicKeyAuthenticator();
-            sshPublicKeyAuthenticator.loadKeysFromPath(authorizedKeyPath);
-            sshd.setPublickeyAuthenticator(sshPublicKeyAuthenticator);
+            final var authenticator = new SshPublicKeyAuthenticator();
+            if (authenticator.loadKeysFromPath(authorizedKeyPath)) {
+                sshd.setPublickeyAuthenticator(authenticator);
+            } else {
+                logger.warn("Failed to load authorized keys from {}", authorizedKeyPath);
+            }
         }
 
-        if (passwordAuthenticationEnabled || !authorizedKeyFile.exists()) {
+        if (passwordAuthEnabled || !authorizedKeyFile.exists()) {
             sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
 
-        var simpleGeneratorHostKeyProvider = new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
-
-        sshd.setKeyPairProvider(simpleGeneratorHostKeyProvider);
+        var keyProvider =
+                new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
+        sshd.setKeyPairProvider(keyProvider);
         sshd.setShellFactory(new InteractiveProcessShellFactory());
 
-        var threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
+        int threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("Thread pool size: {}", threadPools);
-
-        var factory = new SftpSubsystemFactory.Builder()
+        SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder()
                 .withExecutorServiceProvider(() ->
                         ThreadUtils.newFixedThreadPool("SFTP-Subsystem", threadPools))
                 .build();
-
         if (readOnly) {
-            factory.addSftpEventListener((SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR));
+            factory.addSftpEventListener(SimpleAccessControlSftpEventListener.READ_ONLY_ACCESSOR);
         }
-
         sshd.setSubsystemFactories(Collections.singletonList(factory));
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
-
-        simpleGeneratorHostKeyProvider.loadKeys(null);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             var serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_ID,
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-
+                    CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH);
             var manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
 
-            var notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-            var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                    0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-            var notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+            var notificationIntent = new Intent(this, MainActivity.class);
+            var pendingIntent = PendingIntent.getActivity(
+                    this, 0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
-                    .setContentText(SSH_DAEMON)
+                    .setContentText("SSH Server Starting...")
                     .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
                     .setOngoing(true)
-                    .setContentIntent(pendingIntent)
-                    .build();
+                    .setContentIntent(pendingIntent);
 
-            startForeground(1, notification);
+            startForeground(1, builder.build());
 
-            var port = intent.getIntExtra(PORT, 8022);
-            var user = requireNonNull(intent.getStringExtra(USER), "User should be not null!");
-            var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password should be not null!");
-            var sftpRootPath = requireNonNull(intent.getStringExtra(SFTP_ROOT_PATH), "SFTP root path should be not null!");
-            var passwordAuthenticationEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
+            var port = intent.getIntExtra(PORT, DEFAULT_PORT);
+            var user = requireNonNull(intent.getStringExtra(USER), "User must not be null");
+            var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password must not be null");
+            var sftpRootPath = requireNonNull(intent.getStringExtra(SFTP_ROOT_PATH),
+                    "SFTP root path must not be null");
+            var passwordAuthEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
             var readOnly = intent.getBooleanExtra(READ_ONLY, false);
-            init(port, user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
+
+            init(port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
+            logger.info("SSH daemon started on port {}", port);
+            updateNotification("SSH Server Running on port " + port);
         } catch (IOException e) {
-            AndroidLogger.getLogger().error("Could not start daemon ", e);
+            logger.error("Failed to start SSH daemon", e);
+            updateNotification("Failed to start SSH Server: " + e.getMessage());
+            stopSelf();
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid configuration", e);
+            updateNotification("Invalid configuration: " + e.getMessage());
+            stopSelf();
         }
-        return Service.START_STICKY;
+        return START_STICKY;
+    }
+
+    private void updateNotification(String status) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle(SSH_DAEMON)
+                .setContentText(status)
+                .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
+                .setOngoing(true);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.notify(1, builder.build());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         try {
-            sshd.stop();
+            if (sshd != null && sshd.isStarted()) {
+                sshd.stop();
+                logger.info("SSH daemon stopped");
+                updateNotification("SSH Server Stopped");
+            }
         } catch (IOException e) {
-            AndroidLogger.getLogger().error("Could not stop daemon ", e);
+            logger.error("Failed to stop SSH daemon", e);
         }
     }
 
