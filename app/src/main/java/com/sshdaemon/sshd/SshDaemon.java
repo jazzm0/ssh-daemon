@@ -197,8 +197,15 @@ public class SshDaemon extends Service {
             manager.createNotificationChannel(serviceChannel);
 
             var notificationIntent = new Intent(this, MainActivity.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
             var pendingIntent = PendingIntent.getActivity(
-                    this, 0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                    this,
+                    0,
+                    notificationIntent,
+                    FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
             var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
                     .setContentText("SSH Server Starting...")
