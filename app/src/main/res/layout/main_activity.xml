@@ -34,14 +34,13 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/network_interfaces"
-                style="@style/Widget.CardContent"
+            <Spinner
+                android:id="@+id/network_interface_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="4dp">
-
-            </LinearLayout>
+                android:layout_margin="4dp"
+                android:text="@string/select_network_interface"
+                android:textColor="@android:color/holo_blue_dark" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"

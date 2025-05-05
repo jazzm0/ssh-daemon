@@ -4,7 +4,7 @@
 
     <string name="fingerprints_label_text">Отпечатки</string>
 
-    <string name="interface_label_text">Сетевые интерфейсы</string>
+    <string name="select_network_interface">Сетевой интерфейс</string>
 
     <string name="port_label_text">порт</string>
 

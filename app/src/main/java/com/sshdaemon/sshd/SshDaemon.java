@@ -12,6 +12,7 @@ import static org.apache.sshd.common.cipher.BuiltinCiphers.aes192ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static java.lang.Math.max;
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 import android.app.NotificationChannel;
@@ -61,6 +62,7 @@ public class SshDaemon extends Service {
     public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
+    public static final String INTERFACE = "interface";
     public static final String PORT = "port";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
@@ -91,9 +93,9 @@ public class SshDaemon extends Service {
         // Default constructor required for Service
     }
 
-    public SshDaemon(int port, String user, String password, String sftpRootPath,
+    public SshDaemon(String selectedInterface, int port, String user, String password, String sftpRootPath,
                      boolean passwordAuthEnabled, boolean readOnly) {
-        init(port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
+        init(selectedInterface, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
     }
 
     public static boolean publicKeyAuthenticationExists() {
@@ -126,7 +128,7 @@ public class SshDaemon extends Service {
         return result;
     }
 
-    private void init(int port, String user, String password, String sftpRootPath,
+    private void init(String selectedInterface, int port, String user, String password, String sftpRootPath,
                       boolean passwordAuthEnabled, boolean readOnly) {
 
         if (port < 1024 || port > 65535) {
@@ -146,6 +148,11 @@ public class SshDaemon extends Service {
                 .builder()
                 .cipherFactories(List.of(aes128ctr, aes192ctr, aes256ctr, aes128gcm, aes256gcm))
                 .build();
+
+        if (!isNull(selectedInterface)) {
+            sshd.setHost(selectedInterface);
+        }
+
         sshd.setPort(port);
 
         var authorizedKeyPath = rootPath + AUTHORIZED_KEY_PATH;
@@ -201,6 +208,7 @@ public class SshDaemon extends Service {
 
             startForeground(1, builder.build());
 
+            var interfaceName = intent.getStringExtra(INTERFACE);
             var port = intent.getIntExtra(PORT, DEFAULT_PORT);
             var user = requireNonNull(intent.getStringExtra(USER), "User must not be null");
             var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password must not be null");
@@ -209,7 +217,7 @@ public class SshDaemon extends Service {
             var passwordAuthEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
             var readOnly = intent.getBooleanExtra(READ_ONLY, false);
 
-            init(port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
+            init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
             logger.info("SSH daemon started on port {}", port);
             updateNotification("SSH Server Running on port " + port);

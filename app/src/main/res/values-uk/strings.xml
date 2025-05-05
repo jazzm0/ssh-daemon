@@ -4,7 +4,7 @@
 
     <string name="fingerprints_label_text">Відбитки</string>
 
-    <string name="interface_label_text">Мережеві інтерфейси</string>
+    <string name="select_network_interface">Мережевий інтерфейс</string>
 
     <string name="port_label_text">порт</string>
 

@@ -1,5 +1,6 @@
 package com.sshdaemon;
 
+import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
@@ -53,8 +54,10 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String selectedInterface;
+
     private String getValue(EditText t) {
-        return t.getText().toString().equals("") ? t.getHint().toString() : t.getText().toString();
+        return t.getText().toString().isEmpty() ? t.getHint().toString() : t.getText().toString();
     }
 
     private void createSpinnerAdapter(Spinner sftpRootPaths) {
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableViews(boolean enable) {
+        var selectedInterface = findViewById(R.id.network_interface_spinner);
         var port = findViewById(R.id.port_value);
         var user = findViewById(R.id.user_value);
         var password = findViewById(R.id.password_value);
@@ -75,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         var readonly = findViewById(R.id.readonly_switch);
         var imageView = (ImageView) findViewById(R.id.key_based_authentication);
 
+        selectedInterface.setEnabled(enable);
         port.setEnabled(enable);
         user.setEnabled(enable);
         password.setEnabled(enable);
@@ -165,9 +170,10 @@ public class MainActivity extends AppCompatActivity {
         enableViews(!isStarted());
     }
 
-    private void storeValues(String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly, String sftpRootPath) {
+    private void storeValues(String selectedInterface, String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly, String sftpRootPath) {
         var editor = this.getPreferences(Context.MODE_PRIVATE).edit();
 
+        editor.putString(getString(R.string.select_network_interface), selectedInterface);
         editor.putString(getString(R.string.default_port_value), port);
         editor.putString(getString(R.string.default_user_value), user);
         editor.putString(getString(R.string.sftp_root_path), sftpRootPath);
@@ -185,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         var readonly = (SwitchMaterial) findViewById(R.id.readonly_switch);
         var sftpRootPath = (Spinner) findViewById(R.id.sftp_paths);
 
+        this.setSelectedInterface(preferences.getString(getString(R.string.select_network_interface), null));
         port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
         user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
         passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
@@ -206,9 +213,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        var linearLayout = (LinearLayout) findViewById(R.id.network_interfaces);
+        var networkInterfaceSpinner = (Spinner) findViewById(R.id.network_interface_spinner);
 
-        this.registerReceiver(new NetworkChangeReceiver(linearLayout, this.getSystemService(ConnectivityManager.class)),
+        this.registerReceiver(new NetworkChangeReceiver(networkInterfaceSpinner, this.getSystemService(ConnectivityManager.class), this),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
@@ -227,6 +234,10 @@ public class MainActivity extends AppCompatActivity {
         generateClicked(null);
         restoreValues();
         updateViews();
+    }
+
+    public void setSelectedInterface(String selectedInterface) {
+        this.selectedInterface = selectedInterface;
     }
 
     public void keyClicked(View view) {
@@ -261,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             final var sftpRootPath = ((Spinner) findViewById(R.id.sftp_paths)).getSelectedItem().toString();
             final var passwordAuthenticationEnabled = ((SwitchMaterial) findViewById(R.id.password_authentication_enabled)).isChecked();
             final var readOnly = ((SwitchMaterial) findViewById(R.id.readonly_switch)).isChecked();
-            storeValues(port, user, passwordAuthenticationEnabled, readOnly, sftpRootPath);
+            storeValues(this.selectedInterface, port, user, passwordAuthenticationEnabled, readOnly, sftpRootPath);
 
             startService(Integer.parseInt(port), user, password, sftpRootPath, passwordAuthenticationEnabled, readOnly);
         }
@@ -269,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startService(int port, String user, String password, String sftpRootPath, boolean passwordAuthenticationEnabled, boolean readOnly) {
         var sshDaemonIntent = new Intent(this, SshDaemon.class);
+        sshDaemonIntent.putExtra(INTERFACE, selectedInterface);
         sshDaemonIntent.putExtra(PORT, port);
         sshDaemonIntent.putExtra(USER, user);
         sshDaemonIntent.putExtra(PASSWORD, password);
