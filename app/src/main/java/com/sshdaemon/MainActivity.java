@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void restoreValues() {
         var preferences = this.getPreferences(Context.MODE_PRIVATE);
+        var networkInterfaceSpinner = (Spinner) findViewById(R.id.network_interface_spinner);
         var port = (TextView) findViewById(R.id.port_value);
         var user = (TextView) findViewById(R.id.user_value);
         var passwordAuthenticationEnabled = (SwitchMaterial) findViewById(R.id.password_authentication_enabled);
@@ -192,12 +193,20 @@ public class MainActivity extends AppCompatActivity {
         var sftpRootPath = (Spinner) findViewById(R.id.sftp_paths);
 
         this.setSelectedInterface(preferences.getString(getString(R.string.select_network_interface), null));
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) networkInterfaceSpinner.getAdapter();
+
+        var position = adapter.getPosition(this.selectedInterface);
+
+        if (position >= 0) {
+            networkInterfaceSpinner.setSelection(position);
+        }
+
         port.setText(preferences.getString(getString(R.string.default_port_value), getString(R.string.default_port_value)));
         user.setText(preferences.getString(getString(R.string.default_user_value), getString(R.string.default_user_value)));
         passwordAuthenticationEnabled.setChecked(preferences.getBoolean(getString(R.string.password_authentication_enabled), true));
         readonly.setChecked(preferences.getBoolean(getString(R.string.read_only), false));
         createSpinnerAdapter(sftpRootPath);
-        var position = ((ArrayAdapter<String>) sftpRootPath.getAdapter()).getPosition(preferences.getString(getString(R.string.sftp_root_path), "/"));
+        position = ((ArrayAdapter<String>) sftpRootPath.getAdapter()).getPosition(preferences.getString(getString(R.string.sftp_root_path), "/"));
         sftpRootPath.setSelection(position);
     }
 
