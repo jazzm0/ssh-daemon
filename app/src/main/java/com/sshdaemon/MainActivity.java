@@ -1,5 +1,6 @@
 package com.sshdaemon;
 
+import static android.text.TextUtils.TruncateAt.END;
 import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
@@ -142,6 +143,10 @@ public class MainActivity extends AppCompatActivity {
         fingerPrintsLayout.removeAllViews();
 
         var interfacesText = new TextView(this);
+        interfacesText.setEllipsize(END);
+        interfacesText.setSingleLine();
+        interfacesText.setMaxLines(1);
+        interfacesText.setTextSize(11);
         interfacesText.setText(R.string.fingerprints_label_text);
         interfacesText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
         interfacesText.setTypeface(null, Typeface.BOLD);
