@@ -15,6 +15,7 @@ import static java.lang.Math.max;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -50,13 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/***
- * __     _        ___
- * / _\___| |__    /   \__ _  ___ _ __ ___   ___  _ __
- * \ \/ __| '_ \  / /\ / _` |/ _ \ '_ ` _ \ / _ \| '_ \
- * _\ \__ \ | | |/ /_// (_| |  __/ | | | | | (_) | | | |
- * \__/___/_| |_/___,' \__,_|\___|_| |_| |_|\___/|_| |_|
- */
 public class SshDaemon extends Service {
 
     public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
@@ -188,6 +182,16 @@ public class SshDaemon extends Service {
         sshd.setFileSystemFactory(new VirtualFileSystemFactory(Paths.get(sftpRootPath)));
     }
 
+    private Notification createNotification(String contentText, PendingIntent pendingIntent) {
+        return new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setContentTitle(SSH_DAEMON)
+                .setContentText(contentText)
+                .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
+                .setOngoing(true)
+                .setContentIntent(pendingIntent)
+                .build();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -205,15 +209,7 @@ public class SshDaemon extends Service {
             var manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
 
-
-            var notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                    .setContentTitle(SSH_DAEMON)
-                    .setContentText(SSH_DAEMON)
-                    .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
-                    .setOngoing(true)
-                    .setContentIntent(pendingIntent)
-                    .build();
-
+            var notification = createNotification(SSH_DAEMON, pendingIntent);
             startForeground(1, notification);
 
             var interfaceName = intent.getStringExtra(INTERFACE);
@@ -242,14 +238,9 @@ public class SshDaemon extends Service {
     }
 
     private void updateNotification(String status, PendingIntent pendingIntent) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(SSH_DAEMON)
-                .setContentText(status)
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
-                .setOngoing(true);
+        Notification notification = createNotification(status, pendingIntent);
         NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.notify(1, builder.build());
+        manager.notify(1, notification);
     }
 
     @Override
@@ -259,7 +250,10 @@ public class SshDaemon extends Service {
             if (sshd != null && sshd.isStarted()) {
                 sshd.stop();
                 logger.info("SSH daemon stopped");
-//                updateNotification("SSH Server Stopped");
+                var notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+                var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                        0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                updateNotification("SSH Server Stopped", pendingIntent);
             }
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);
