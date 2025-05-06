@@ -190,25 +190,25 @@ public class SshDaemon extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        var notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
         try {
             var serviceChannel = new NotificationChannel(
-                    CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH);
+                    CHANNEL_ID,
+                    CHANNEL_ID,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+
             var manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
 
-            var notificationIntent = new Intent(this, MainActivity.class);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-            var pendingIntent = PendingIntent.getActivity(
-                    this,
-                    0,
-                    notificationIntent,
-                    FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-            );
-
-            var notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+            var notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
-                    .setContentText("SSH Server Running")
+                    .setContentText(SSH_DAEMON)
                     .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
                     .setOngoing(true)
                     .setContentIntent(pendingIntent)
@@ -228,23 +228,24 @@ public class SshDaemon extends Service {
             init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
             logger.info("SSH daemon started on port {}", port);
-            updateNotification("SSH Server Running on port " + port);
+            updateNotification("SSH Server Running on port " + port, pendingIntent);
         } catch (IOException e) {
             logger.error("Failed to start SSH daemon", e);
-            updateNotification("Failed to start SSH Server: " + e.getMessage());
+            updateNotification("Failed to start SSH Server: " + e.getMessage(), pendingIntent);
             stopSelf();
         } catch (IllegalArgumentException e) {
             logger.error("Invalid configuration", e);
-            updateNotification("Invalid configuration: " + e.getMessage());
+            updateNotification("Invalid configuration: " + e.getMessage(), pendingIntent);
             stopSelf();
         }
         return START_STICKY;
     }
 
-    private void updateNotification(String status) {
+    private void updateNotification(String status, PendingIntent pendingIntent) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(SSH_DAEMON)
                 .setContentText(status)
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
                 .setOngoing(true);
         NotificationManager manager = getSystemService(NotificationManager.class);
@@ -258,7 +259,7 @@ public class SshDaemon extends Service {
             if (sshd != null && sshd.isStarted()) {
                 sshd.stop();
                 logger.info("SSH daemon stopped");
-                updateNotification("SSH Server Stopped");
+//                updateNotification("SSH Server Stopped");
             }
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);

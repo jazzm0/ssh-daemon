@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 34
+    compileSdk 35
 
     namespace 'com.sshdaemon'
 
     defaultConfig {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 48
         versionName "2.1.30"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
