@@ -206,14 +206,15 @@ public class SshDaemon extends Service {
                     FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
             );
 
-            var builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            var notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(SSH_DAEMON)
-                    .setContentText("SSH Server Starting...")
+                    .setContentText("SSH Server Running")
                     .setSmallIcon(R.drawable.play_arrow_fill0_wght400_grad0_opsz48)
                     .setOngoing(true)
-                    .setContentIntent(pendingIntent);
+                    .setContentIntent(pendingIntent)
+                    .build();
 
-            startForeground(1, builder.build());
+            startForeground(1, notification);
 
             var interfaceName = intent.getStringExtra(INTERFACE);
             var port = intent.getIntExtra(PORT, DEFAULT_PORT);
