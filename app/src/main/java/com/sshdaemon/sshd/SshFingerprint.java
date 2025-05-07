@@ -1,5 +1,7 @@
 package com.sshdaemon.sshd;
 
+import static java.util.Objects.isNull;
+
 import org.apache.sshd.common.digest.BuiltinDigests;
 
 import java.io.ByteArrayOutputStream;
@@ -8,22 +10,19 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPublicKey;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SshFingerprint {
 
     private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
-    private static final String NISTP256 = "nistp256";
-    private static final String NISTP384 = "nistp384";
-    private static final String NISTP521 = "nistp521";
-    private static final Map<Integer, String> CURVE_MAP = new HashMap<>();
+    private static final Map<Integer, String> CURVE_MAP = Map.of(
+            256, "nistp256",
+            384, "nistp384",
+            521, "nistp521"
+    );
 
-    static {
-        CURVE_MAP.put(256, NISTP256);
-        CURVE_MAP.put(384, NISTP384);
-        CURVE_MAP.put(521, NISTP521);
-    }
+    private static final int BYTE_SHIFT = 8;
+    private static final int INT_SIZE = 4;
 
     private static String bytesToHex(byte[] bytes) {
         var hexChars = new char[bytes.length * 2];
@@ -36,22 +35,22 @@ public class SshFingerprint {
     }
 
     private static String getCurveName(int bitLength) {
-        return CURVE_MAP.entrySet().stream()
-                .filter(entry -> bitLength <= entry.getKey())
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ECDSA bit length unsupported: " + bitLength));
+        var curveName = CURVE_MAP.get(bitLength);
+        if (isNull(curveName)) {
+            throw new IllegalArgumentException("Unsupported ECDSA bit length: " + bitLength);
+        }
+        return curveName;
     }
 
     private static int getQLen(int bitLength) {
         if (bitLength <= 256) return 65;
         if (bitLength <= 384) return 97;
         if (bitLength <= 521) return 133;
-        throw new RuntimeException("ECDSA bit length unsupported: " + bitLength);
+        throw new IllegalArgumentException("Unsupported ECDSA bit length: " + bitLength);
     }
 
     private static void writeArray(final byte[] arr, final ByteArrayOutputStream baos) {
-        for (var shift = 24; shift >= 0; shift -= 8) {
+        for (var shift = (INT_SIZE - 1) * BYTE_SHIFT; shift >= 0; shift -= BYTE_SHIFT) {
             baos.write((arr.length >>> shift) & 0xFF);
         }
         baos.write(arr, 0, arr.length);
@@ -87,11 +86,13 @@ public class SshFingerprint {
         writeArray(curve, buf);
 
         var javaEncoding = key.getEncoded();
-        if (javaEncoding.length > 0) {
-            var q = new byte[qLen];
-            System.arraycopy(javaEncoding, javaEncoding.length - qLen, q, 0, qLen);
-            writeArray(q, buf);
+        if (javaEncoding.length < qLen) {
+            throw new IllegalArgumentException("Invalid key encoding length");
         }
+        var q = new byte[qLen];
+        System.arraycopy(javaEncoding, javaEncoding.length - qLen, q, 0, qLen);
+        writeArray(q, buf);
+
         return buf.toByteArray();
     }
 
