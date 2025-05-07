@@ -1,7 +1,5 @@
 package com.sshdaemon.sshd;
 
-import static java.util.Objects.isNull;
-
 import org.apache.sshd.common.digest.BuiltinDigests;
 
 import java.io.ByteArrayOutputStream;
@@ -35,11 +33,11 @@ public class SshFingerprint {
     }
 
     private static String getCurveName(int bitLength) {
-        var curveName = CURVE_MAP.get(bitLength);
-        if (isNull(curveName)) {
-            throw new IllegalArgumentException("Unsupported ECDSA bit length: " + bitLength);
-        }
-        return curveName;
+        return CURVE_MAP.entrySet().stream()
+                .filter(entry -> bitLength <= entry.getKey())
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("ECDSA bit length unsupported: " + bitLength));
     }
 
     private static int getQLen(int bitLength) {

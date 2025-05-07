@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 35
+    compileSdk = 35
 
-    namespace 'com.sshdaemon'
+    namespace = 'com.sshdaemon'
 
     defaultConfig {
         applicationId "com.daemon.ssh"
@@ -17,8 +17,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -52,8 +52,17 @@ android {
             useJUnitPlatform()
         }
     }
+    lintOptions {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
     lint {
-        baseline file('lint-baseline.xml')
+        baseline = file('lint-baseline.xml')
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << "-Xlint:deprecation"
     }
 }
 

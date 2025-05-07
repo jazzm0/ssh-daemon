@@ -22,7 +22,6 @@ import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -232,8 +231,10 @@ public class MainActivity extends AppCompatActivity {
 
         var networkInterfaceSpinner = (Spinner) findViewById(R.id.network_interface_spinner);
 
-        this.registerReceiver(new NetworkChangeReceiver(networkInterfaceSpinner, this.getSystemService(ConnectivityManager.class), this),
-                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        var connectivityManager = getSystemService(ConnectivityManager.class);
+        connectivityManager.registerDefaultNetworkCallback(new NetworkChangeReceiver(networkInterfaceSpinner,
+                this.getSystemService(ConnectivityManager.class),
+                this));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
             startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));

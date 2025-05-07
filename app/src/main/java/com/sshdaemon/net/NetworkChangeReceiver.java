@@ -3,15 +3,14 @@ package com.sshdaemon.net;
 import static com.sshdaemon.util.AndroidLogger.getLogger;
 import static java.util.Objects.isNull;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
 
 import com.sshdaemon.MainActivity;
 
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class NetworkChangeReceiver extends BroadcastReceiver {
+public class NetworkChangeReceiver extends ConnectivityManager.NetworkCallback {
 
     private static final Logger logger = getLogger();
     private final Spinner networkInterfaces;
@@ -62,14 +61,24 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         try {
             synchronized (this) {
                 var interfaces = getInterfaces();
-                var adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, interfaces);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                networkInterfaces.setAdapter(adapter);
+                activity.runOnUiThread(() -> {
+                    var adapter = (ArrayAdapter<String>) networkInterfaces.getAdapter();
+                    if (!isNull(adapter)) {
+                        adapter.clear();
+                        adapter.addAll(interfaces);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, interfaces);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        networkInterfaces.setAdapter(adapter);
+                    }
+                });
             }
         } catch (Exception e) {
             logger.error("Error setting adapter for network interfaces: ", e);
         }
     }
+
 
     List<String> getInterfaces() {
         var result = new TreeSet<String>();
@@ -139,8 +148,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     }
 
     @Override
-    public void onReceive(final Context context, final Intent intent) {
-        logger.info("Network change detected. Updating network interfaces.");
+    public void onAvailable(@NonNull android.net.Network network) {
+        super.onAvailable(network);
+        logger.info("Network available. Updating network interfaces.");
+        setAdapter();
+    }
+
+    @Override
+    public void onLost(@NonNull android.net.Network network) {
+        super.onLost(network);
+        logger.info("Network lost. Updating network interfaces.");
         setAdapter();
     }
 }

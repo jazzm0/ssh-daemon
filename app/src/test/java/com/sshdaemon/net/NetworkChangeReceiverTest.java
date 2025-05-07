@@ -3,6 +3,7 @@ package com.sshdaemon.net;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -10,12 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import com.sshdaemon.MainActivity;
 
@@ -33,6 +32,11 @@ class NetworkChangeReceiverTest {
     @BeforeEach
     void setup() {
         connectivityManager = mock(ConnectivityManager.class);
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(mainActivity).runOnUiThread(any(Runnable.class));
         networkChangeReceiver = new NetworkChangeReceiver(spinner, connectivityManager, mainActivity);
         reset(spinner);
         reset(mainActivity);
@@ -40,7 +44,7 @@ class NetworkChangeReceiverTest {
 
     @Test
     void testNoConnectivity() {
-        networkChangeReceiver.onReceive(mainActivity, mock(Intent.class));
+        networkChangeReceiver.onLost(mock(Network.class));
         verify(spinner, times(0)).addView(any(), any());
     }
 
@@ -52,14 +56,14 @@ class NetworkChangeReceiverTest {
         when(connectivityManager.getActiveNetwork()).thenReturn(network);
         when(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities);
         when(mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
-        networkChangeReceiver.onReceive(mainActivity, mock(Intent.class));
-
-        var spinnerAdapter = ArgumentCaptor.forClass(SpinnerAdapter.class);
+        networkChangeReceiver.onAvailable(mock(Network.class));
 
         final var interfaces = networkChangeReceiver.getInterfaces();
 
+        var runnable = ArgumentCaptor.forClass(Runnable.class);
+
         assertFalse(interfaces.isEmpty());
 
-        verify(spinner, times(1)).setAdapter(spinnerAdapter.capture());
+        verify(mainActivity, times(1)).runOnUiThread(runnable.capture());
     }
 }
