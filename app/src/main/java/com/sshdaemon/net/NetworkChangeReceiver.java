@@ -1,41 +1,91 @@
 package com.sshdaemon.net;
 
 import static com.sshdaemon.util.AndroidLogger.getLogger;
-import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
-import com.sshdaemon.R;
+import androidx.annotation.NonNull;
+
+import com.sshdaemon.MainActivity;
 
 import org.slf4j.Logger;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class NetworkChangeReceiver extends BroadcastReceiver {
+public class NetworkChangeReceiver extends ConnectivityManager.NetworkCallback {
 
     private static final Logger logger = getLogger();
-    private final LinearLayout networkInterfaces;
+    private final Spinner networkInterfaces;
+    private final MainActivity activity;
     private final ConnectivityManager connectivityManager;
 
-    public NetworkChangeReceiver(LinearLayout networkInterfaces, ConnectivityManager connectivityManager) {
+    public NetworkChangeReceiver(Spinner networkInterfaces, ConnectivityManager connectivityManager, MainActivity activity) {
         this.networkInterfaces = networkInterfaces;
         this.connectivityManager = connectivityManager;
-        showNetworkInterfaces();
+        this.activity = activity;
+
+        networkInterfaces.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                synchronized (NetworkChangeReceiver.this) {
+                    if (position == 0) {
+                        activity.setSelectedInterface(null);
+                    } else {
+                        activity.setSelectedInterface(getInterfaces().get(position));
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                activity.setSelectedInterface(null);
+            }
+        });
+
+        setAdapter();
     }
 
-    static Set<String> getInterfaces() {
+    private void setAdapter() {
+        try {
+            synchronized (this) {
+                var interfaces = getInterfaces();
+                activity.runOnUiThread(() -> {
+                    var adapter = (ArrayAdapter<String>) networkInterfaces.getAdapter();
+                    if (!isNull(adapter)) {
+                        adapter.clear();
+                        adapter.addAll(interfaces);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, interfaces);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        networkInterfaces.setAdapter(adapter);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            logger.error("Error setting adapter for network interfaces: ", e);
+        }
+    }
+
+
+    List<String> getInterfaces() {
         var result = new TreeSet<String>();
+        if (!hasConnectivity()) {
+            logger.warn("No connectivity detected.");
+            return Collections.emptyList();
+        }
 
         try {
             var networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -46,56 +96,68 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 }
             }
         } catch (SocketException e) {
-            logger.error("Exception: ", e);
+            logger.error("Exception while fetching network interfaces: ", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while fetching network interfaces: ", e);
         }
-        return result;
+
+        var interfaces = new ArrayList<>(result);
+        interfaces.add(0, "all interfaces"); // Default option
+        return interfaces;
     }
 
-    private static boolean isValidInterface(NetworkInterface networkInterface) throws SocketException {
-        return !networkInterface.isLoopback() && networkInterface.isUp() && !networkInterface.isVirtual();
+    private static boolean isValidInterface(NetworkInterface networkInterface) {
+        try {
+            return !networkInterface.isLoopback() && networkInterface.isUp() && !networkInterface.isVirtual();
+        } catch (SocketException e) {
+            logger.error("Error checking validity of network interface: ", e);
+            return false;
+        }
     }
 
     private static void addInterfaceAddresses(Set<String> result, NetworkInterface networkInterface) {
-        var addresses = networkInterface.getInetAddresses();
-        while (addresses.hasMoreElements()) {
-            var inetAddress = addresses.nextElement();
-            var hostAddress = inetAddress.getHostAddress();
-            if (!isNull(hostAddress) && !(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
-                result.add(hostAddress.replace("%", " on interface "));
+        try {
+            var addresses = networkInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                var inetAddress = addresses.nextElement();
+                var hostAddress = inetAddress.getHostAddress();
+
+                if (!isNull(hostAddress) && !(hostAddress.contains("dummy") || hostAddress.contains("rmnet"))) {
+                    result.add(hostAddress.split("%")[0]); // Exclude scope ID for IPv6
+                }
             }
+        } catch (Exception e) {
+            logger.error("Error adding interface addresses: ", e);
         }
     }
 
     private boolean hasConnectivity() {
-        var nw = connectivityManager.getActiveNetwork();
-        if (isNull(nw)) return false;
-        var actNw = connectivityManager.getNetworkCapabilities(nw);
-        return !isNull(actNw) && (
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                        actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                        actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-        );
-    }
-
-    private void showNetworkInterfaces() {
-        networkInterfaces.removeAllViews();
-        if (!hasConnectivity()) return;
-
-        var interfacesText = new TextView(networkInterfaces.getContext());
-        interfacesText.setText(R.string.interface_label_text);
-        interfacesText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        interfacesText.setTypeface(null, Typeface.BOLD);
-
-        networkInterfaces.addView(interfacesText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
-        for (var interfaceAddress : getInterfaces()) {
-            networkInterfaces.addView(createTextView(networkInterfaces.getContext(), interfaceAddress),
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        try {
+            var nw = connectivityManager.getActiveNetwork();
+            if (isNull(nw)) return false;
+            var actNw = connectivityManager.getNetworkCapabilities(nw);
+            return !isNull(actNw) && (
+                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                            actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                            actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+            );
+        } catch (Exception e) {
+            logger.error("Error checking connectivity: ", e);
+            return false;
         }
     }
 
     @Override
-    public void onReceive(final Context context, final Intent intent) {
-        showNetworkInterfaces();
+    public void onAvailable(@NonNull android.net.Network network) {
+        super.onAvailable(network);
+        logger.info("Network available. Updating network interfaces.");
+        setAdapter();
+    }
+
+    @Override
+    public void onLost(@NonNull android.net.Network network) {
+        super.onLost(network);
+        logger.info("Network lost. Updating network interfaces.");
+        setAdapter();
     }
 }

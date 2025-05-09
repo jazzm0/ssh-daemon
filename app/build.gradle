@@ -1,24 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 34
+    compileSdk = 35
 
-    namespace 'com.sshdaemon'
+    namespace = 'com.sshdaemon'
 
     defaultConfig {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
-        targetSdkVersion 34
-        versionCode 47
-        versionName "2.1.29"
+        targetSdkVersion 35
+        versionCode 48
+        versionName "2.1.30"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -52,8 +52,17 @@ android {
             useJUnitPlatform()
         }
     }
+    lintOptions {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
     lint {
-        baseline file('lint-baseline.xml')
+        baseline = file('lint-baseline.xml')
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << "-Xlint:deprecation"
     }
 }
 

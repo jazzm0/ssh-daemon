@@ -1,9 +1,9 @@
 package com.sshdaemon.net;
 
-import static com.sshdaemon.net.NetworkChangeReceiver.getInterfaces;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -11,12 +11,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.Spinner;
+
+import com.sshdaemon.MainActivity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,42 +24,46 @@ import org.mockito.ArgumentCaptor;
 
 class NetworkChangeReceiverTest {
 
-    private final LinearLayout linearLayout = mock(LinearLayout.class);
-    private final Context context = mock(Context.class);
+    private final Spinner spinner = mock(Spinner.class);
+    private final MainActivity mainActivity = mock(MainActivity.class);
     private NetworkChangeReceiver networkChangeReceiver;
     private ConnectivityManager connectivityManager;
 
     @BeforeEach
     void setup() {
         connectivityManager = mock(ConnectivityManager.class);
-        networkChangeReceiver = new NetworkChangeReceiver(linearLayout, connectivityManager);
-        reset(linearLayout);
-        reset(context);
+        doAnswer(invocation -> {
+            Runnable runnable = invocation.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(mainActivity).runOnUiThread(any(Runnable.class));
+        networkChangeReceiver = new NetworkChangeReceiver(spinner, connectivityManager, mainActivity);
+        reset(spinner);
+        reset(mainActivity);
     }
 
     @Test
     void testNoConnectivity() {
-        networkChangeReceiver.onReceive(context, mock(Intent.class));
-        verify(linearLayout, times(0)).addView(any(), any());
+        networkChangeReceiver.onLost(mock(Network.class));
+        verify(spinner, times(0)).addView(any(), any());
     }
 
     @Test
-    void testViewsAreAdded() {
+    void testSpinnerIsUpdated() {
         var network = mock(Network.class);
         var networkCapabilities = mock(NetworkCapabilities.class);
         when(networkCapabilities.hasTransport(anyInt())).thenReturn(true);
         when(connectivityManager.getActiveNetwork()).thenReturn(network);
         when(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities);
-        when(context.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
-        networkChangeReceiver.onReceive(context, mock(Intent.class));
+        when(mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(connectivityManager);
+        networkChangeReceiver.onAvailable(mock(Network.class));
 
-        var view = ArgumentCaptor.forClass(View.class);
-        var layout = ArgumentCaptor.forClass(LinearLayout.LayoutParams.class);
+        final var interfaces = networkChangeReceiver.getInterfaces();
 
-        final var interfaces = getInterfaces();
+        var runnable = ArgumentCaptor.forClass(Runnable.class);
 
         assertFalse(interfaces.isEmpty());
 
-        verify(linearLayout, times(interfaces.size() + 1)).addView(view.capture(), layout.capture());
+        verify(mainActivity, times(1)).runOnUiThread(runnable.capture());
     }
 }

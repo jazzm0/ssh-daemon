@@ -4,7 +4,7 @@
 
     <string name="fingerprints_label_text">Impressões digitais</string>
 
-    <string name="interface_label_text">Interfaces da rede</string>
+    <string name="select_network_interface">Interface de Rede</string>
 
     <string name="port_label_text">porta</string>
 
