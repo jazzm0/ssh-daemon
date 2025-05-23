@@ -2,6 +2,7 @@ package com.sshdaemon;
 
 import static android.text.TextUtils.TruncateAt.END;
 import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
+import static com.sshdaemon.sshd.SshDaemon.NOTIFICATION_ID;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
@@ -215,6 +216,15 @@ public class MainActivity extends AppCompatActivity {
         createSpinnerAdapter(sftpRootPath);
         position = ((ArrayAdapter<String>) sftpRootPath.getAdapter()).getPosition(preferences.getString(getString(R.string.sftp_root_path), "/"));
         sftpRootPath.setSelection(position);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        if (!isNull(notificationManager)) {
+            notificationManager.cancel(NOTIFICATION_ID);
+        }
     }
 
     @Override

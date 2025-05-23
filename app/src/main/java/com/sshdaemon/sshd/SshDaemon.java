@@ -53,6 +53,7 @@ import java.util.Map;
 
 public class SshDaemon extends Service {
 
+    public static final int NOTIFICATION_ID = 1;
     public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
@@ -210,7 +211,7 @@ public class SshDaemon extends Service {
             manager.createNotificationChannel(serviceChannel);
 
             var notification = createNotification(SSH_DAEMON, pendingIntent);
-            startForeground(1, notification);
+            startForeground(NOTIFICATION_ID, notification);
 
             var interfaceName = intent.getStringExtra(INTERFACE);
             var port = intent.getIntExtra(PORT, DEFAULT_PORT);
@@ -240,7 +241,7 @@ public class SshDaemon extends Service {
     private void updateNotification(String status, PendingIntent pendingIntent) {
         Notification notification = createNotification(status, pendingIntent);
         NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.notify(1, notification);
+        manager.notify(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -254,10 +255,17 @@ public class SshDaemon extends Service {
                 var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
                         0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 updateNotification("SSH Server Stopped", pendingIntent);
+                stopForeground(true);
             }
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);
         }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        stopForeground(true);
     }
 
     @Nullable
