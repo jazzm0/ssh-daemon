@@ -28,6 +28,6 @@
 
     <string name="starts_stops_server">Запускает/Останавливает сервер</string>
 
-    <string name="shows_key_based_authentication_enabled_disabled">Показывает включенную/отключенную аутентификацию на основе ключа</string>
+    <string name="shows_key_based_authentication_enabled_disabled">Показывает включённую/отключённую аутентификацию на основе ключа</string>
 
 </resources>
