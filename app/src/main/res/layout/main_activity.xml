@@ -23,8 +23,7 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:padding="24dp"
-            android:paddingTop="16dp">
+            android:padding="12dp">
 
             <LinearLayout
                 android:id="@+id/server_fingerprints"
@@ -125,7 +124,8 @@
                 android:id="@+id/start_stop_action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:clickable="true"
                 android:contentDescription="@string/starts_stops_server"
                 android:focusable="true"
