@@ -53,6 +53,8 @@ import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             button.setImageResource(R.drawable.pause_black_24dp);
         }
+        updateServerStatusDisplay(enable);
     }
 
     private void setPasswordGroupVisibility(int visibility) {
@@ -174,8 +177,50 @@ public class MainActivity extends AppCompatActivity {
         return started;
     }
 
-    private void updateViews() {
-        enableViews(!isStarted());
+    private void updateServerStatusDisplay(boolean enable) {
+        androidx.cardview.widget.CardView statusCard = findViewById(R.id.server_status_card);
+        TextView statusSummary = findViewById(R.id.server_status_summary);
+
+        if (!enable) {
+            String statusText = getServerStatusText();
+            statusSummary.setText(statusText);
+            statusCard.setVisibility(View.VISIBLE);
+        } else {
+            statusCard.setVisibility(View.GONE);
+        }
+    }
+
+    private String getServerStatusText() {
+        if (selectedInterface == null) {
+            // "All interfaces" is selected
+            var activeInterfaces = getActiveNetworkInterfaces();
+            if (activeInterfaces.isEmpty()) {
+                return "Server active on all available interfaces";
+            } else {
+                int count = activeInterfaces.size();
+                String interfaceList = String.join(", ", activeInterfaces);
+                return "Server active on: " + interfaceList + " (" + count + " interface" + (count > 1 ? "s" : "") + ")";
+            }
+        } else {
+            // Specific interface is selected
+            return "Server active on: " + selectedInterface;
+        }
+    }
+
+    private List<String> getActiveNetworkInterfaces() {
+        // Get the current list of interfaces from NetworkChangeReceiver
+        // Since we can't directly access it, we'll get it from the Spinner adapter
+        var networkInterfaceSpinner = (Spinner) findViewById(R.id.network_interface_spinner);
+        var adapter = (ArrayAdapter<String>) networkInterfaceSpinner.getAdapter();
+
+        List<String> activeInterfaces = new ArrayList<>();
+        if (adapter != null && adapter.getCount() > 1) {
+            // Skip the first item which is "all interfaces"
+            for (int i = 1; i < adapter.getCount(); i++) {
+                activeInterfaces.add(adapter.getItem(i));
+            }
+        }
+        return activeInterfaces;
     }
 
     private void storeValues(String selectedInterface, String port, String user, boolean passwordAuthenticationEnabled, boolean readOnly, String sftpRootPath) {
@@ -231,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         restoreValues();
-        updateViews();
     }
 
     @Override
@@ -269,7 +313,6 @@ public class MainActivity extends AppCompatActivity {
         setFingerPrints(getFingerPrints());
         generateClicked(null);
         restoreValues();
-        updateViews();
     }
 
     public void setSelectedInterface(String selectedInterface) {
@@ -292,7 +335,6 @@ public class MainActivity extends AppCompatActivity {
     public void passwordSwitchClicked(View passwordAuthenticationEnabled) {
         var passwordSwitch = (SwitchMaterial) passwordAuthenticationEnabled;
         enablePasswordAuthentication(true, !passwordSwitch.isActivated());
-        updateViews();
     }
 
     public void startStopClicked(View view) {
