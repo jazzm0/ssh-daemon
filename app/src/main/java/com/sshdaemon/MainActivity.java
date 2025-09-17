@@ -177,6 +177,10 @@ public class MainActivity extends AppCompatActivity {
         return started;
     }
 
+    private void updateViews() {
+        enableViews(!isStarted());
+    }
+
     private void updateServerStatusDisplay(boolean enable) {
         androidx.cardview.widget.CardView statusCard = findViewById(R.id.server_status_card);
         TextView statusSummary = findViewById(R.id.server_status_summary);
@@ -276,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         restoreValues();
+        updateViews();
     }
 
     @Override
@@ -313,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
         setFingerPrints(getFingerPrints());
         generateClicked(null);
         restoreValues();
+        updateViews();
     }
 
     public void setSelectedInterface(String selectedInterface) {
