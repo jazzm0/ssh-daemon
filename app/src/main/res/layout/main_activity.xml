@@ -25,25 +25,45 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <LinearLayout
-                android:id="@+id/server_fingerprints"
-                style="@style/Widget.CardContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp">
-
-            </LinearLayout>
-
-            <Spinner
-                android:id="@+id/network_interface_spinner"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="@string/select_network_interface"
-                android:background="@color/colorCardView"
-                android:popupBackground="@color/colorAccent"
-                android:textColor="@android:color/holo_blue_dark"
-                android:spinnerMode="dropdown" />
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/server_fingerprints"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <Spinner
+                    android:id="@+id/network_interface_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/select_network_interface"
+                    android:background="@android:color/transparent"
+                    android:popupBackground="@color/colorAccent"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:spinnerMode="dropdown" />
+
+            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/server_status_card"
@@ -66,78 +86,125 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/server_status"
-                        android:textSize="14sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
-                        android:textColor="@android:color/holo_blue_dark"
                         android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:id="@+id/server_status_summary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="@android:color/holo_blue_dark"
-                        android:text="Server status will appear here" />
+                        android:textSize="11sp" />
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:hint="@string/port_label_text">
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/port_value"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/default_port_value"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:background="@color/colorCardView"
-                    android:text="@string/default_port_value" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_margin="8dp"
+                    android:hint="@string/port_label_text"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxStrokeColor="@android:color/transparent"
+                    app:boxCornerRadiusTopStart="0dp"
+                    app:boxCornerRadiusTopEnd="0dp"
+                    app:boxCornerRadiusBottomStart="0dp"
+                    app:boxCornerRadiusBottomEnd="0dp">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/port_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/default_port_value"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:background="@android:color/transparent"
+                        android:text="@string/default_port_value" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/user_layout"
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:hint="@string/default_user_value">
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/user_value"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/user_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:hint="@string/default_user_value"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:background="@color/colorCardView"
-                    android:text="@string/default_user_value" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxStrokeColor="@android:color/transparent"
+                    app:boxCornerRadiusTopStart="0dp"
+                    app:boxCornerRadiusTopEnd="0dp"
+                    app:boxCornerRadiusBottomStart="0dp"
+                    app:boxCornerRadiusBottomEnd="0dp">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/password_layout"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/user_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/default_user_value"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:background="@android:color/transparent"
+                        android:text="@string/default_user_value" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:hint="@string/default_password_value"
-                app:passwordToggleDrawable="@drawable/show_password_selector"
-                app:passwordToggleEnabled="true">
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/password_value"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:hint="@string/default_password_value"
-                    android:inputType="textPassword"
-                    android:background="@color/colorCardView"
-                    android:maxLines="1"
-                    android:text="@string/default_password_value" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxStrokeColor="@android:color/transparent"
+                    app:boxCornerRadiusTopStart="0dp"
+                    app:boxCornerRadiusTopEnd="0dp"
+                    app:boxCornerRadiusBottomStart="0dp"
+                    app:boxCornerRadiusBottomEnd="0dp"
+                    app:passwordToggleDrawable="@drawable/show_password_selector"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/password_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/default_password_value"
+                        android:inputType="textPassword"
+                        android:background="@android:color/transparent"
+                        android:maxLines="1"
+                        android:text="@string/default_password_value" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </androidx.cardview.widget.CardView>
 
             <RelativeLayout
                 android:id="@+id/bottom"
@@ -195,13 +262,26 @@
                 android:contentDescription="@string/shows_key_based_authentication_enabled_disabled"
                 android:onClick="keyClicked" />
 
-            <Spinner
-                android:id="@+id/sftp_paths"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="@string/sftp_root_path"
-                android:textColor="@android:color/holo_blue_dark" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardBackgroundColor="@color/colorCardView"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <Spinner
+                    android:id="@+id/sftp_paths"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/sftp_root_path"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/holo_blue_dark" />
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
