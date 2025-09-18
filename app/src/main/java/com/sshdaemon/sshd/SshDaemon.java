@@ -68,6 +68,8 @@ public class SshDaemon extends Service {
     private static final int THREAD_POOL_SIZE = 10;
     private static final int DEFAULT_PORT = 8022;
 
+    private static volatile boolean isServiceRunning = false;
+
     static {
         Security.removeProvider("BC");
         if (SecurityUtils.isRegistrationCompleted()) {
@@ -101,6 +103,10 @@ public class SshDaemon extends Service {
         }
         var authenticator = new SshPublicKeyAuthenticator();
         return authenticator.loadKeysFromPath(authorizedKeyPath);
+    }
+
+    public static boolean isRunning() {
+        return isServiceRunning;
     }
 
     public static Map<SshFingerprint.DIGESTS, String> getFingerPrints() {
@@ -224,6 +230,7 @@ public class SshDaemon extends Service {
 
             init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
+            isServiceRunning = true;
             logger.info("SSH daemon started on port {}", port);
             updateNotification("SSH Server Running on port " + port, pendingIntent);
         } catch (IOException e) {
@@ -247,6 +254,7 @@ public class SshDaemon extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isServiceRunning = false;
         try {
             if (sshd != null && sshd.isStarted()) {
                 sshd.stop();

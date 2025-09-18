@@ -8,7 +8,6 @@ import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
 import static com.sshdaemon.sshd.SshDaemon.PORT;
 import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
 import static com.sshdaemon.sshd.SshDaemon.SFTP_ROOT_PATH;
-import static com.sshdaemon.sshd.SshDaemon.SSH_DAEMON;
 import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
@@ -19,7 +18,6 @@ import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -347,14 +345,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Service Status Management
     private boolean isStarted() {
-        var am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        @SuppressWarnings("deprecation")
-        var runningServices = am.getRunningServices(1);
-        var started = false;
-        if (!runningServices.isEmpty() && runningServices.get(0).service.flattenToString().contains(SSH_DAEMON)) {
-            started = runningServices.get(0).started;
-        }
-        return started;
+        return SshDaemon.isRunning();
     }
 
     private void updateViews() {
