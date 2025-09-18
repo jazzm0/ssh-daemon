@@ -68,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void createSpinnerAdapter(Spinner sftpRootPaths) {
         if (isNull(sftpRootPaths.getSelectedItem())) {
-            var adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getAllStorageLocations(this));
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            var adapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, getAllStorageLocations(this));
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
             sftpRootPaths.setAdapter(adapter);
         }
     }

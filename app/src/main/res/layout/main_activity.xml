@@ -248,6 +248,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/read_only"
+                android:textSize="11sp"
                 app:useMaterialThemeColors="true" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -256,6 +257,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="passwordSwitchClicked"
                 android:text="@string/password_authentication_enabled"
+                android:textSize="11sp"
                 app:useMaterialThemeColors="true" />
 
             <ImageView

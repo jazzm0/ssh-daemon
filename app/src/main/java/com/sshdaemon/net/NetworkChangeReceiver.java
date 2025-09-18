@@ -68,8 +68,8 @@ public class NetworkChangeReceiver extends ConnectivityManager.NetworkCallback {
                         adapter.addAll(interfaces);
                         adapter.notifyDataSetChanged();
                     } else {
-                        adapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, interfaces);
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        adapter = new ArrayAdapter<>(activity, com.sshdaemon.R.layout.spinner_item, interfaces);
+                        adapter.setDropDownViewResource(com.sshdaemon.R.layout.spinner_dropdown_item);
                         networkInterfaces.setAdapter(adapter);
                     }
                 });
