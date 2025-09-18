@@ -17,4 +17,10 @@
         <item name="android:background">@color/colorCardView</item>
     </style>
 
+    <style name="SpinnerDropdownItem" parent="android:Widget.TextView.SpinnerItem">
+        <item name="android:textSize">11sp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textColor">@android:color/holo_blue_dark</item>
+    </style>
+
 </resources>

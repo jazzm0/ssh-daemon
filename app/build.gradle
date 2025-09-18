@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     namespace = 'com.sshdaemon'
 
     defaultConfig {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
-        targetSdkVersion 35
-        versionCode 50
-        versionName "2.1.32"
+        targetSdkVersion 36
+        versionCode 51
+        versionName "2.1.33"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -52,13 +52,11 @@ android {
             useJUnitPlatform()
         }
     }
-    lintOptions {
-        checkReleaseBuilds = false
-        abortOnError = false
-    }
 
     lint {
         baseline = file('lint-baseline.xml')
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -67,29 +65,30 @@ android {
 }
 
 ext {
-    sshdVersion = '2.15.0'
+    sshdVersion = '2.16.0'
 }
 
 dependencies {
-    api 'com.google.android.material:material:1.12.0'
+    api 'com.google.android.material:material:1.13.0'
 
     implementation "org.apache.sshd:sshd-core:${sshdVersion}"
     implementation "org.apache.sshd:sshd-sftp:${sshdVersion}"
     implementation "org.apache.sshd:sshd-contrib:${sshdVersion}"
-    implementation "org.slf4j:slf4j-api:2.0.16"
-    implementation "org.slf4j:slf4j-log4j12:2.0.16"
-    implementation "org.bouncycastle:bcpkix-jdk15to18:1.80"
+    implementation "org.slf4j:slf4j-api:2.0.17"
+    implementation "org.slf4j:slf4j-log4j12:2.0.17"
+    implementation "org.bouncycastle:bcpkix-jdk15to18:1.82"
     implementation "net.i2p.crypto:eddsa:0.3.0"
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.12.0"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.12.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.12.0"
-    testImplementation "org.junit.platform:junit-platform-launcher:1.12.0"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.13.4"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.4"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.13.4"
+    testImplementation "org.junit.platform:junit-platform-launcher:1.13.4"
 
     testImplementation "org.hamcrest:hamcrest-all:1.3"
-    testImplementation "org.mockito:mockito-core:5.14.1"
-    androidTestImplementation "androidx.test:core:1.6.1"
-    androidTestImplementation "androidx.test.ext:junit:1.2.1"
-    androidTestImplementation "androidx.test:runner:1.6.2"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
+    testImplementation "org.mockito:mockito-core:5.19.0"
+    testImplementation "org.mockito:mockito-junit-jupiter:5.2.0"
+    androidTestImplementation "androidx.test:core:1.7.0"
+    androidTestImplementation "androidx.test.ext:junit:1.3.0"
+    androidTestImplementation "androidx.test:runner:1.7.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
 }

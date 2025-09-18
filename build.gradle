@@ -7,11 +7,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.10.1'
+        classpath 'com.android.tools.build:gradle:8.13.0'
     }
 }
-
-apply plugin: 'android-reporting'
 
 allprojects {
     repositories {

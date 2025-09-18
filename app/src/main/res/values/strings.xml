@@ -29,5 +29,6 @@
     <string name="starts_stops_server">Starts/Stops server</string>
 
     <string name="shows_key_based_authentication_enabled_disabled">Shows key based authentication enabled/disabled</string>
+    <string name="server_status">Server Status</string>
 
 </resources>
