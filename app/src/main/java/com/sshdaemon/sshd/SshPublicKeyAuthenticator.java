@@ -52,12 +52,14 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
 
     protected static PublicKey readKey(String key) throws Exception {
         if (isNull(key) || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Key string is empty or null");
+            LOGGER.error("Key string is empty or null");
+            return null;
         }
 
         String[] parts = key.trim().split("\\s+");
         if (parts.length < 2) {
-            throw new IllegalArgumentException("Invalid key format: expected at least type and key");
+            LOGGER.error("Invalid key format: expected at least type and key");
+            return null;
         }
 
         String keyType = parts[0];
@@ -65,13 +67,15 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         try {
             decodedKey = Base64.getDecoder().decode(parts[1]);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid Base64 encoding in key", e);
+            LOGGER.error("Invalid Base64 encoding in key", e);
+            return null;
         }
 
         try (DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(decodedKey))) {
             String pubKeyFormat = new String(readElement(dataInputStream));
             if (!pubKeyFormat.equals(keyType)) {
-                throw new IllegalArgumentException("Key type mismatch: expected " + keyType + ", got " + pubKeyFormat);
+                LOGGER.error("Key type mismatch: expected {}, got {}", keyType, pubKeyFormat);
+                return null;
             }
 
             switch (pubKeyFormat) {
@@ -88,7 +92,8 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
                     return new EdDSAPublicKey(new EdDSAPublicKeySpec(params.getEncoded(), EdDSANamedCurveTable.ED_25519_CURVE_SPEC));
 
                 default:
-                    throw new UnknownPublicKeyFormatException(pubKeyFormat);
+                    LOGGER.error(pubKeyFormat);
+                    return null;
             }
         }
     }
@@ -98,6 +103,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
     }
 
     public boolean loadKeysFromPath(String authorizedKeysPath) {
+        authorizedKeys.clear();
         if (isNull(authorizedKeysPath)) {
             LOGGER.error("Authorized keys path is null");
             return false;
@@ -110,7 +116,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         }
 
         LOGGER.debug("Loading authorized keys from {}", authorizedKeysPath);
-        authorizedKeys.clear();
+
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -121,6 +127,9 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
                 }
                 try {
                     PublicKey key = readKey(line);
+                    if (isNull(key)) {
+                        continue;
+                    }
                     if (authorizedKeys.add(key)) {
                         LOGGER.debug("Added authorized key: type={}", key.getAlgorithm());
                     } else {
