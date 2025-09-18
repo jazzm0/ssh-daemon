@@ -255,7 +255,7 @@ public class SshDaemon extends Service {
                 var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
                         0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
                 updateNotification("SSH Server Stopped", pendingIntent);
-                stopForeground(true);
+                stopForeground(STOP_FOREGROUND_REMOVE);
             }
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);
@@ -265,7 +265,7 @@ public class SshDaemon extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
     }
 
     @Nullable

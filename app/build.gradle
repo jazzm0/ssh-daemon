@@ -55,8 +55,8 @@ android {
 
     lint {
         baseline = file('lint-baseline.xml')
-        abortOnError false
-        checkReleaseBuilds false
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 
     tasks.withType(JavaCompile).configureEach {
