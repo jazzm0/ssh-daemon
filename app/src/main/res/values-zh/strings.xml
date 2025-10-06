@@ -1,0 +1,34 @@
+<resources>
+
+    <string name="app_name">SshDaemon</string>
+
+    <string name="fingerprints_label_text">指纹</string>
+
+    <string name="select_network_interface">网络接口</string>
+
+    <string name="port_label_text">端口</string>
+
+    <string name="default_port_value">8022</string>
+
+    <string name="default_user_value">用户名</string>
+
+    <string name="default_password_value">密码</string>
+
+    <string name="generate">生成</string>
+
+    <string name="ssh_public_key_doesnt_exists">在 SshDaemon 目录中创建授权密钥启用基于密钥的身份认证</string>
+
+    <string name="ssh_public_key_exists">启用了公钥身份认证</string>
+
+    <string name="password_authentication_enabled">启用了密码</string>
+
+    <string name="sftp_root_path">Root 路径</string>
+
+    <string name="read_only">只读</string>
+
+    <string name="starts_stops_server">启动/停止服务器</string>
+
+    <string name="shows_key_based_authentication_enabled_disabled">显示启用了/停用了基于密钥的身份认证</string>
+    <string name="server_status">服务器状态</string>
+
+</resources>
