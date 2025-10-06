@@ -433,6 +433,7 @@ public class MainActivity extends AppCompatActivity {
     public void passwordSwitchClicked(View passwordAuthenticationEnabled) {
         var passwordSwitch = (SwitchMaterial) passwordAuthenticationEnabled;
         enablePasswordAuthentication(true, !passwordSwitch.isActivated());
+        handlePublicKeyAuthentication(true);
     }
 
     public void startStopClicked(View view) {
