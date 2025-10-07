@@ -1,120 +1,49 @@
 package com.sshdaemon.sshd;
 
-import static com.sshdaemon.util.ShellFinder.findAvailableShell;
-
-import org.apache.sshd.server.Environment;
-import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
-import org.apache.sshd.server.command.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 import java.util.Objects;
 
 /**
  * Native shell command that provides access to the Android system shell
  */
-public class NativeShellCommand implements Command, Runnable {
+public class NativeShellCommand extends AbstractNativeCommand {
     private static final Logger logger = LoggerFactory.getLogger(NativeShellCommand.class);
 
-    private InputStream in;
-    private OutputStream out;
-    private OutputStream err;
-    private ExitCallback callback;
-    private Environment environment;
-    private Thread shellThread;
-    private Process shellProcess;
-    private final String workingDirectory;
     private TerminalEmulator terminal;
 
-
     public NativeShellCommand(String workingDirectory) {
-        this.workingDirectory = workingDirectory != null ? workingDirectory : "/";
+        super(workingDirectory);
     }
 
     @Override
-    public void setInputStream(InputStream in) {
-        this.in = in;
+    protected String getThreadName(ChannelSession channel) {
+        return "NativeShell-" + channel.toString();
     }
 
-    @Override
-    public void setOutputStream(OutputStream out) {
-        this.out = out;
-    }
-
-    @Override
-    public void setErrorStream(OutputStream err) {
-        this.err = err;
-    }
-
-    @Override
-    public void setExitCallback(ExitCallback callback) {
-        this.callback = callback;
-    }
-
-    @Override
-    public void start(ChannelSession channel, Environment env) {
-        this.environment = env;
-        this.shellThread = new Thread(this, "NativeShell-" + channel.toString());
-        this.shellThread.start();
-    }
-
-    @Override
-    public void destroy(ChannelSession channel) {
-        if (shellProcess != null) {
-            shellProcess.destroy();
-        }
-        if (shellThread != null) {
-            shellThread.interrupt();
-        }
-    }
 
     @Override
     public void run() {
         try {
-            // Find available shell
-            String shellPath = findAvailableShell();
+            // Find available shell using shared utility
+            String shellPath = findShellOrExit();
             if (shellPath == null) {
-                logger.error("No working shell found on this Android device");
-                writeError("ERROR: No working shell found on this Android device.\r\n");
-                writeError("This may be due to:\r\n");
-                writeError("1. Restricted Android environment\r\n");
-                writeError("2. Missing shell binaries\r\n");
-                writeError("3. Permission restrictions\r\n");
-                writeError("\r\nPlease check device configuration or contact administrator.\r\n");
-                callback.onExit(1);
-                return;
+                return; // Error already handled by base class
             }
 
             logger.info("Starting native shell: {}", shellPath);
 
-            // Create process builder - use simple shell without interactive flag to avoid TTY issues
+            // Create process builder - use non-interactive shell to avoid TTY issues on Android
             ProcessBuilder pb = new ProcessBuilder(shellPath);
             pb.directory(new java.io.File(workingDirectory));
             pb.redirectErrorStream(true); // Merge stderr with stdout for simplicity
 
-            // Set environment variables
-            Map<String, String> processEnv = pb.environment();
-
-            // Copy SSH environment variables
-            if (environment != null) {
-                processEnv.putAll(environment.getEnv());
-            }
-
-            // Set common shell environment variables
-            processEnv.put("HOME", workingDirectory);
-            processEnv.put("PWD", workingDirectory);
-            processEnv.put("SHELL", shellPath);
-            processEnv.put("TERM", processEnv.getOrDefault("TERM", "xterm-256color"));
-            processEnv.put("USER", processEnv.getOrDefault("USER", "android"));
-            processEnv.put("LANG", processEnv.getOrDefault("LANG", "en_US.UTF-8"));
-            processEnv.put("ANDROID_DATA", "/data");
-            processEnv.put("ANDROID_ROOT", "/system");
-            processEnv.put("EXTERNAL_STORAGE", "/sdcard");
+            // Set up environment using shared functionality
+            setupEnvironment(pb, shellPath);
 
             // Initialize terminal emulator
             terminal = new TerminalEmulator(out);
@@ -131,7 +60,7 @@ public class NativeShellCommand implements Command, Runnable {
                 }
             }
 
-            shellProcess = pb.start();
+            process = pb.start();
 
             terminal.write("Current directory: " + workingDirectory + "\r\n");
             String prompt = terminal.createPrompt("android", workingDirectory, "/");
@@ -153,9 +82,9 @@ public class NativeShellCommand implements Command, Runnable {
                         if (input.equals("\r") || input.equals("\n") || input.equals("\r\n")) {
                             // Enter pressed - send command to shell and newline to client
                             terminal.write("\r\n");
-                            if (shellProcess != null && shellProcess.isAlive()) {
-                                shellProcess.getOutputStream().write("\n".getBytes());
-                                shellProcess.getOutputStream().flush();
+                            if (process != null && process.isAlive()) {
+                                process.getOutputStream().write("\n".getBytes());
+                                process.getOutputStream().flush();
                                 logger.info("InputThread: sent newline to shell process");
                             }
                         } else if (input.equals("\u0008") || input.equals("\u007f")) {
@@ -164,9 +93,9 @@ public class NativeShellCommand implements Command, Runnable {
                         } else {
                             // Regular character - echo to client and send to shell
                             terminal.write(input);
-                            if (shellProcess != null && shellProcess.isAlive()) {
-                                shellProcess.getOutputStream().write(buffer, 0, bytesRead);
-                                shellProcess.getOutputStream().flush();
+                            if (process != null && process.isAlive()) {
+                                process.getOutputStream().write(buffer, 0, bytesRead);
+                                process.getOutputStream().flush();
                                 logger.info("InputThread: sent {} bytes to shell process", bytesRead);
                             } else {
                                 logger.error("InputThread: shell process is not alive!");
@@ -179,8 +108,8 @@ public class NativeShellCommand implements Command, Runnable {
                 } finally {
                     logger.info("InputThread ending");
                     try {
-                        if (shellProcess != null && shellProcess.isAlive()) {
-                            shellProcess.getOutputStream().close();
+                        if (process != null && process.isAlive()) {
+                            process.getOutputStream().close();
                         }
                     } catch (IOException e) {
                         logger.debug("Error closing process output stream: {}", e.getMessage());
@@ -196,7 +125,7 @@ public class NativeShellCommand implements Command, Runnable {
                     StringBuilder commandBuffer = new StringBuilder();
                     boolean waitingForPrompt = false;
 
-                    while ((bytesRead = shellProcess.getInputStream().read(buffer)) != -1) {
+                    while ((bytesRead = process.getInputStream().read(buffer)) != -1) {
                         logger.info("OutputThread: received {} bytes from shell", bytesRead);
                         String output = new String(buffer, 0, bytesRead);
 
@@ -252,7 +181,7 @@ public class NativeShellCommand implements Command, Runnable {
                 try {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
-                    while ((bytesRead = shellProcess.getErrorStream().read(buffer)) != -1) {
+                    while ((bytesRead = process.getErrorStream().read(buffer)) != -1) {
                         err.write(buffer, 0, bytesRead);
                         err.flush();
                     }
@@ -272,21 +201,21 @@ public class NativeShellCommand implements Command, Runnable {
 
             // Check if shell process is alive and send initial commands
             logger.info("Shell process started");
-            logger.info("Shell process alive: {}", shellProcess.isAlive());
+            logger.info("Shell process alive: {}", process.isAlive());
 
             try {
                 Thread.sleep(200); // Give shell time to initialize
 
-                if (shellProcess.isAlive()) {
+                if (process.isAlive()) {
                     // Set up shell environment - disable shell echo since we handle it
                     String initCommands = "stty -echo 2>/dev/null || true\nexport PS1=''\n";
-                    shellProcess.getOutputStream().write(initCommands.getBytes());
-                    shellProcess.getOutputStream().flush();
+                    process.getOutputStream().write(initCommands.getBytes());
+                    process.getOutputStream().flush();
                     logger.info("Sent initial commands to shell");
 
                     // Give time for initial commands to process
                     Thread.sleep(100);
-                    logger.info("Shell process still alive after init: {}", shellProcess.isAlive());
+                    logger.info("Shell process still alive after init: {}", process.isAlive());
                 } else {
                     logger.error("Shell process died immediately after start!");
                 }
@@ -295,7 +224,7 @@ public class NativeShellCommand implements Command, Runnable {
             }
 
             // Wait for process to complete
-            int exitCode = shellProcess.waitFor();
+            int exitCode = process.waitFor();
 
             // Wait a bit for I/O threads to finish
             try {
@@ -320,8 +249,4 @@ public class NativeShellCommand implements Command, Runnable {
     }
 
 
-    private void writeError(String message) throws IOException {
-        err.write(message.getBytes());
-        err.flush();
-    }
 }
