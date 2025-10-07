@@ -192,10 +192,10 @@ public class SshDaemon extends Service {
 
         // Always use native shell - this is the only supported shell
         logger.info("Using native system shell");
-        sshd.setShellFactory(new NativeShellFactory(sftpRootPath, readOnly));
+        sshd.setShellFactory(new NativeShellFactory(sftpRootPath));
 
         // Add command factory to support rsync and other command execution
-        sshd.setCommandFactory(new NativeCommandFactory(sftpRootPath, readOnly));
+        sshd.setCommandFactory(new NativeCommandFactory(sftpRootPath));
 
         int threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("Thread pool size: {}", threadPools);

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Native shell command that provides access to the Android system shell
@@ -26,7 +27,6 @@ public class NativeShellCommand implements Command, Runnable {
     private Thread shellThread;
     private Process shellProcess;
     private final String workingDirectory;
-    private final boolean readOnly;
     private TerminalEmulator terminal;
 
     // Common shell paths to try on Android
@@ -38,9 +38,8 @@ public class NativeShellCommand implements Command, Runnable {
             "sh"
     };
 
-    public NativeShellCommand(String workingDirectory, boolean readOnly) {
+    public NativeShellCommand(String workingDirectory) {
         this.workingDirectory = workingDirectory != null ? workingDirectory : "/";
-        this.readOnly = readOnly;
     }
 
     @Override
@@ -64,7 +63,7 @@ public class NativeShellCommand implements Command, Runnable {
     }
 
     @Override
-    public void start(ChannelSession channel, Environment env) throws IOException {
+    public void start(ChannelSession channel, Environment env) {
         this.environment = env;
         this.shellThread = new Thread(this, "NativeShell-" + channel.toString());
         this.shellThread.start();
@@ -109,9 +108,7 @@ public class NativeShellCommand implements Command, Runnable {
 
             // Copy SSH environment variables
             if (environment != null) {
-                for (Map.Entry<String, String> entry : environment.getEnv().entrySet()) {
-                    processEnv.put(entry.getKey(), entry.getValue());
-                }
+                processEnv.putAll(environment.getEnv());
             }
 
             // Set common shell environment variables
@@ -149,12 +146,6 @@ public class NativeShellCommand implements Command, Runnable {
             processEnv.put("ANDROID_ROOT", "/system");
             processEnv.put("EXTERNAL_STORAGE", "/sdcard");
 
-            if (readOnly) {
-                // In read-only mode, we could potentially wrap the shell or set restrictive environment
-                // For now, we'll just log it
-                logger.info("Shell started in read-only mode (advisory only)");
-            }
-
             // Initialize terminal emulator
             terminal = new TerminalEmulator(out);
 
@@ -162,8 +153,8 @@ public class NativeShellCommand implements Command, Runnable {
             if (environment != null) {
                 Map<String, String> env = environment.getEnv();
                 try {
-                    int cols = Integer.parseInt(env.getOrDefault("COLUMNS", "80"));
-                    int rows = Integer.parseInt(env.getOrDefault("LINES", "24"));
+                    int cols = Integer.parseInt(Objects.requireNonNull(env.getOrDefault("COLUMNS", "80")));
+                    int rows = Integer.parseInt(Objects.requireNonNull(env.getOrDefault("LINES", "24")));
                     terminal.setTerminalSize(cols, rows);
                 } catch (NumberFormatException e) {
                     // Use defaults
@@ -254,7 +245,7 @@ public class NativeShellCommand implements Command, Runnable {
                             String fullOutput = commandBuffer.toString();
 
                             // Don't echo empty lines or prompt-like output
-                            if (fullOutput.trim().length() > 0 &&
+                            if (!fullOutput.trim().isEmpty() &&
                                     !fullOutput.trim().equals("$") &&
                                     !fullOutput.matches("^\\s*$")) {
 
@@ -278,7 +269,7 @@ public class NativeShellCommand implements Command, Runnable {
                         } else {
                             // For partial output (no newline yet), just write it directly
                             // This handles interactive programs that don't end with newlines
-                            if (commandBuffer.length() > 0 && !waitingForPrompt) {
+                            if (commandBuffer.length() > 0) {
                                 // Write directly to output stream with proper line endings
                                 String cleanOutput = output.replace("\n", "\r\n");
                                 out.write(cleanOutput.getBytes());

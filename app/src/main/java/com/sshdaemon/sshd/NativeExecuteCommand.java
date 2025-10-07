@@ -21,7 +21,6 @@ public class NativeExecuteCommand implements Command, Runnable {
 
     private final String command;
     private final String workingDirectory;
-    private final boolean readOnly;
 
     private InputStream in;
     private OutputStream out;
@@ -40,10 +39,9 @@ public class NativeExecuteCommand implements Command, Runnable {
             "sh"
     };
 
-    public NativeExecuteCommand(String command, String workingDirectory, boolean readOnly) {
+    public NativeExecuteCommand(String command, String workingDirectory) {
         this.command = command;
         this.workingDirectory = workingDirectory != null ? workingDirectory : "/";
-        this.readOnly = readOnly;
     }
 
     @Override
@@ -146,10 +144,6 @@ public class NativeExecuteCommand implements Command, Runnable {
             processEnv.put("ANDROID_DATA", "/data");
             processEnv.put("ANDROID_ROOT", "/system");
             processEnv.put("EXTERNAL_STORAGE", "/sdcard");
-
-            if (readOnly) {
-                logger.info("Command executed in read-only mode (advisory only): {}", command);
-            }
 
             // Start the process
             commandProcess = pb.start();
