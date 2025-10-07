@@ -101,18 +101,6 @@ public abstract class AbstractNativeCommand implements Command, Runnable {
             processEnv.put("PATH", defaultPath);
         }
 
-        // Create bin directory if it doesn't exist
-        try {
-            java.io.File binDir = new java.io.File(appBinDir);
-            if (!binDir.exists()) {
-                binDir.mkdirs();
-                logger.info("Created app bin directory: {}", appBinDir);
-            }
-        } catch (Exception e) {
-            logger.debug("Could not create app bin directory: {}", e.getMessage());
-        }
-
-        // Add Android-specific environment variables
         processEnv.put("ANDROID_DATA", "/data");
         processEnv.put("ANDROID_ROOT", "/system");
         processEnv.put("EXTERNAL_STORAGE", "/sdcard");
