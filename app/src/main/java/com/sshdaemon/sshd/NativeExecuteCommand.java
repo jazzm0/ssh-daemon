@@ -1,5 +1,7 @@
 package com.sshdaemon.sshd;
 
+import static com.sshdaemon.util.ShellFinder.findAvailableShell;
+
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -29,15 +31,6 @@ public class NativeExecuteCommand implements Command, Runnable {
     private Environment environment;
     private Thread commandThread;
     private Process commandProcess;
-
-    // Common shell paths to try on Android
-    private static final String[] SHELL_PATHS = {
-            "/system/bin/sh",
-            "/system/xbin/sh",
-            "/vendor/bin/sh",
-            "/bin/sh",
-            "sh"
-    };
 
     public NativeExecuteCommand(String command, String workingDirectory) {
         this.command = command;
@@ -105,9 +98,7 @@ public class NativeExecuteCommand implements Command, Runnable {
 
             // Copy SSH environment variables
             if (environment != null) {
-                for (Map.Entry<String, String> entry : environment.getEnv().entrySet()) {
-                    processEnv.put(entry.getKey(), entry.getValue());
-                }
+                processEnv.putAll(environment.getEnv());
             }
 
             // Set common shell environment variables
@@ -117,30 +108,6 @@ public class NativeExecuteCommand implements Command, Runnable {
             processEnv.put("TERM", processEnv.getOrDefault("TERM", "xterm-256color"));
             processEnv.put("USER", processEnv.getOrDefault("USER", "android"));
             processEnv.put("LANG", processEnv.getOrDefault("LANG", "en_US.UTF-8"));
-
-            // Set comprehensive PATH for Android including common tool locations
-            // Use app-writable directories first, then system directories
-            String appBinDir = workingDirectory + "/bin";
-            String defaultPath = appBinDir + ":/system/bin:/system/xbin:/vendor/bin:/data/local/tmp:/sbin:/data/data/com.termux/files/usr/bin:/data/data/com.sshdaemon/files/usr/bin";
-            String existingPath = processEnv.get("PATH");
-            if (existingPath != null && !existingPath.isEmpty()) {
-                processEnv.put("PATH", existingPath + ":" + defaultPath);
-            } else {
-                processEnv.put("PATH", defaultPath);
-            }
-
-            // Create bin directory in working directory if it doesn't exist
-            try {
-                java.io.File binDir = new java.io.File(appBinDir);
-                if (!binDir.exists()) {
-                    binDir.mkdirs();
-                    logger.info("Created app bin directory: {}", appBinDir);
-                }
-            } catch (Exception e) {
-                logger.debug("Could not create app bin directory: {}", e.getMessage());
-            }
-
-            // Add Android-specific environment variables
             processEnv.put("ANDROID_DATA", "/data");
             processEnv.put("ANDROID_ROOT", "/system");
             processEnv.put("EXTERNAL_STORAGE", "/sdcard");
@@ -233,45 +200,6 @@ public class NativeExecuteCommand implements Command, Runnable {
             }
             callback.onExit(1);
         }
-    }
-
-    private String findAvailableShell() {
-        for (String shellPath : SHELL_PATHS) {
-            try {
-                // First check if the shell file exists and is executable
-                java.io.File shellFile = new java.io.File(shellPath);
-                if (!shellFile.exists()) {
-                    logger.debug("Shell {} does not exist", shellPath);
-                    continue;
-                }
-                if (!shellFile.canExecute()) {
-                    logger.debug("Shell {} is not executable", shellPath);
-                    continue;
-                }
-
-                // Test if shell actually works by running a simple command
-                ProcessBuilder testPb = new ProcessBuilder(shellPath, "-c", "echo test");
-                testPb.redirectErrorStream(true);
-                Process testProcess = testPb.start();
-
-                // Wait for the process with a timeout
-                boolean finished = testProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
-                if (finished && testProcess.exitValue() == 0) {
-                    logger.debug("Found working shell for command execution: {}", shellPath);
-                    return shellPath;
-                } else {
-                    if (!finished) {
-                        testProcess.destroyForcibly();
-                        logger.debug("Shell {} test timed out", shellPath);
-                    } else {
-                        logger.debug("Shell {} test failed with exit code: {}", shellPath, testProcess.exitValue());
-                    }
-                }
-            } catch (Exception e) {
-                logger.debug("Shell {} test failed: {}", shellPath, e.getMessage());
-            }
-        }
-        return null;
     }
 
     private void writeError(String message) throws IOException {
