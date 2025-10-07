@@ -72,6 +72,8 @@ public class NativeShellCommand extends AbstractNativeCommand {
                     logger.info("InputThread started, waiting for input...");
                     byte[] buffer = new byte[1024];
                     int bytesRead;
+                    StringBuilder commandBuffer = new StringBuilder(); // Buffer to track current command line
+                    
                     while ((bytesRead = in.read(buffer)) != -1) {
                         logger.info("InputThread: received {} bytes from SSH client", bytesRead);
 
@@ -80,27 +82,30 @@ public class NativeShellCommand extends AbstractNativeCommand {
 
                         // Handle special characters
                         if (input.equals("\r") || input.equals("\n") || input.equals("\r\n")) {
-                            // Enter pressed - send command to shell and newline to client
+                            // Enter pressed - send complete command to shell and newline to client
                             terminal.write("\r\n");
                             if (process != null && process.isAlive()) {
-                                process.getOutputStream().write("\n".getBytes());
+                                // Send the complete command buffer to shell
+                                String command = commandBuffer.toString() + "\n";
+                                process.getOutputStream().write(command.getBytes());
                                 process.getOutputStream().flush();
-                                logger.info("InputThread: sent newline to shell process");
+                                logger.info("InputThread: sent command to shell: {}", commandBuffer.toString());
                             }
+                            // Clear command buffer for next command
+                            commandBuffer.setLength(0);
                         } else if (input.equals("\u0008") || input.equals("\u007f")) {
-                            // Backspace - handle locally
-                            terminal.write("\b \b"); // Backspace, space, backspace
-                        } else {
-                            // Regular character - echo to client and send to shell
-                            terminal.write(input);
-                            if (process != null && process.isAlive()) {
-                                process.getOutputStream().write(buffer, 0, bytesRead);
-                                process.getOutputStream().flush();
-                                logger.info("InputThread: sent {} bytes to shell process", bytesRead);
-                            } else {
-                                logger.error("InputThread: shell process is not alive!");
-                                break;
+                            // Backspace - handle locally by removing last character from buffer
+                            if (commandBuffer.length() > 0) {
+                                commandBuffer.setLength(commandBuffer.length() - 1);
+                                terminal.write("\b \b"); // Backspace, space, backspace (visual deletion)
+                                logger.info("InputThread: backspace, command buffer now: '{}'", commandBuffer.toString());
                             }
+                        } else {
+                            // Regular character - add to command buffer and echo to client
+                            commandBuffer.append(input);
+                            terminal.write(input);
+                            logger.info("InputThread: added to command buffer: '{}', total: '{}'", input, commandBuffer.toString());
+                            
                         }
                     }
                 } catch (IOException e) {
