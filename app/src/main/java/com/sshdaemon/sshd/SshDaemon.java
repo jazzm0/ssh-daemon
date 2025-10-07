@@ -36,7 +36,6 @@ import org.apache.sshd.contrib.server.subsystem.sftp.SimpleAccessControlSftpEven
 import org.apache.sshd.server.ServerBuilder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
-import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -171,10 +170,32 @@ public class SshDaemon extends Service {
             sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(user, password));
         }
 
+        // Explicitly disable other authentication methods to ensure security
+        sshd.setKeyboardInteractiveAuthenticator(null);
+        sshd.setGSSAuthenticator(null);
+        sshd.setHostBasedAuthenticator(null);
+
+        // Ensure authentication is required - no anonymous access
+        if (!authorizedKeyFile.exists() && !passwordAuthEnabled) {
+            throw new IllegalStateException("No authentication method is enabled. Either enable password authentication or provide authorized keys.");
+        }
+
+        // Log authentication configuration for debugging
+        logger.info("Authentication configuration:");
+        logger.info("  - Public key auth: {}", authorizedKeyFile.exists());
+        logger.info("  - Password auth: {}", passwordAuthEnabled || !authorizedKeyFile.exists());
+        logger.info("  - User: {}", user);
+
         var keyProvider =
                 new SimpleGeneratorHostKeyProvider(Paths.get(path + "/ssh_host_rsa_key"));
         sshd.setKeyPairProvider(keyProvider);
-        sshd.setShellFactory(new InteractiveProcessShellFactory());
+
+        // Always use native shell - this is the only supported shell
+        logger.info("Using native system shell");
+        sshd.setShellFactory(new NativeShellFactory(sftpRootPath));
+
+        // Add command factory to support rsync and other command execution
+        sshd.setCommandFactory(new NativeCommandFactory(sftpRootPath));
 
         int threadPools = max(THREAD_POOL_SIZE, Runtime.getRuntime().availableProcessors() * 2);
         logger.info("Thread pool size: {}", threadPools);
@@ -227,7 +248,6 @@ public class SshDaemon extends Service {
                     "SFTP root path must not be null");
             var passwordAuthEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
             var readOnly = intent.getBooleanExtra(READ_ONLY, false);
-
             init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
             isServiceRunning = true;
