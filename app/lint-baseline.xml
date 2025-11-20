@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.0)" variant="all" version="8.13.0">
+<issues format="6" by="lint 8.13.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.1)" variant="all" version="8.13.1">
 
     <issue
         id="ScopedStorage"
@@ -136,67 +136,67 @@
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.junit.jupiter:junit-jupiter-api than 5.13.4 is available: 6.0.1"
-        errorLine1="    testImplementation &quot;org.junit.jupiter:junit-jupiter-api:5.13.4&quot;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="junit = &quot;5.13.4&quot;"
+        errorLine2="        ~~~~~~~~">
         <location
-            file="build.gradle"
-            line="83"
-            column="24"/>
+            file="../gradle/libs.versions.toml"
+            line="24"
+            column="9"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.junit.jupiter:junit-jupiter-engine than 5.13.4 is available: 6.0.1"
-        errorLine1="    testRuntimeOnly &quot;org.junit.jupiter:junit-jupiter-engine:5.13.4&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="junit = &quot;5.13.4&quot;"
+        errorLine2="        ~~~~~~~~">
         <location
-            file="build.gradle"
-            line="84"
-            column="21"/>
+            file="../gradle/libs.versions.toml"
+            line="24"
+            column="9"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.junit.jupiter:junit-jupiter-params than 5.13.4 is available: 6.0.1"
-        errorLine1="    testImplementation &quot;org.junit.jupiter:junit-jupiter-params:5.13.4&quot;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="junit = &quot;5.13.4&quot;"
+        errorLine2="        ~~~~~~~~">
         <location
-            file="build.gradle"
-            line="85"
-            column="24"/>
+            file="../gradle/libs.versions.toml"
+            line="24"
+            column="9"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.junit.platform:junit-platform-launcher than 1.13.4 is available: 6.0.1"
-        errorLine1="    testImplementation &quot;org.junit.platform:junit-platform-launcher:1.13.4&quot;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="junitPlatform = &quot;1.13.4&quot;"
+        errorLine2="                ~~~~~~~~">
         <location
-            file="build.gradle"
-            line="86"
-            column="24"/>
+            file="../gradle/libs.versions.toml"
+            line="25"
+            column="17"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.mockito:mockito-core than 5.19.0 is available: 5.20.0"
-        errorLine1="    testImplementation &quot;org.mockito:mockito-core:5.19.0&quot;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="mockito = &quot;5.19.0&quot;"
+        errorLine2="          ~~~~~~~~">
         <location
-            file="build.gradle"
-            line="89"
-            column="24"/>
+            file="../gradle/libs.versions.toml"
+            line="27"
+            column="11"/>
     </issue>
 
     <issue
         id="NewerVersionAvailable"
         message="A newer version of org.mockito:mockito-junit-jupiter than 5.2.0 is available: 5.20.0"
-        errorLine1="    testImplementation &quot;org.mockito:mockito-junit-jupiter:5.2.0&quot;"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="mockitoJunitJupiter = &quot;5.2.0&quot;"
+        errorLine2="                      ~~~~~~~">
         <location
-            file="build.gradle"
-            line="90"
-            column="24"/>
+            file="../gradle/libs.versions.toml"
+            line="28"
+            column="23"/>
     </issue>
 
     <issue
