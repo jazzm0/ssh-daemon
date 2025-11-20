@@ -28,7 +28,20 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build with Gradle
+
+      - name: Ensure lint baseline present
+        run: |
+          if [ ! -f app/lint-baseline.xml ]; then
+            echo "::error file=app/lint-baseline.xml::Missing lint-baseline.xml (generate locally with ./gradlew lintDebug -Dlint.baselines.continue=true and commit)."
+            exit 1
+          fi
+
+      - name: Run Android Lint (fail on new issues)
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build --continue
+          arguments: lintRelease --warning-mode=all --stacktrace
+
+      - name: Run Unit Tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test build --warning-mode=all --stacktrace -PcompilerArgs=-Xlint:deprecation

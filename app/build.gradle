@@ -9,8 +9,8 @@ android {
         applicationId "com.daemon.ssh"
         minSdkVersion 26
         targetSdkVersion 36
-        versionCode 52
-        versionName "2.1.34"
+        versionCode 53
+        versionName "2.1.35"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -54,9 +54,10 @@ android {
     }
 
     lint {
-        baseline = file('lint-baseline.xml')
-        abortOnError = false
-        checkReleaseBuilds = false
+        baseline = file("lint-baseline.xml")
+        abortOnError = true
+        warningsAsErrors = true
+        checkDependencies = true
     }
 
     tasks.withType(JavaCompile).configureEach {
