@@ -1,16 +1,18 @@
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.android.application)
+}
 
 android {
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInteger()
 
     namespace = 'com.sshdaemon'
 
     defaultConfig {
         applicationId "com.daemon.ssh"
-        minSdkVersion 26
-        targetSdkVersion 36
-        versionCode 53
-        versionName "2.1.35"
+        minSdkVersion libs.versions.minSdk.get().toInteger()
+        targetSdkVersion libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.versionCode.get().toInteger()
+        versionName libs.versions.versionName.get()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -65,31 +67,18 @@ android {
     }
 }
 
-ext {
-    sshdVersion = '2.16.0'
-}
-
 dependencies {
-    api 'com.google.android.material:material:1.13.0'
+    api libs.android.material
 
-    implementation "org.apache.sshd:sshd-core:${sshdVersion}"
-    implementation "org.apache.sshd:sshd-sftp:${sshdVersion}"
-    implementation "org.apache.sshd:sshd-contrib:${sshdVersion}"
-    implementation "org.slf4j:slf4j-api:2.0.17"
-    implementation "org.slf4j:slf4j-log4j12:2.0.17"
-    implementation "org.bouncycastle:bcpkix-jdk15to18:1.82"
-    implementation "net.i2p.crypto:eddsa:0.3.0"
+    // SSH and crypto libraries using bundles
+    implementation libs.bundles.sshd
+    implementation libs.bundles.slf4j
+    implementation libs.bundles.crypto
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.13.4"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.13.4"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.13.4"
-    testImplementation "org.junit.platform:junit-platform-launcher:1.13.4"
+    // Testing libraries using bundles
+    testImplementation libs.bundles.junit.testing
+    testRuntimeOnly libs.bundles.junit.runtime
 
-    testImplementation "org.hamcrest:hamcrest-all:1.3"
-    testImplementation "org.mockito:mockito-core:5.19.0"
-    testImplementation "org.mockito:mockito-junit-jupiter:5.2.0"
-    androidTestImplementation "androidx.test:core:1.7.0"
-    androidTestImplementation "androidx.test.ext:junit:1.3.0"
-    androidTestImplementation "androidx.test:runner:1.7.0"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
+    // Android testing libraries using bundle
+    androidTestImplementation libs.bundles.androidx.testing
 }

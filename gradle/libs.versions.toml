@@ -1,0 +1,75 @@
+[versions]
+# Android SDK versions
+compileSdk = "36"
+minSdk = "26"
+targetSdk = "36"
+
+# App version
+versionCode = "53"
+versionName = "2.1.35"
+
+# Build tools
+androidGradlePlugin = "8.13.1"
+
+# Core dependencies
+sshd = "2.16.0"
+slf4j = "2.0.17"
+bouncycastle = "1.82"
+eddsa = "0.3.0"
+
+# Android libraries
+material = "1.13.0"
+
+# Testing libraries
+junit = "5.13.4"
+junitPlatform = "1.13.4"
+hamcrest = "1.3"
+mockito = "5.19.0"
+mockitoJunitJupiter = "5.2.0"
+androidxTest = "1.7.0"
+androidxTestJunit = "1.3.0"
+androidxTestRunner = "1.7.0"
+espresso = "3.7.0"
+
+[libraries]
+# Build tools
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+
+# Android libraries
+android-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# SSH and crypto libraries
+sshd-core = { group = "org.apache.sshd", name = "sshd-core", version.ref = "sshd" }
+sshd-sftp = { group = "org.apache.sshd", name = "sshd-sftp", version.ref = "sshd" }
+sshd-contrib = { group = "org.apache.sshd", name = "sshd-contrib", version.ref = "sshd" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-log4j12 = { group = "org.slf4j", name = "slf4j-log4j12", version.ref = "slf4j" }
+bouncycastle-bcpkix = { group = "org.bouncycastle", name = "bcpkix-jdk15to18", version.ref = "bouncycastle" }
+eddsa = { group = "net.i2p.crypto", name = "eddsa", version.ref = "eddsa" }
+
+# Testing libraries
+junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitPlatform" }
+hamcrest-all = { group = "org.hamcrest", name = "hamcrest-all", version.ref = "hamcrest" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockitoJunitJupiter" }
+
+# Android testing libraries
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTest" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
+
+[bundles]
+# Bundle related dependencies together
+sshd = ["sshd-core", "sshd-sftp", "sshd-contrib"]
+slf4j = ["slf4j-api", "slf4j-log4j12"]
+crypto = ["bouncycastle-bcpkix", "eddsa"]
+junit-testing = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest-all", "mockito-core", "mockito-junit-jupiter"]
+junit-runtime = ["junit-jupiter-engine", "junit-platform-launcher"]
+androidx-testing = ["androidx-test-core", "androidx-test-junit", "androidx-test-runner", "androidx-test-espresso-core"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

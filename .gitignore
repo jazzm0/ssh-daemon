@@ -7,4 +7,12 @@
 /captures
 .externalNativeBuild
 .cxx
-gradle
+
+/gradle/.tmp/
+/gradle/android/
+/gradle/caches/
+/gradle/daemon/
+/gradle/jdks/
+/gradle/native/
+/gradle/workers/
+/gradle/wrapper/
