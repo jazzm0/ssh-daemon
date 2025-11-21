@@ -1,13 +1,145 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues name="AGP (8.1.4)" by="lint 8.1.4" client="gradle" dependencies="false" format="6"
-    type="baseline" variant="all" version="8.1.4">
+<issues format="6" by="lint 8.13.1" type="baseline" client="gradle" dependencies="true"
+    name="AGP (8.13.1)" variant="all" version="8.13.1">
 
-    <issue
+    <issue id="ScopedStorage"
+        message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE"
         errorLine1="    &lt;uses-permission android:name=&quot;android.permission.MANAGE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        id="ScopedStorage"
-        message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE">
-        <location column="36" file="src/main/AndroidManifest.xml" line="5" />
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/AndroidManifest.xml" line="5" column="36" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        write(String.format(&quot;\u001b[%d;%dH&quot;, row, col));"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="118"
+            column="15" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        write(String.format(&quot;\u001b[%dA&quot;, lines));"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="122"
+            column="15" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        write(String.format(&quot;\u001b[%dB&quot;, lines));"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="126"
+            column="15" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        write(String.format(&quot;\u001b[%dC&quot;, columns));"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="130"
+            column="15" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        write(String.format(&quot;\u001b[%dD&quot;, columns));"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="134"
+            column="15" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        if (bytes &lt; 1024 * 1024) return String.format(&quot;%.1f KB&quot;, bytes / 1024.0);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="202"
+            column="41" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        if (bytes &lt; 1024 * 1024 * 1024) return String.format(&quot;%.1f MB&quot;, bytes / (1024.0 * 1024.0));"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="203"
+            column="48" />
+    </issue>
+
+    <issue id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format(&quot;%.1f GB&quot;, bytes / (1024.0 * 1024.0 * 1024.0));"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/TerminalEmulator.java" line="204"
+            column="16" />
+    </issue>
+
+    <issue id="SdCardPath"
+        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
+        errorLine1="        processEnv.put(&quot;EXTERNAL_STORAGE&quot;, &quot;/sdcard&quot;);"
+        errorLine2="                                           ~~~~~~~~~">
+        <location file="src/main/java/com/sshdaemon/sshd/AbstractNativeCommand.java" line="106"
+            column="44" />
+    </issue>
+
+    <issue id="UnusedAttribute"
+        message="Attribute `shell` is only used in API level 29 and higher (current min is 26)"
+        errorLine1="            android:shell=&quot;true&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/AndroidManifest.xml" line="20" column="13" />
+    </issue>
+
+    <issue id="AndroidGradlePluginVersion"
+        message="A newer version of Gradle than 8.14 is available: 8.14.3"
+        errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-bin.zip"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="../gradle/wrapper/gradle-wrapper.properties" line="2" column="17" />
+    </issue>
+
+    <issue id="MissingTranslation"
+        message="&quot;server_status&quot; is not translated in &quot;ru&quot; (Russian), &quot;pt&quot; (Portuguese), &quot;uk&quot; (Ukrainian)"
+        errorLine1="    &lt;string name=&quot;server_status&quot;>Server Status&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/values/strings.xml" line="32" column="13" />
+    </issue>
+
+    <issue id="TrustAllX509TrustManager"
+        message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
+        <location
+            file="../../../.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15to18/1.82/a9ad1989d4b0bed7d8123ac2dc5baa1e5ef7eb1b/bcpkix-jdk15to18-1.82.jar" />
+    </issue>
+
+    <issue id="Overdraw"
+        message="Possible overdraw: Root element paints background `@color/colorPrimary` with a theme that also paints a background (inferred theme is `@style/Theme.SshDaemon`)"
+        errorLine1="    android:background=&quot;@color/colorPrimary&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/layout/main_activity.xml" line="9" column="5" />
+    </issue>
+
+    <issue id="UnusedResources"
+        message="The resource `R.style.Widget_CardContent` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Widget.CardContent&quot; parent=&quot;android:Widget&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/values/styles.xml" line="9" column="12" />
+    </issue>
+
+    <issue id="UnusedResources"
+        message="The resource `R.style.SpinnerDropdownItem` appears to be unused"
+        errorLine1="    &lt;style name=&quot;SpinnerDropdownItem&quot; parent=&quot;android:Widget.TextView.SpinnerItem&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/values/styles.xml" line="20" column="12" />
+    </issue>
+
+    <issue id="UnusedResources" message="The resource `R.style.Theme_App` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Theme.App&quot; parent=&quot;Theme.MaterialComponents.DayNight.DarkActionBar&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/values/themes.xml" line="5" column="12" />
+    </issue>
+
+    <issue id="UnusedResources"
+        message="The resource `R.style.Widget_CardView` appears to be unused"
+        errorLine1="    &lt;style name=&quot;Widget.CardView&quot; parent=&quot;Widget.MaterialComponents.CardView&quot;>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location file="src/main/res/values/themes.xml" line="25" column="12" />
     </issue>
 
 </issues>
