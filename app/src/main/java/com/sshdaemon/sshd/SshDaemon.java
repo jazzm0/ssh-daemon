@@ -283,7 +283,7 @@ public class SshDaemon extends Service {
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);
         }
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.cancel(NOTIFICATION_ID);
     }
@@ -291,7 +291,7 @@ public class SshDaemon extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        stopForeground(true); // Remove notification
+        stopForeground(STOP_FOREGROUND_REMOVE);
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.cancel(NOTIFICATION_ID);
     }
