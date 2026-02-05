@@ -1,29 +1,82 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
-#-dontshrink
-#-dontoptimize
-#-dontpreverify
 -verbose
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclasseswithmembers class * {
+    native <methods>;
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+-keepclassmembers class * implements android.os.Parcelable {
+    static ** CREATOR;
+}
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+-keepclassmembers class * {
+    public void onClick(android.view.View);
+}
+
+-keep class retrofit2.** { *; }
+-keep class okhttp3.** { *; }
+-keepclassmembers class * {
+    @retrofit2.http.* <methods>;
+}
+
+-keep class androidx.room.** { *; }
+-keepclassmembers class * {
+    @androidx.room.* <methods>;
+    @androidx.room.* <fields>;
+}
+
+-keep class androidx.work.** { *; }
+-keep class androidx.lifecycle.** { *; }
+
+-keep class **NavDirections { *; }
+-keep class **Args { *; }
+
+-keep class dagger.** { *; }
+-keep class javax.inject.** { *; }
+-keep class hilt_aggregated_deps.** { *; }
+-keep class dagger.hilt.internal.** { *; }
+-keep class **_HiltModules { *; }
+-keep class **_HiltComponents { *; }
+
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.firebase.** { *; }
+
+-keep class com.android.org.conscrypt.** { *; }
+-keep class org.apache.harmony.xnet.provider.** { *; }
+
+-keep,allowshrinking class javax.** { *; }
+-keep,allowshrinking class org.** { *; }
+
 
 -dontwarn javax.management.**
 -dontwarn javax.annotation.**
@@ -46,32 +99,6 @@
 -dontwarn com.android.org.conscrypt.**
 -dontwarn org.apache.harmony.xnet.provider.**
 
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
--keep public class * extends android.app.backup.BackupAgentHelper
--keep public class * extends android.preference.Preference
--keep class com.android.org.conscrypt.** { *; }
--keep class org.apache.harmony.xnet.provider.** { *; }
--keep class javax** { *; }
--keep class org** { *; }
-
--keepclasseswithmembers class * {
-    native <methods>;
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-}
-
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
-
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
+-keep class org.bouncycastle.** { *; }

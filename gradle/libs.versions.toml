@@ -42,6 +42,7 @@ sshd-contrib = { group = "org.apache.sshd", name = "sshd-contrib", version.ref =
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-log4j12 = { group = "org.slf4j", name = "slf4j-log4j12", version.ref = "slf4j" }
 bouncycastle-jdk18on = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-jbcpkix = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncycastle" }
 
 # Testing libraries
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
@@ -62,7 +63,7 @@ androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espres
 # Bundle related dependencies together
 sshd = ["sshd-core", "sshd-sftp", "sshd-contrib"]
 slf4j = ["slf4j-api", "slf4j-log4j12"]
-crypto = ["bouncycastle-jdk18on"]
+crypto = ["bouncycastle-jdk18on", "bouncycastle-jbcpkix"]
 junit-testing = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest-all", "mockito-core", "mockito-junit-jupiter"]
 junit-runtime = ["junit-jupiter-engine", "junit-platform-launcher"]
 androidx-testing = ["androidx-test-core", "androidx-test-junit", "androidx-test-runner", "androidx-test-espresso-core"]

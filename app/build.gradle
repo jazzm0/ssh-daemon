@@ -60,6 +60,7 @@ android {
         abortOnError = true
         warningsAsErrors = true
         checkDependencies = true
+        checkReleaseBuilds = true
     }
 
     tasks.withType(JavaCompile).configureEach {
