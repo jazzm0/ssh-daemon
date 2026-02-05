@@ -30,4 +30,6 @@
 
     <string name="shows_key_based_authentication_enabled_disabled">Показывает включённую/отключённую аутентификацию на основе ключа</string>
 
+    <string name="server_status">Статус сервера</string>
+
 </resources>

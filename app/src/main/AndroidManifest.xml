@@ -15,9 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.SshDaemon">
-        <profileable
-            android:enabled="true"
-            android:shell="true" />
+        <profileable android:enabled="true" />
 
         <service
             android:name="com.sshdaemon.sshd.SshDaemon"

@@ -30,4 +30,6 @@
 
     <string name="shows_key_based_authentication_enabled_disabled">Mostra autenticação baseada em chave habilitada/desabilitada</string>
 
+    <string name="server_status">Status do servidor</string>
+
 </resources>

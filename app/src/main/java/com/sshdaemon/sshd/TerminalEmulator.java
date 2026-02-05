@@ -1,5 +1,7 @@
 package com.sshdaemon.sshd;
 
+import static java.util.Locale.ENGLISH;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -115,23 +117,23 @@ public class TerminalEmulator {
     }
 
     public void moveCursor(int row, int col) throws IOException {
-        write(String.format("\u001b[%d;%dH", row, col));
+        write(String.format(ENGLISH, "\u001b[%d;%dH", row, col));
     }
 
     public void moveCursorUp(int lines) throws IOException {
-        write(String.format("\u001b[%dA", lines));
+        write(String.format(ENGLISH, "\u001b[%dA", lines));
     }
 
     public void moveCursorDown(int lines) throws IOException {
-        write(String.format("\u001b[%dB", lines));
+        write(String.format(ENGLISH, "\u001b[%dB", lines));
     }
 
     public void moveCursorRight(int columns) throws IOException {
-        write(String.format("\u001b[%dC", columns));
+        write(String.format(ENGLISH, "\u001b[%dC", columns));
     }
 
     public void moveCursorLeft(int columns) throws IOException {
-        write(String.format("\u001b[%dD", columns));
+        write(String.format(ENGLISH, "\u001b[%dD", columns));
     }
 
     public void saveCursor() throws IOException {
@@ -199,9 +201,10 @@ public class TerminalEmulator {
      */
     public static String formatFileSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-        return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
+        if (bytes < 1024 * 1024) return String.format(ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024 * 1024 * 1024)
+            return String.format(ENGLISH, "%.1f MB", bytes / (1024.0 * 1024.0));
+        return String.format(ENGLISH, "%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
     }
 
     /**
