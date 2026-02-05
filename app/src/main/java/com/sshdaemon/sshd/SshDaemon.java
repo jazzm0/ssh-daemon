@@ -11,6 +11,7 @@ import static org.apache.sshd.common.cipher.BuiltinCiphers.aes128gcm;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes192ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256ctr;
 import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
+import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static java.lang.Math.max;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
@@ -70,13 +71,13 @@ public class SshDaemon extends Service {
     private static volatile boolean isServiceRunning = false;
 
     static {
-        Security.removeProvider("BC");
+        Security.removeProvider(PROVIDER_NAME);
         if (SecurityUtils.isRegistrationCompleted()) {
             logger.info("Security provider registration is already completed");
         } else {
             try {
                 Security.addProvider(new BouncyCastleProvider());
-                logger.info("Set security provider to:{}, registration completed:{}", BouncyCastleProvider.PROVIDER_NAME, SecurityUtils.isRegistrationCompleted());
+                logger.info("Set security provider to:{}, registration completed:{}", PROVIDER_NAME, SecurityUtils.isRegistrationCompleted());
             } catch (Exception e) {
                 logger.error("Exception while registering security provider: ", e);
             }

@@ -1,17 +1,16 @@
 package com.sshdaemon.sshd;
 
+import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.isNull;
 
 import com.sshdaemon.util.AndroidLogger;
 
-import net.i2p.crypto.eddsa.EdDSAPublicKey;
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
-import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
-
+import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.bouncycastle.jcajce.spec.EdDSAParameterSpec;
+import org.bouncycastle.jcajce.spec.OpenSSHPublicKeySpec;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -83,13 +82,13 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
                     byte[] publicExponent = readElement(dataInputStream);
                     byte[] modulus = readElement(dataInputStream);
                     RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent));
-                    KeyFactory rsaFactory = KeyFactory.getInstance("RSA");
+                    KeyFactory rsaFactory = KeyFactory.getInstance(KeyUtils.RSA_ALGORITHM);
                     return rsaFactory.generatePublic(spec);
 
                 case KEY_TYPE_ED25519:
-                    byte[] publicKeyBytes = readElement(dataInputStream);
-                    Ed25519PublicKeyParameters params = new Ed25519PublicKeyParameters(publicKeyBytes, 0);
-                    return new EdDSAPublicKey(new EdDSAPublicKeySpec(params.getEncoded(), EdDSANamedCurveTable.ED_25519_CURVE_SPEC));
+                    OpenSSHPublicKeySpec keySpec = new OpenSSHPublicKeySpec(decodedKey);
+                    KeyFactory edDsaFactory = KeyFactory.getInstance(EdDSAParameterSpec.Ed25519, PROVIDER_NAME);
+                    return edDsaFactory.generatePublic(keySpec);
 
                 default:
                     LOGGER.error(pubKeyFormat);
