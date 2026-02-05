@@ -279,21 +279,21 @@ public class SshDaemon extends Service {
             if (sshd != null && sshd.isStarted()) {
                 sshd.stop();
                 logger.info("SSH daemon stopped");
-                var notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-                var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                        0, notificationIntent, FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-                updateNotification("SSH Server Stopped", pendingIntent);
-                stopForeground(STOP_FOREGROUND_REMOVE);
             }
         } catch (IOException e) {
             logger.error("Failed to stop SSH daemon", e);
         }
+        stopForeground(true);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.cancel(NOTIFICATION_ID);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopForeground(true); // Remove notification
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.cancel(NOTIFICATION_ID);
     }
 
     @Nullable
