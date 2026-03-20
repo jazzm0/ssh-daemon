@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
             int keyCount = authenticator.loadKeysFromPath(path) ?
                     authenticator.getAuthorizedKeys().size() : 0;
             builder.setTitle(R.string.public_key_auth_configured_title)
-                    .setMessage(getString(R.string.public_key_auth_configured_message, keyCount, path))
+                    .setMessage(getResources().getQuantityString(R.plurals.public_key_auth_configured_message, keyCount, keyCount, path))
                     .setPositiveButton(android.R.string.ok, null)
                     .setNeutralButton(R.string.copy_path, (d, w) -> {
                         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);

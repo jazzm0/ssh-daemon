@@ -16,9 +16,6 @@
 
     <string name="generate">Генерувати</string>
 
-    <string name="ssh_public_key_doesnt_exists">Створіть файл authorized_keys у каталозі SshDaemon, щоб увімкнути автентифікацію на основі ключів</string>
-
-    <string name="ssh_public_key_exists">Автентифікація відкритим ключем увімкнена</string>
 
     <string name="password_authentication_enabled">Пароль увімкнено</string>
 
