@@ -97,7 +97,7 @@ public class SshPublicKeyAuthenticator implements PublickeyAuthenticator {
         }
     }
 
-    Set<PublicKey> getAuthorizedKeys() {
+    public Set<PublicKey> getAuthorizedKeys() {
         return unmodifiableSet(authorizedKeys);
     }
 

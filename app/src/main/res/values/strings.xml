@@ -31,4 +31,11 @@
     <string name="shows_key_based_authentication_enabled_disabled">Shows key based authentication enabled/disabled</string>
     <string name="server_status">Server Status</string>
 
+    <string name="public_key_auth_configured_title">Public Key Authentication</string>
+    <string name="public_key_auth_configured_message">✓ %1$d key(s) loaded from:\n\n%2$s</string>
+    <string name="public_key_auth_not_configured_title">Public Key Authentication Not Configured</string>
+    <string name="public_key_auth_not_configured_message">Create file:\n\n%1$s\n\nThen paste your public key (one per line)\n\nSupported key types:\n• ssh-rsa\n• ssh-ed25519</string>
+    <string name="copy_path">Copy Path</string>
+    <string name="path_copied">Path copied to clipboard</string>
+
 </resources>

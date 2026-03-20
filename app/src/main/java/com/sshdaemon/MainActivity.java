@@ -1,6 +1,7 @@
 package com.sshdaemon;
 
 import static android.text.TextUtils.TruncateAt.END;
+import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
 import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
 import static com.sshdaemon.sshd.SshDaemon.NOTIFICATION_ID;
 import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
@@ -13,12 +14,15 @@ import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
 import static com.sshdaemon.util.ExternalStorage.getAllStorageLocations;
+import static com.sshdaemon.util.ExternalStorage.getRootPath;
 import static com.sshdaemon.util.ExternalStorage.hasMultipleStorageLocations;
 import static com.sshdaemon.util.TextViewHelper.createTextView;
 import static java.util.Objects.isNull;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,6 +41,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -50,6 +55,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.sshdaemon.net.NetworkChangeReceiver;
 import com.sshdaemon.sshd.SshDaemon;
 import com.sshdaemon.sshd.SshFingerprint;
+import com.sshdaemon.sshd.SshPublicKeyAuthenticator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -419,10 +425,34 @@ public class MainActivity extends AppCompatActivity {
 
     // Click Handlers
     public void keyClicked(View view) {
-        var text = publicKeyAuthenticationExists() ?
-                getResources().getString(R.string.ssh_public_key_exists) :
-                getResources().getString(R.string.ssh_public_key_doesnt_exists);
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        boolean exists = publicKeyAuthenticationExists();
+        String path = getRootPath() + AUTHORIZED_KEY_PATH;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (exists) {
+            // Show key count and path
+            var authenticator = new SshPublicKeyAuthenticator();
+            int keyCount = authenticator.loadKeysFromPath(path) ?
+                    authenticator.getAuthorizedKeys().size() : 0;
+            builder.setTitle(R.string.public_key_auth_configured_title)
+                    .setMessage(getString(R.string.public_key_auth_configured_message, keyCount, path))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setNeutralButton(R.string.copy_path, (d, w) -> {
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboard.setPrimaryClip(ClipData.newPlainText("path", path));
+                        Toast.makeText(this, R.string.path_copied, Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            builder.setTitle(R.string.public_key_auth_not_configured_title)
+                    .setMessage(getString(R.string.public_key_auth_not_configured_message, path))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setNeutralButton(R.string.copy_path, (d, w) -> {
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboard.setPrimaryClip(ClipData.newPlainText("path", path));
+                        Toast.makeText(this, R.string.path_copied, Toast.LENGTH_SHORT).show();
+                    });
+        }
+        builder.show();
     }
 
     public void generateClicked(View view) {
