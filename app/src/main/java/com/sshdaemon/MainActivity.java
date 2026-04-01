@@ -1,6 +1,7 @@
 package com.sshdaemon;
 
 import static android.text.TextUtils.TruncateAt.END;
+import static com.sshdaemon.sshd.SshDaemon.ACTION_SERVICE_STATE_CHANGED;
 import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
 import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
 import static com.sshdaemon.sshd.SshDaemon.NOTIFICATION_ID;
@@ -21,10 +22,12 @@ import static java.util.Objects.isNull;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -65,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
     private String selectedInterface;
     private ViewHolder views;
+    private final BroadcastReceiver serviceStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateViews();
+        }
+    };
 
     // ViewHolder pattern to cache view references
     private static class ViewHolder {
@@ -270,13 +279,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Preferences Management
-    private void storeValues(String selectedInterface, String port, String user,
+    private void storeValues(String selectedInterface, String port, String user, String password,
                              boolean passwordAuthenticationEnabled, boolean readOnly, String sftpRootPath) {
         var editor = getPreferences(Context.MODE_PRIVATE).edit();
 
         editor.putString(getString(R.string.select_network_interface), selectedInterface);
         editor.putString(getString(R.string.default_port_value), port);
         editor.putString(getString(R.string.default_user_value), user);
+        editor.putString(getString(R.string.default_password_value), password);
         editor.putString(getString(R.string.sftp_root_path), sftpRootPath);
         editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
         editor.putBoolean(getString(R.string.read_only), readOnly);
@@ -405,8 +415,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ContextCompat.registerReceiver(this, serviceStateReceiver,
+                new IntentFilter(ACTION_SERVICE_STATE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED);
         restoreValues();
         updateViews();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(serviceStateReceiver);
     }
 
     @Override
@@ -484,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
         setFingerPrints(getFingerPrints());
 
         var serviceParams = collectServiceParameters();
-        storeValues(selectedInterface, serviceParams.port, serviceParams.user,
+        storeValues(selectedInterface, serviceParams.port, serviceParams.user, serviceParams.password,
                 serviceParams.passwordAuthEnabled, serviceParams.readOnly, serviceParams.sftpRootPath);
 
         startService(Integer.parseInt(serviceParams.port), serviceParams.user, serviceParams.password,

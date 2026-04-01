@@ -27,6 +27,8 @@
 
     <string name="shows_key_based_authentication_enabled_disabled">Shows key based authentication enabled/disabled</string>
     <string name="server_status">Server Status</string>
+    <string name="server_status_running">Running</string>
+    <string name="server_status_stopped">Stopped</string>
 
     <string name="public_key_auth_configured_title" translatable="false">Public Key Authentication</string>
     <string name="public_key_auth_not_configured_title" translatable="false">Public Key Authentication Not Configured</string>
