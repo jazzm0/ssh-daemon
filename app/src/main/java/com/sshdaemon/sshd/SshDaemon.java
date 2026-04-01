@@ -21,8 +21,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -85,6 +88,8 @@ public class SshDaemon extends Service {
     }
 
     private SshServer sshd;
+    private PowerManager.WakeLock wakeLock;
+    private WifiManager.WifiLock wifiLock;
 
     public SshDaemon() {
         // Default constructor required for Service
@@ -252,6 +257,7 @@ public class SshDaemon extends Service {
             init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
             sshd.start();
             isServiceRunning = true;
+            acquireLocks();
             logger.info("SSH daemon started on port {}", port);
             updateNotification("SSH Server Running on port " + port, pendingIntent);
         } catch (IOException e) {
@@ -272,10 +278,30 @@ public class SshDaemon extends Service {
         manager.notify(NOTIFICATION_ID, notification);
     }
 
+    private void acquireLocks() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SshDaemon:WakeLock");
+        wakeLock.acquire();
+
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "SshDaemon:WifiLock");
+        wifiLock.acquire();
+    }
+
+    private void releaseLocks() {
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+        }
+        if (wifiLock != null && wifiLock.isHeld()) {
+            wifiLock.release();
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         isServiceRunning = false;
+        releaseLocks();
         try {
             if (sshd != null && sshd.isStarted()) {
                 sshd.stop();

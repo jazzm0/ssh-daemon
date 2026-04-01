@@ -5,8 +5,8 @@ minSdk = "26"
 targetSdk = "36"
 
 # App version
-versionCode = "55"
-versionName = "2.1.37"
+versionCode = "56"
+versionName = "2.1.38"
 
 # Build tools
 androidGradlePlugin = "9.1.0"
