@@ -88,10 +88,10 @@ public class SshDaemonTileService extends TileService {
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                PendingIntent pendingIntent = PendingIntent.getActivity(
-                        this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-                startActivityAndCollapse(pendingIntent);
+                startActivityAndCollapse(PendingIntent.getActivity(
+                        this, 0, intent, PendingIntent.FLAG_IMMUTABLE));
             } else {
+                //noinspection StartActivityAndCollapseDeprecated
                 startActivityAndCollapse(intent);
             }
             return;
