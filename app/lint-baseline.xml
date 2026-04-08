@@ -55,12 +55,12 @@
     <issue
         id="WakelockTimeout"
         message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="        wakeLock.acquire();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            wakeLock.acquire();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/sshdaemon/sshd/SshDaemon.java"
-            line="290"
-            column="9"/>
+            line="291"
+            column="13"/>
     </issue>
 
     <issue
