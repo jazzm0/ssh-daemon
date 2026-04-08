@@ -287,13 +287,17 @@ public class SshDaemon extends Service {
     private void acquireLocks() {
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SshDaemon:WakeLock");
-        wakeLock.acquire();
+        if (!isNull(wakeLock)) {
+            wakeLock.acquire();
+        }
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "SshDaemon:WifiLock");
         }
-        wifiLock.acquire();
+        if (!isNull(wifiLock)) {
+            wifiLock.acquire();
+        }
     }
 
     private void releaseLocks() {
