@@ -27,5 +27,7 @@
 
     <string name="shows_key_based_authentication_enabled_disabled">显示启用了/停用了基于密钥的身份认证</string>
     <string name="server_status">服务器状态</string>
+    <string name="server_status_running">运行中</string>
+    <string name="server_status_stopped">已停止</string>
 
 </resources>

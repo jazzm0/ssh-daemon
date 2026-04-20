@@ -28,5 +28,7 @@
     <string name="shows_key_based_authentication_enabled_disabled">Mostra autenticação baseada em chave habilitada/desabilitada</string>
 
     <string name="server_status">Status do servidor</string>
+    <string name="server_status_running">Em execução</string>
+    <string name="server_status_stopped">Parado</string>
 
 </resources>

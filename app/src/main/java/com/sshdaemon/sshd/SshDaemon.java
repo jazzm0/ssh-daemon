@@ -288,7 +288,7 @@ public class SshDaemon extends Service {
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SshDaemon:WakeLock");
         if (!isNull(wakeLock)) {
-            wakeLock.acquire();
+            wakeLock.acquire(Long.MAX_VALUE);
         }
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);

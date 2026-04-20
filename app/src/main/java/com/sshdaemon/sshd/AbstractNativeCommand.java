@@ -103,7 +103,7 @@ public abstract class AbstractNativeCommand implements Command, Runnable {
 
         processEnv.put("ANDROID_DATA", "/data");
         processEnv.put("ANDROID_ROOT", "/system");
-        processEnv.put("EXTERNAL_STORAGE", "/sdcard");
+        processEnv.put("EXTERNAL_STORAGE", android.os.Environment.getExternalStorageDirectory().getPath());
     }
 
     /**
