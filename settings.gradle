@@ -19,3 +19,4 @@ dependencyResolutionManagement {
 
 include ':app'
 rootProject.name = "SshDaemon"
+
