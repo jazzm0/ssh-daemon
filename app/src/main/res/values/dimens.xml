@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base text size used across the main UI and spinners. -->
+    <dimen name="text_size_body">14sp</dimen>
+</resources>
