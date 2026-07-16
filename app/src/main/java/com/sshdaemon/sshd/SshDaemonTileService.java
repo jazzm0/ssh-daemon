@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
@@ -64,12 +65,14 @@ public class SshDaemonTileService extends TileService {
         if (SshDaemon.isRunning()) {
             tile.setState(Tile.STATE_ACTIVE);
             tile.setLabel(getString(R.string.app_name));
+            tile.setIcon(Icon.createWithResource(this, R.drawable.pause_black_24dp));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 tile.setSubtitle(getString(R.string.server_status_running));
             }
         } else {
             tile.setState(Tile.STATE_INACTIVE);
             tile.setLabel(getString(R.string.app_name));
+            tile.setIcon(Icon.createWithResource(this, R.drawable.play_arrow_black_24dp));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 tile.setSubtitle(getString(R.string.server_status_stopped));
             }
