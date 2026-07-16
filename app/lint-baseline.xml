@@ -16,7 +16,7 @@
         id="TrustAllX509TrustManager"
         message="`checkServerTrusted` is empty, which could cause insecure network traffic due to trusting arbitrary TLS/SSL certificates presented by peers">
         <location
-            file="../../../.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk18on/1.84/dab889a3259e27caec6e6c2f3bde94af036b2fcc/bcpkix-jdk18on-1.84.jar"/>
+            file="../../../.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk18on/1.85/b33d047adc6801a1cfc8ffe1634b23b306a670c1/bcpkix-jdk18on-1.85.jar"/>
     </issue>
 
 </issues>
