@@ -342,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupPermissions() {
         setupStoragePermissions();
         setupNotificationPermissions();
+        setupLocalNetworkPermissions();
     }
 
     private void setupStoragePermissions() {
@@ -356,6 +357,16 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && !getSystemService(NotificationManager.class).areNotificationsEnabled()) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+        }
+    }
+
+    private void setupLocalNetworkPermissions() {
+        // ACCESS_LOCAL_NETWORK is only required (and only exists) when targeting
+        // Android 17 (SDK 37 / CINNAMON_BUN) or higher. On lower target SDKs local
+        // network access is implicitly granted via the INTERNET permission.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                && checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_LOCAL_NETWORK}, 1);
         }
     }
 
