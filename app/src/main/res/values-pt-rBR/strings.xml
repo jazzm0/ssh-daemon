@@ -31,4 +31,8 @@
     <string name="server_status_running">Em execução</string>
     <string name="server_status_stopped">Parado</string>
 
+    <string name="local_network_permission_title">Acesso à rede local necessário</string>
+    <string name="local_network_permission_message">O SshDaemon precisa da permissão de rede local para aceitar conexões SSH de outros dispositivos na sua rede Wi‑Fi ou rede local.\n\nNo Android 17 e versões mais recentes, esta permissão não pode ser concedida por uma caixa de diálogo comum — ela precisa ser ativada nas configurações do sistema.\n\nConceda “Dispositivos da rede local” na próxima tela para permitir conexões de entrada.</string>
+    <string name="local_network_permission_open_settings">Abrir configurações</string>
+
 </resources>

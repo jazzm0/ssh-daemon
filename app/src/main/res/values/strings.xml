@@ -41,4 +41,8 @@
         <item quantity="other">✓ %1$d keys loaded from:\n\n%2$s</item>
     </plurals>
 
+    <string name="local_network_permission_title">Local network access required</string>
+    <string name="local_network_permission_message">SSH Daemon needs the local network permission to accept SSH connections from other devices on your Wi‑Fi or local network.\n\nOn Android 17 and newer this permission cannot be granted from a normal permission dialog — it has to be enabled in system settings.\n\nGrant “Local network devices” on the next screen to allow incoming connections.</string>
+    <string name="local_network_permission_open_settings">Open settings</string>
+
 </resources>

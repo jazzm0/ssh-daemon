@@ -30,4 +30,8 @@
     <string name="server_status_running">运行中</string>
     <string name="server_status_stopped">已停止</string>
 
+    <string name="local_network_permission_title">需要本地网络访问权限</string>
+    <string name="local_network_permission_message">SshDaemon 需要本地网络权限，才能接受来自您的 Wi‑Fi 或本地网络中其他设备的 SSH 连接。\n\n在 Android 17 及更高版本中，此权限无法通过普通的权限对话框授予，必须在系统设置中启用。\n\n请在下一个屏幕上授予“本地网络设备”权限，以允许传入连接。</string>
+    <string name="local_network_permission_open_settings">打开设置</string>
+
 </resources>
