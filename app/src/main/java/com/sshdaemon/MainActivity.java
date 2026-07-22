@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -364,10 +365,35 @@ public class MainActivity extends AppCompatActivity {
         // ACCESS_LOCAL_NETWORK is only required (and only exists) when targeting
         // Android 17 (SDK 37 / CINNAMON_BUN) or higher. On lower target SDKs local
         // network access is implicitly granted via the INTERNET permission.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
-                && checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_LOCAL_NETWORK}, 1);
+        //
+        // During the Local Network Protections rollout this permission is NOT a
+        // standard "dangerous" runtime permission, so requestPermissions() does not
+        // show a dialog. The user must grant it from the app's settings screen, so
+        // show a rationale first explaining why, then route them there on confirm.
+        //
+        // This is only called from onCreate (a one-time entry point), so no guard is
+        // needed to avoid re-prompting; onResume merely reacts via updateViews().
+        if (!needsLocalNetworkPermission()) {
+            return;
         }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.local_network_permission_title)
+                .setMessage(R.string.local_network_permission_message)
+                .setPositiveButton(R.string.local_network_permission_open_settings,
+                        (d, w) -> openLocalNetworkPermissionSettings())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void openLocalNetworkPermissionSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.fromParts("package", getPackageName(), null));
+        startActivity(intent);
+    }
+
+    private boolean needsLocalNetworkPermission() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                && checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED;
     }
 
     // Service Status Management

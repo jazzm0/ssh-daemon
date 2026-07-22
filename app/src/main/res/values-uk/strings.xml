@@ -31,4 +31,8 @@
     <string name="server_status_running">Запущено</string>
     <string name="server_status_stopped">Зупинено</string>
 
+    <string name="local_network_permission_title">Потрібен доступ до локальної мережі</string>
+    <string name="local_network_permission_message">SshDaemon потребує дозволу на доступ до локальної мережі, щоб приймати SSH-підключення від інших пристроїв у вашій мережі Wi‑Fi або локальній мережі.\n\nВ Android 17 і новіших цей дозвіл не можна надати через звичайне діалогове вікно — його потрібно ввімкнути в системних налаштуваннях.\n\nНадайте дозвіл «Пристрої локальної мережі» на наступному екрані, щоб дозволити вхідні підключення.</string>
+    <string name="local_network_permission_open_settings">Відкрити налаштування</string>
+
 </resources>
