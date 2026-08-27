@@ -80,6 +80,9 @@ public class SshDaemonTileService extends TileService {
         tile.updateTile();
     }
 
+    // startActivityAndCollapse(Intent) is deprecated in API 34+; the PendingIntent
+    // overload is used there, and the Intent fallback is only reached on API 26-33.
+    @SuppressWarnings("deprecation")
     private void startSshDaemon() {
         SharedPreferences prefs = getSharedPreferences("com.sshdaemon.MainActivity", MODE_PRIVATE);
 
