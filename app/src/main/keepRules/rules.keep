@@ -1,0 +1,20 @@
+# Project-specific keep rules for R8.
+# Auto-discovered from src/main/keepRules/ (AGP 9.3+). The default
+# proguard-android-optimize.txt rules are included automatically via
+# optimization.enable = true.
+
+# Uncomment to preserve line number information for debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+
+-dontwarn java.beans.BeanInfo
+-dontwarn java.beans.IntrospectionException
+-dontwarn java.beans.Introspector
+-dontwarn java.beans.PropertyDescriptor
+-dontwarn javax.management.MBeanException
+-dontwarn javax.management.ReflectionException
+-dontwarn javax.security.auth.login.CredentialException
+-dontwarn javax.security.auth.login.FailedLoginException

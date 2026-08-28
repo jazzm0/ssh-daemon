@@ -16,3 +16,5 @@
 /gradle/native/
 /gradle/workers/
 /gradle/wrapper/
+.claude
+.serena
