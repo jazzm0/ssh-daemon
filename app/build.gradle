@@ -17,6 +17,10 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             optimization {
@@ -88,6 +92,9 @@ dependencies {
     implementation libs.bundles.sshd
     implementation libs.bundles.slf4j
     implementation libs.bundles.crypto
+
+    // Crash reporting
+    implementation libs.bundles.acra
 
     // Testing libraries using bundles
     testImplementation libs.bundles.junit.testing
