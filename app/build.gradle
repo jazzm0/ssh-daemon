@@ -23,9 +23,10 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = true
-            }
+            // R8 shrinking/obfuscation strips code that MINA SSHD, BouncyCastle,
+            // SLF4J and ACRA load reflectively / via ServiceLoader, causing runtime
+            // crashes. There are no keep rules to protect them, so keep R8 off.
+            minifyEnabled = false
         }
     }
     packagingOptions {
