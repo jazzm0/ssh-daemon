@@ -45,4 +45,31 @@
     <string name="local_network_permission_message">SSH Daemon needs the local network permission to accept SSH connections from other devices on your Wi‑Fi or local network.\n\nOn Android 17 and newer this permission cannot be granted from a normal permission dialog — it has to be enabled in system settings.\n\nGrant “Local network devices” on the next screen to allow incoming connections.</string>
     <string name="local_network_permission_open_settings">Open settings</string>
 
+    <string name="acra_toast_text">Oops! Something went wrong. Please send a bug report.</string>
+    <string name="mail_subject">Crash report for SshDaemon</string>
+    <string name="mail_body"><![CDATA[
+                            Oops! Something went wrong.\n\n
+
+                            Attached is the detailed crash report.\n\n
+
+                            Please help me understand and fix this by describing how to reproduce it:\n\n
+
+                            Steps to reproduce:\n
+                            1.\n\n
+                            2.\n\n
+                            3.\n\n
+
+                            What I expected:\n\n
+                            What actually happened:\n\n
+
+                            Extra info (optional):\n\n
+                            • Device:\n
+                            • Android version:\n
+                            • Other notes:\n\n
+
+                            Thank you so much for taking the time to report this!\n\n
+
+                            Best regards,
+                            ]]></string>
+
 </resources>

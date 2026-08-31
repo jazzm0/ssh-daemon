@@ -18,3 +18,9 @@
 -dontwarn javax.management.ReflectionException
 -dontwarn javax.security.auth.login.CredentialException
 -dontwarn javax.security.auth.login.FailedLoginException
+
+# ACRA pulls in com.google.auto.service (compile-time annotation processor)
+# which references JSR-269 processing APIs absent on Android. Not reachable at
+# runtime; silence the missing-class warnings so R8 doesn't fail the build.
+-dontwarn com.google.auto.service.**
+-dontwarn javax.annotation.processing.**

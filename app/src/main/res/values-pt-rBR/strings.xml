@@ -35,4 +35,31 @@
     <string name="local_network_permission_message">O SshDaemon precisa da permissão de rede local para aceitar conexões SSH de outros dispositivos na sua rede Wi‑Fi ou rede local.\n\nNo Android 17 e versões mais recentes, esta permissão não pode ser concedida por uma caixa de diálogo comum — ela precisa ser ativada nas configurações do sistema.\n\nConceda “Dispositivos da rede local” na próxima tela para permitir conexões de entrada.</string>
     <string name="local_network_permission_open_settings">Abrir configurações</string>
 
+    <string name="acra_toast_text">Ops! Algo deu errado. Por favor, envie um relatório de erro.</string>
+    <string name="mail_subject">Relatório de falha do SshDaemon</string>
+    <string name="mail_body"><![CDATA[
+                            Ops! Algo deu errado.\n\n
+
+                            Em anexo está o relatório de falha detalhado.\n\n
+
+                            Por favor, ajude-me a entender e corrigir isso descrevendo como reproduzir:\n\n
+
+                            Passos para reproduzir:\n
+                            1.\n\n
+                            2.\n\n
+                            3.\n\n
+
+                            O que eu esperava:\n\n
+                            O que realmente aconteceu:\n\n
+
+                            Informações extras (opcional):\n\n
+                            • Dispositivo:\n
+                            • Versão do Android:\n
+                            • Outras notas:\n\n
+
+                            Muito obrigado por reservar um tempo para relatar isso!\n\n
+
+                            Atenciosamente,
+                            ]]></string>
+
 </resources>

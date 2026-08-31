@@ -5,8 +5,8 @@ minSdk = "26"
 targetSdk = "37"
 
 # App version
-versionCode = "61"
-versionName = "2.1.43"
+versionCode = "62"
+versionName = "2.1.44"
 
 # Build tools
 androidGradlePlugin = "9.3.2"
@@ -19,6 +19,9 @@ bouncycastle-bcpkix = "1.85"
 
 # Android libraries
 material = "1.14.0"
+
+# Crash reporting
+acra = "5.13.1"
 
 # Testing libraries
 junit = "6.1.3"
@@ -33,6 +36,11 @@ espresso = "3.7.0"
 
 # Android libraries
 android-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Crash reporting libraries
+acra-core = { group = "ch.acra", name = "acra-core", version.ref = "acra" }
+acra-mail = { group = "ch.acra", name = "acra-mail", version.ref = "acra" }
+acra-toast = { group = "ch.acra", name = "acra-toast", version.ref = "acra" }
 
 # SSH and crypto libraries
 sshd-core = { group = "org.apache.sshd", name = "sshd-core", version.ref = "sshd" }
@@ -63,6 +71,7 @@ androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espres
 sshd = ["sshd-core", "sshd-sftp", "sshd-contrib"]
 slf4j = ["slf4j-api", "slf4j-log4j12"]
 crypto = ["bouncycastle-jdk18on", "bouncycastle-jbcpkix"]
+acra = ["acra-core", "acra-mail", "acra-toast"]
 junit-testing = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest-all", "mockito-core", "mockito-junit-jupiter"]
 junit-runtime = ["junit-jupiter-engine", "junit-platform-launcher"]
 androidx-testing = ["androidx-test-core", "androidx-test-junit", "androidx-test-runner", "androidx-test-espresso-core"]
