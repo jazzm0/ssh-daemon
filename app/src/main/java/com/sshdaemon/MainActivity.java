@@ -3,14 +3,7 @@ package com.sshdaemon;
 import static android.text.TextUtils.TruncateAt.END;
 import static com.sshdaemon.sshd.SshDaemon.ACTION_SERVICE_STATE_CHANGED;
 import static com.sshdaemon.sshd.SshDaemon.AUTHORIZED_KEY_PATH;
-import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
 import static com.sshdaemon.sshd.SshDaemon.NOTIFICATION_ID;
-import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
-import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
-import static com.sshdaemon.sshd.SshDaemon.PORT;
-import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
-import static com.sshdaemon.sshd.SshDaemon.SFTP_ROOT_PATH;
-import static com.sshdaemon.sshd.SshDaemon.USER;
 import static com.sshdaemon.sshd.SshDaemon.getFingerPrints;
 import static com.sshdaemon.sshd.SshDaemon.publicKeyAuthenticationExists;
 import static com.sshdaemon.sshd.SshPassword.getRandomString;
@@ -543,8 +536,7 @@ public class MainActivity extends AppCompatActivity {
         storeValues(selectedInterface, serviceParams.port, serviceParams.user, serviceParams.password,
                 serviceParams.passwordAuthEnabled, serviceParams.readOnly, serviceParams.sftpRootPath);
 
-        startService(Integer.parseInt(serviceParams.port), serviceParams.user, serviceParams.password,
-                serviceParams.sftpRootPath, serviceParams.passwordAuthEnabled, serviceParams.readOnly);
+        startService();
     }
 
     private ServiceParameters collectServiceParameters() {
@@ -563,18 +555,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Service Management
-    public void startService(int port, String user, String password, String sftpRootPath,
-                             boolean passwordAuthenticationEnabled, boolean readOnly) {
-        var sshDaemonIntent = new Intent(this, SshDaemon.class);
-        sshDaemonIntent.putExtra(INTERFACE, selectedInterface);
-        sshDaemonIntent.putExtra(PORT, port);
-        sshDaemonIntent.putExtra(USER, user);
-        sshDaemonIntent.putExtra(PASSWORD, password);
-        sshDaemonIntent.putExtra(SFTP_ROOT_PATH, sftpRootPath);
-        sshDaemonIntent.putExtra(PASSWORD_AUTH_ENABLED, passwordAuthenticationEnabled);
-        sshDaemonIntent.putExtra(READ_ONLY, readOnly);
-
-        ContextCompat.startForegroundService(this, sshDaemonIntent);
+    public void startService() {
+        // Configuration is persisted via storeValues() before this call; the service
+        // reads it from preferences, so the intent is only a start trigger.
+        ContextCompat.startForegroundService(this, new Intent(this, SshDaemon.class));
     }
 
     public void stopService() {

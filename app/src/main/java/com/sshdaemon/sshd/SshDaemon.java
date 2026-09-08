@@ -14,7 +14,6 @@ import static org.apache.sshd.common.cipher.BuiltinCiphers.aes256gcm;
 import static org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 import static java.lang.Math.max;
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -64,13 +63,10 @@ public class SshDaemon extends Service {
     public static final String AUTHORIZED_KEY_PATH = "SshDaemon/authorized_keys";
     public static final String CHANNEL_ID = "SshDaemonServiceChannel";
     public static final String SSH_DAEMON = "SshDaemon";
-    public static final String INTERFACE = "interface";
-    public static final String PORT = "port";
-    public static final String USER = "user";
-    public static final String PASSWORD = "password";
-    public static final String SFTP_ROOT_PATH = "sftpRootPath";
-    public static final String PASSWORD_AUTH_ENABLED = "passwordAuthenticationEnabled";
-    public static final String READ_ONLY = "readOnly";
+    // Preferences file written by MainActivity.getPreferences(MODE_PRIVATE), which
+    // resolves to the file named after the activity's class. All service configuration
+    // is read back from here so the intent is only a start trigger.
+    public static final String PREFS_NAME = "com.sshdaemon.MainActivity";
     private static final Logger logger = getLogger();
     private static final int THREAD_POOL_SIZE = 10;
     private static final int DEFAULT_PORT = 8022;
@@ -231,7 +227,12 @@ public class SshDaemon extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+
+        // The intent is only a trigger; all configuration is read from the
+        // persisted preferences below. When the OS recreates a START_STICKY
+        // service after the process was killed it re-delivers a null intent,
+        // which is why we must not rely on any intent extras here.
 
         var notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         var pendingIntent = PendingIntent.getActivity(getApplicationContext(),
@@ -250,32 +251,54 @@ public class SshDaemon extends Service {
             var notification = createNotification(SSH_DAEMON, pendingIntent);
             startForeground(NOTIFICATION_ID, notification);
 
-            var interfaceName = intent.getStringExtra(INTERFACE);
-            var port = intent.getIntExtra(PORT, DEFAULT_PORT);
-            var user = requireNonNull(intent.getStringExtra(USER), "User must not be null");
-            var password = requireNonNull(intent.getStringExtra(PASSWORD), "Password must not be null");
-            var sftpRootPath = requireNonNull(intent.getStringExtra(SFTP_ROOT_PATH),
-                    "SFTP root path must not be null");
-            var passwordAuthEnabled = intent.getBooleanExtra(PASSWORD_AUTH_ENABLED, true);
-            var readOnly = intent.getBooleanExtra(READ_ONLY, false);
-            init(interfaceName, port, user, password, sftpRootPath, passwordAuthEnabled, readOnly);
+            var config = loadConfigFromPrefs();
+            init(config.selectedInterface(), config.port(), config.user(), config.password(),
+                    config.sftpRootPath(), config.passwordAuthEnabled(), config.readOnly());
             sshd.start();
             isServiceRunning = true;
             sendBroadcast(new Intent(ACTION_SERVICE_STATE_CHANGED).setPackage(getPackageName()));
             TileService.requestListeningState(this, new ComponentName(this, SshDaemonTileService.class));
             acquireLocks();
-            logger.info("SSH daemon started on port {}", port);
-            updateNotification("SSH Server Running on port " + port, pendingIntent);
+            logger.info("SSH daemon started on port {}", config.port());
+            updateNotification("SSH Server Running on port " + config.port(), pendingIntent);
         } catch (IOException e) {
             logger.error("Failed to start SSH daemon", e);
             updateNotification("Failed to start SSH Server: " + e.getMessage(), pendingIntent);
             stopSelf();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             logger.error("Invalid configuration", e);
             updateNotification("Invalid configuration: " + e.getMessage(), pendingIntent);
             stopSelf();
         }
         return START_STICKY;
+    }
+
+    private SshConfig loadConfigFromPrefs() {
+        var prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        var selectedInterface = prefs.getString(getString(R.string.select_network_interface), null);
+        var portStr = prefs.getString(getString(R.string.default_port_value),
+                getString(R.string.default_port_value));
+        var user = prefs.getString(getString(R.string.default_user_value),
+                getString(R.string.default_user_value));
+        var password = prefs.getString(getString(R.string.default_password_value), "");
+        var sftpRootPath = prefs.getString(getString(R.string.sftp_root_path), "/");
+        var passwordAuthEnabled = prefs.getBoolean(getString(R.string.password_authentication_enabled), true);
+        var readOnly = prefs.getBoolean(getString(R.string.read_only), false);
+
+        int port;
+        try {
+            port = Integer.parseInt(portStr);
+        } catch (NumberFormatException e) {
+            port = DEFAULT_PORT;
+        }
+
+        return new SshConfig(selectedInterface, port, user, password, sftpRootPath,
+                passwordAuthEnabled, readOnly);
+    }
+
+    private record SshConfig(String selectedInterface, int port, String user, String password,
+                             String sftpRootPath, boolean passwordAuthEnabled, boolean readOnly) {
     }
 
     private void updateNotification(String status, PendingIntent pendingIntent) {

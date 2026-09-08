@@ -1,13 +1,6 @@
 package com.sshdaemon.sshd;
 
 import static com.sshdaemon.sshd.SshDaemon.ACTION_SERVICE_STATE_CHANGED;
-import static com.sshdaemon.sshd.SshDaemon.INTERFACE;
-import static com.sshdaemon.sshd.SshDaemon.PASSWORD;
-import static com.sshdaemon.sshd.SshDaemon.PASSWORD_AUTH_ENABLED;
-import static com.sshdaemon.sshd.SshDaemon.PORT;
-import static com.sshdaemon.sshd.SshDaemon.READ_ONLY;
-import static com.sshdaemon.sshd.SshDaemon.SFTP_ROOT_PATH;
-import static com.sshdaemon.sshd.SshDaemon.USER;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -84,7 +77,7 @@ public class SshDaemonTileService extends TileService {
     // overload is used there, and the Intent fallback is only reached on API 26-33.
     @SuppressWarnings("deprecation")
     private void startSshDaemon() {
-        SharedPreferences prefs = getSharedPreferences("com.sshdaemon.MainActivity", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(SshDaemon.PREFS_NAME, MODE_PRIVATE);
 
         boolean passwordAuthEnabled = prefs.getBoolean(getString(R.string.password_authentication_enabled), true);
         String password = prefs.getString(getString(R.string.default_password_value), null);
@@ -103,29 +96,9 @@ public class SshDaemonTileService extends TileService {
             return;
         }
 
-        String selectedInterface = prefs.getString(getString(R.string.select_network_interface), null);
-        String portStr = prefs.getString(getString(R.string.default_port_value), getString(R.string.default_port_value));
-        String user = prefs.getString(getString(R.string.default_user_value), getString(R.string.default_user_value));
-        String sftpRootPath = prefs.getString(getString(R.string.sftp_root_path), "/");
-        boolean readOnly = prefs.getBoolean(getString(R.string.read_only), false);
-
-        int port;
-        try {
-            port = Integer.parseInt(portStr);
-        } catch (NumberFormatException e) {
-            port = 8022;
-        }
-
-        Intent intent = new Intent(this, SshDaemon.class);
-        intent.putExtra(INTERFACE, selectedInterface);
-        intent.putExtra(PORT, port);
-        intent.putExtra(USER, user);
-        intent.putExtra(PASSWORD, password != null ? password : "");
-        intent.putExtra(SFTP_ROOT_PATH, sftpRootPath);
-        intent.putExtra(PASSWORD_AUTH_ENABLED, passwordAuthEnabled);
-        intent.putExtra(READ_ONLY, readOnly);
-
-        ContextCompat.startForegroundService(this, intent);
+        // The service reads its configuration from preferences; the intent is only a
+        // start trigger.
+        ContextCompat.startForegroundService(this, new Intent(this, SshDaemon.class));
     }
 
     private void stopSshDaemon() {
