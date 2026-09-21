@@ -5,17 +5,17 @@ minSdk = "26"
 targetSdk = "37"
 
 # App version
-versionCode = "64"
-versionName = "2.1.46"
+versionCode = "65"
+versionName = "2.1.47"
 
 # Build tools
-androidGradlePlugin = "9.4.0"
+androidGradlePlugin = "9.4.1"
 
 # Core dependencies
 sshd = "2.19.0"
 slf4j = "2.0.19"
-bouncycastle-provider = "1.85.2"
-bouncycastle-bcpkix = "1.85"
+bouncycastle-provider = "1.86"
+bouncycastle-bcpkix = "1.86"
 
 # Android libraries
 material = "1.14.0"
