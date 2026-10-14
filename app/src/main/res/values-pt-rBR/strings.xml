@@ -22,6 +22,7 @@
     <string name="sftp_root_path">Caminho raiz</string>
 
     <string name="read_only">somente leitura</string>
+    <string name="keep_screen_on">Manter a tela ligada durante a execução</string>
 
     <string name="starts_stops_server">Inicia/Para o servidor</string>
 

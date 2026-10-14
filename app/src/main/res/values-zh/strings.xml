@@ -22,6 +22,7 @@
     <string name="sftp_root_path">Root 路径</string>
 
     <string name="read_only">只读</string>
+    <string name="keep_screen_on">运行时保持屏幕常亮</string>
 
     <string name="starts_stops_server">启动/停止服务器</string>
 

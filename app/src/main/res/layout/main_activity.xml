@@ -251,6 +251,14 @@
                 app:useMaterialThemeColors="true" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/keep_screen_on_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/keep_screen_on"
+                android:textSize="@dimen/text_size_body"
+                app:useMaterialThemeColors="true" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/password_authentication_enabled"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

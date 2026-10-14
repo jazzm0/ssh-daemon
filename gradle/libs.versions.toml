@@ -12,8 +12,8 @@ versionName = "2.1.47"
 androidGradlePlugin = "9.4.1"
 
 # Core dependencies
-sshd = "2.19.0"
-slf4j = "2.0.19"
+sshd = "2.20.0"
+slf4j = "2.0.20"
 bouncycastle-provider = "1.86"
 bouncycastle-bcpkix = "1.86"
 
@@ -21,12 +21,12 @@ bouncycastle-bcpkix = "1.86"
 material = "1.14.0"
 
 # Crash reporting
-acra = "5.13.1"
+acra = "5.14.2"
 
 # Testing libraries
 junit = "6.1.3"
 hamcrest = "1.3"
-mockito = "5.23.0"
+mockito = "5.24.0"
 androidxTest = "1.7.0"
 androidxTestJunit = "1.3.0"
 androidxTestRunner = "1.7.0"
