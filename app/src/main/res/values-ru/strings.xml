@@ -22,6 +22,7 @@
     <string name="sftp_root_path">Корневой путь</string>
 
     <string name="read_only">только чтение</string>
+    <string name="keep_screen_on">Не выключать экран во время работы</string>
 
     <string name="starts_stops_server">Запускает/Останавливает сервер</string>
 

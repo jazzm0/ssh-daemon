@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         final View generate;
         final SwitchMaterial passwordAuthenticationEnabled;
         final SwitchMaterial readonly;
+        final SwitchMaterial keepScreenOn;
         final ImageView keyBasedAuthentication;
         final FloatingActionButton startStopAction;
         final androidx.cardview.widget.CardView serverStatusCard;
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             generate = activity.findViewById(R.id.generate);
             passwordAuthenticationEnabled = activity.findViewById(R.id.password_authentication_enabled);
             readonly = activity.findViewById(R.id.readonly_switch);
+            keepScreenOn = activity.findViewById(R.id.keep_screen_on_switch);
             keyBasedAuthentication = activity.findViewById(R.id.key_based_authentication);
             startStopAction = activity.findViewById(R.id.start_stop_action);
             serverStatusCard = activity.findViewById(R.id.server_status_card);
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         views.sftpPaths.setEnabled(enable);
         views.generate.setClickable(enable);
         views.readonly.setEnabled(enable);
+        views.keepScreenOn.setEnabled(enable);
     }
 
     private void configureSpinnerVisibility() {
@@ -284,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(getString(R.string.sftp_root_path), sftpRootPath);
         editor.putBoolean(getString(R.string.password_authentication_enabled), passwordAuthenticationEnabled);
         editor.putBoolean(getString(R.string.read_only), readOnly);
+        editor.putBoolean(getString(R.string.keep_screen_on), views.keepScreenOn.isChecked());
 
         editor.apply();
     }
@@ -321,6 +326,9 @@ public class MainActivity extends AppCompatActivity {
         );
         views.readonly.setChecked(
                 preferences.getBoolean(getString(R.string.read_only), false)
+        );
+        views.keepScreenOn.setChecked(
+                preferences.getBoolean(getString(R.string.keep_screen_on), false)
         );
     }
 
@@ -396,6 +404,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateViews() {
         enableViews(!isStarted());
+        applyKeepScreenOn();
+    }
+
+    /**
+     * Keeps the screen awake while the SSH/SFTP server is running and the user has
+     * opted in. This prevents the device from locking mid-transfer, which on many
+     * devices drops Wi-Fi into power-save mode and tanks throughput. The flag is a
+     * window attribute (no permission required) and is cleared automatically once
+     * the server stops or the toggle is turned off.
+     */
+    private void applyKeepScreenOn() {
+        if (isStarted() && views.keepScreenOn.isChecked()) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     // Utility Methods

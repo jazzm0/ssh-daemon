@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.service.quicksettings.TileService;
@@ -314,9 +313,12 @@ public class SshDaemon extends Service {
             wakeLock.acquire(Long.MAX_VALUE);
         }
 
+        // Use HIGH_PERF rather than LOW_LATENCY: for an SSH/SFTP server throughput
+        // matters more than latency, and LOW_LATENCY caps aggregation/rate on some
+        // Wi-Fi chipsets (e.g. Pixel 10), degrading transfer performance.
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "SshDaemon:WifiLock");
+        if (!isNull(wifiManager)) {
+            wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "SshDaemon:WifiLock");
         }
         if (!isNull(wifiLock)) {
             wifiLock.acquire();
