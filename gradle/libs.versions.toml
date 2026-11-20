@@ -9,13 +9,13 @@ versionCode = "66"
 versionName = "2.1.48"
 
 # Build tools
-androidGradlePlugin = "9.4.1"
+androidGradlePlugin = "9.5.1"
 
 # Core dependencies
-sshd = "2.20.0"
+sshd = "2.20.1"
 slf4j = "2.0.20"
-bouncycastle-provider = "1.86"
-bouncycastle-bcpkix = "1.86"
+bouncycastle-provider = "1.87"
+bouncycastle-bcpkix = "1.87"
 
 # Android libraries
 material = "1.14.0"
