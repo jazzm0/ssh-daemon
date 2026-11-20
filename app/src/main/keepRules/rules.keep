@@ -24,3 +24,61 @@
 # runtime; silence the missing-class warnings so R8 doesn't fail the build.
 -dontwarn com.google.auto.service.**
 -dontwarn javax.annotation.processing.**
+
+# ---------------------------------------------------------------------------
+# Keep rules for libraries that load classes reflectively / via ServiceLoader.
+# Without these, R8 strips reachable-only-by-reflection code and the SSH/SFTP
+# server crashes at runtime (see git history: #127 disabled R8 for this reason).
+# Strategy: conservative/broad for MINA SSHD and BouncyCastle (heavy reflection),
+# precise elsewhere. Tighten later using the R8 Configuration Analyzer.
+# ---------------------------------------------------------------------------
+
+# Attributes needed for reflection, generics, annotations, and readable
+# (retraceable) crash stack traces in ACRA reports.
+-keepattributes Signature, Exceptions, InnerClasses, EnclosingMethod,
+                RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations,
+                AnnotationDefault, *Annotation*
+-keepattributes SourceFile, LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# BouncyCastle: registered via META-INF/services/java.security.Provider; JCA
+# engines under jcajce.provider are resolved reflectively by algorithm name.
+-keep class org.bouncycastle.jce.provider.BouncyCastleProvider { *; }
+-keep class org.bouncycastle.jcajce.provider.** { *; }
+-keep class org.bouncycastle.jce.provider.** { *; }
+-keep class org.bouncycastle.pqc.jcajce.provider.** { *; }
+-keep class org.bouncycastle.pqc.** { *; }
+-keepclassmembers class org.bouncycastle.** { public <init>(...); }
+-dontwarn org.bouncycastle.**
+
+# MINA SSHD: SecurityProviderRegistrars and named factories loaded by class name;
+# FileSystemProvider and SubsystemFactory are discovered via ServiceLoader.
+-keep class org.apache.sshd.common.util.security.** { *; }
+-keep class org.apache.sshd.common.file.root.RootedFileSystemProvider { *; }
+-keep class * extends java.nio.file.spi.FileSystemProvider { *; }
+-keep class * implements org.apache.sshd.server.subsystem.SubsystemFactory { *; }
+-keep class org.apache.sshd.** { *; }
+-keepclassmembers class org.apache.sshd.** {
+    public <init>(...);
+    public static **[] values();
+}
+-dontwarn org.apache.sshd.**
+-dontwarn net.i2p.crypto.eddsa.**
+
+# SLF4J + reload4j binding: SLF4JServiceProvider is discovered via ServiceLoader;
+# AndroidLogger uses org.apache.log4j.BasicConfigurator. The catalog alias is
+# named "slf4j-log4j12" but the resolved artifact is reload4j, so cover both.
+-keep class org.slf4j.spi.SLF4JServiceProvider { *; }
+-keep class * implements org.slf4j.spi.SLF4JServiceProvider { *; }
+-keep class org.slf4j.reload4j.** { *; }
+-keep class org.apache.log4j.** { *; }
+-dontwarn org.slf4j.**
+-dontwarn org.apache.log4j.**
+
+# ACRA: the AAR ships consumer rules covering Plugin/enum/BuildConfig/
+# Configuration. These are belt-and-braces for the builders used directly in
+# SshDaemonApplication and the reflectively-read BuildConfig.
+-keep class * implements org.acra.config.ConfigurationBuilderFactory { *; }
+-keep class org.acra.config.*ConfigurationBuilder { *; }
+-keep class com.sshdaemon.BuildConfig { *; }
+-dontwarn org.acra.**

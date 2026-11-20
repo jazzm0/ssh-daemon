@@ -12,6 +12,15 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
 
+    <!-- The WiFi permissions above implicitly require android.hardware.wifi,
+         which would filter out devices without WiFi (some tablets, ChromeOS/
+         desktop, Android XR) on Google Play. The app is a network server that
+         works over any interface (mobile data, ethernet), and the WiFi-lock
+         code in SshDaemon is null-guarded, so WiFi is not essential. -->
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
     <application
         android:name=".SshDaemonApplication"
         android:icon="@mipmap/ic_launcher"
