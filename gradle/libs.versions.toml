@@ -9,7 +9,7 @@ versionCode = "67"
 versionName = "2.1.49"
 
 # Build tools
-androidGradlePlugin = "9.5.1"
+androidGradlePlugin = "9.5.2"
 
 # Core dependencies
 sshd = "2.20.1"
